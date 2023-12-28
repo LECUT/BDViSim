@@ -1,0 +1,765 @@
+******** Week 934 almanac for PRN-01 ********
+ID:                         01
+Health:                     000
+Eccentricity:               4.9257278442E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0254245331
+Rate of Right Ascen(r/s):   1.6800699800E-009
+SQRT(A)  (m 1/2):           6493.413086
+Right Ascen at Week(rad):   1.0905981700E-001
+Argument of Perigee(rad):   2.967598561
+Mean Anom(rad):            -5.9669380900E-001
+Af0(s):                     8.8024140000E-004
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-10 ********
+ID:                         10
+Health:                     000
+Eccentricity:               9.1691017151E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):  -0.0802224015
+Rate of Right Ascen(r/s):  -1.7829314100E-009
+SQRT(A)  (m 1/2):           6493.815430
+Right Ascen at Week(rad):  -2.4743136320E+000
+Argument of Perigee(rad):  -2.436640098
+Mean Anom(rad):             1.9529755100E-001
+Af0(s):                    -3.5285950000E-005
+Af1(s/s):                  -1.4551900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-11 ********
+ID:                         11
+Health:                     000
+Eccentricity:               2.3355484009E-003
+Time of Applicability(s):  299008.0000
+Orbital Inclination(rad):   0.0426758249
+Rate of Right Ascen(r/s):  -6.7317089700E-009
+SQRT(A)  (m 1/2):           5282.593262
+Right Ascen at Week(rad):  -1.5470997690E+000
+Argument of Perigee(rad):  -1.720904361
+Mean Anom(rad):            -4.7841288000E-001
+Af0(s):                     2.8038020000E-004
+Af1(s/s):                   1.8189900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-12 ********
+ID:                         12
+Health:                     000
+Eccentricity:               1.4238357544E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0411058914
+Rate of Right Ascen(r/s):  -6.6859927800E-009
+SQRT(A)  (m 1/2):           5282.586426
+Right Ascen at Week(rad):  -1.5598715820E+000
+Argument of Perigee(rad):  -1.671720353
+Mean Anom(rad):             9.9687030000E-002
+Af0(s):                     8.4209440000E-004
+Af1(s/s):                  -1.0913900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-13 ********
+ID:                         13
+Health:                     000
+Eccentricity:               4.8861503601E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0857291529
+Rate of Right Ascen(r/s):  -2.2629514000E-009
+SQRT(A)  (m 1/2):           6493.565918
+Right Ascen at Week(rad):  -3.0088419000E-001
+Argument of Perigee(rad):  -2.424112838
+Mean Anom(rad):            -1.9289763470E+000
+Af0(s):                     3.8909910000E-004
+Af1(s/s):                   3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-14 ********
+ID:                         14
+Health:                     000
+Eccentricity:               1.0108947754E-003
+Time of Applicability(s):  282624.0000
+Orbital Inclination(rad):   0.0309013239
+Rate of Right Ascen(r/s):  -6.4574118300E-009
+SQRT(A)  (m 1/2):           5282.593750
+Right Ascen at Week(rad):   5.1001715300E-001
+Argument of Perigee(rad):  -0.250774026
+Mean Anom(rad):             4.0865083000E-002
+Af0(s):                     8.7928770000E-004
+Af1(s/s):                   7.6397600000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-15 ********
+ID:                         15
+Health:                     000
+Eccentricity:               2.1969318390E-002
+Time of Applicability(s):  421888.0000
+Orbital Inclination(rad):  -0.1488680418
+Rate of Right Ascen(r/s):  -1.2090789300E-007
+SQRT(A)  (m 1/2):           5704.388184
+Right Ascen at Week(rad):   3.0563582250E+000
+Argument of Perigee(rad):  -1.414647868
+Mean Anom(rad):             2.1552302740E+000
+Af0(s):                    -9.0217590000E-004
+Af1(s/s):                  -1.3060300000E-009
+week:                        934
+
+******** Week 934 almanac for PRN-16 ********
+ID:                         16
+Health:                     000
+Eccentricity:               6.2632560730E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0186714224
+Rate of Right Ascen(r/s):  -1.7829314100E-009
+SQRT(A)  (m 1/2):           6493.691406
+Right Ascen at Week(rad):   1.8578477250E+000
+Argument of Perigee(rad):  -2.298115566
+Mean Anom(rad):             2.3551020530E+000
+Af0(s):                    -2.0122530000E-004
+Af1(s/s):                  -1.8189900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-19 ********
+ID:                         19
+Health:                     000
+Eccentricity:               6.2656402588E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0335498376
+Rate of Right Ascen(r/s):  -6.6859927800E-009
+SQRT(A)  (m 1/2):           5282.586426
+Right Ascen at Week(rad):   5.1088488600E-001
+Argument of Perigee(rad):  -1.074624324
+Mean Anom(rad):            -6.4592088500E-001
+Af0(s):                    -9.6035000000E-004
+Af1(s/s):                   7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-02 ********
+ID:                         02
+Health:                     000
+Eccentricity:               7.9154968262E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0357129902
+Rate of Right Ascen(r/s):   1.4629180800E-009
+SQRT(A)  (m 1/2):           6493.491211
+Right Ascen at Week(rad):   2.8581927000E-001
+Argument of Perigee(rad):  -1.271885415
+Mean Anom(rad):             2.4085367160E+000
+Af0(s):                     2.0694730000E-004
+Af1(s/s):                   3.6379800000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-20 ********
+ID:                         20
+Health:                     000
+Eccentricity:               4.6682357788E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0335378534
+Rate of Right Ascen(r/s):  -6.6745637400E-009
+SQRT(A)  (m 1/2):           5282.588867
+Right Ascen at Week(rad):   5.1151068700E-001
+Argument of Perigee(rad):  -0.336488198
+Mean Anom(rad):            -6.4474980200E-001
+Af0(s):                     7.2479250000E-005
+Af1(s/s):                  -3.2741800000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-21 ********
+ID:                         21
+Health:                     000
+Eccentricity:               4.1675567627E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0328187999
+Rate of Right Ascen(r/s):  -6.6859927800E-009
+SQRT(A)  (m 1/2):           5282.585938
+Right Ascen at Week(rad):   5.1263420800E-001
+Argument of Perigee(rad):  -0.683377580
+Mean Anom(rad):            -2.6125194590E+000
+Af0(s):                    -9.6988680000E-004
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-22 ********
+ID:                         22
+Health:                     000
+Eccentricity:               4.1723251343E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0328307841
+Rate of Right Ascen(r/s):  -6.6859927800E-009
+SQRT(A)  (m 1/2):           5282.586914
+Right Ascen at Week(rad):   5.1255893300E-001
+Argument of Perigee(rad):   0.594832884
+Mean Anom(rad):            -3.1098756530E+000
+Af0(s):                    -2.0599370000E-004
+Af1(s/s):                   1.4551900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-23 ********
+ID:                         23
+Health:                     000
+Eccentricity:               2.2220611572E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0028103007
+Rate of Right Ascen(r/s):  -6.9374318300E-009
+SQRT(A)  (m 1/2):           5282.587891
+Right Ascen at Week(rad):   2.6060434840E+000
+Argument of Perigee(rad):   0.380527229
+Mean Anom(rad):            -1.7546744090E+000
+Af0(s):                    -8.1253050000E-004
+Af1(s/s):                   7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-24 ********
+ID:                         24
+Health:                     000
+Eccentricity:               8.2111358643E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0027983165
+Rate of Right Ascen(r/s):  -6.9260027800E-009
+SQRT(A)  (m 1/2):           5282.577637
+Right Ascen at Week(rad):   2.6058584770E+000
+Argument of Perigee(rad):   0.754287116
+Mean Anom(rad):            -5.6879153700E-001
+Af0(s):                     6.4563750000E-004
+Af1(s/s):                   3.6379800000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-25 ********
+ID:                         25
+Health:                     000
+Eccentricity:               6.0319900513E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0042783683
+Rate of Right Ascen(r/s):  -6.9145737300E-009
+SQRT(A)  (m 1/2):           5282.562012
+Right Ascen at Week(rad):   2.5819293510E+000
+Argument of Perigee(rad):   0.709766469
+Mean Anom(rad):            -1.3361096250E+000
+Af0(s):                     2.6702880000E-004
+Af1(s/s):                   7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-26 ********
+ID:                         26
+Health:                     000
+Eccentricity:               9.3030929565E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0043263052
+Rate of Right Ascen(r/s):  -6.9145737300E-009
+SQRT(A)  (m 1/2):           5282.561523
+Right Ascen at Week(rad):   2.5825293110E+000
+Argument of Perigee(rad):   0.670585169
+Mean Anom(rad):             2.6954094700E-001
+Af0(s):                    -2.1362300000E-004
+Af1(s/s):                  -3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-27 ********
+ID:                         27
+Health:                     000
+Eccentricity:               4.6205520630E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0183298720
+Rate of Right Ascen(r/s):  -6.8459994500E-009
+SQRT(A)  (m 1/2):           5282.574707
+Right Ascen at Week(rad):  -1.5734321070E+000
+Argument of Perigee(rad):   1.186509796
+Mean Anom(rad):             7.5360588700E-001
+Af0(s):                     2.3555760000E-004
+Af1(s/s):                   7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-28 ********
+ID:                         28
+Health:                     000
+Eccentricity:               2.8467178345E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0182100297
+Rate of Right Ascen(r/s):  -6.8574285000E-009
+SQRT(A)  (m 1/2):           5282.588867
+Right Ascen at Week(rad):  -1.5736650510E+000
+Argument of Perigee(rad):  -1.768821038
+Mean Anom(rad):            -1.8596779410E+000
+Af0(s):                     1.7738340000E-004
+Af1(s/s):                   3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-29 ********
+ID:                         29
+Health:                     000
+Eccentricity:               1.0013580322E-005
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0164303723
+Rate of Right Ascen(r/s):  -6.8688575400E-009
+SQRT(A)  (m 1/2):           5282.572754
+Right Ascen at Week(rad):  -1.6131403380E+000
+Argument of Perigee(rad):   1.066851430
+Mean Anom(rad):            -6.8245404600E-001
+Af0(s):                     2.0790100000E-004
+Af1(s/s):                   3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-03 ********
+ID:                         03
+Health:                     000
+Eccentricity:               8.6975097656E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0250230616
+Rate of Right Ascen(r/s):   1.7257861700E-009
+SQRT(A)  (m 1/2):           6493.403320
+Right Ascen at Week(rad):   6.6201610000E-003
+Argument of Perigee(rad):  -0.790853607
+Mean Anom(rad):             2.6706287190E+000
+Af0(s):                    -1.8310550000E-004
+Af1(s/s):                   1.4551900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-30 ********
+ID:                         30
+Health:                     000
+Eccentricity:               3.9577484131E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0163824354
+Rate of Right Ascen(r/s):  -6.8574285000E-009
+SQRT(A)  (m 1/2):           5282.570312
+Right Ascen at Week(rad):  -1.6126467380E+000
+Argument of Perigee(rad):   0.206995652
+Mean Anom(rad):             9.9776162500E-001
+Af0(s):                    -9.5367430000E-006
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-31 ********
+ID:                         31
+Health:                     000
+Eccentricity:               3.9582252502E-003
+Time of Applicability(s):  360448.0000
+Orbital Inclination(rad):  -0.0031278827
+Rate of Right Ascen(r/s):  -2.4686742600E-009
+SQRT(A)  (m 1/2):           6492.783203
+Right Ascen at Week(rad):  -1.1907248730E+000
+Argument of Perigee(rad):  -2.991708949
+Mean Anom(rad):             6.3934753800E-001
+Af0(s):                     2.2983550000E-004
+Af1(s/s):                  -2.1827900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-32 ********
+ID:                         32
+Health:                     000
+Eccentricity:               3.0279159546E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0323094703
+Rate of Right Ascen(r/s):  -6.6859927800E-009
+SQRT(A)  (m 1/2):           5282.586914
+Right Ascen at Week(rad):   5.0448568500E-001
+Argument of Perigee(rad):  -1.197617675
+Mean Anom(rad):             1.0484399160E+000
+Af0(s):                    -5.3882600000E-004
+Af1(s/s):                  -3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-33 ********
+ID:                         33
+Health:                     000
+Eccentricity:               1.9264221191E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0323454230
+Rate of Right Ascen(r/s):  -6.6974218300E-009
+SQRT(A)  (m 1/2):           5282.587402
+Right Ascen at Week(rad):   5.0436172300E-001
+Argument of Perigee(rad):   0.262589722
+Mean Anom(rad):             1.1633030940E+000
+Af0(s):                    -9.4318390000E-004
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-34 ********
+ID:                         34
+Health:                     000
+Eccentricity:               4.3153762817E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0145488490
+Rate of Right Ascen(r/s):  -6.8802865900E-009
+SQRT(A)  (m 1/2):           5282.575195
+Right Ascen at Week(rad):  -1.6110670680E+000
+Argument of Perigee(rad):   0.491260718
+Mean Anom(rad):            -2.4915053780E+000
+Af0(s):                     3.1375890000E-004
+Af1(s/s):                   7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-35 ********
+ID:                         35
+Health:                     000
+Eccentricity:               7.1811676025E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0146207544
+Rate of Right Ascen(r/s):  -6.8802865900E-009
+SQRT(A)  (m 1/2):           5282.574707
+Right Ascen at Week(rad):  -1.6111273630E+000
+Argument of Perigee(rad):   0.290360168
+Mean Anom(rad):            -7.8014233200E-001
+Af0(s):                     4.9209590000E-004
+Af1(s/s):                  -7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-36 ********
+ID:                         36
+Health:                     000
+Eccentricity:               5.3501129150E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0042484077
+Rate of Right Ascen(r/s):  -6.9260027800E-009
+SQRT(A)  (m 1/2):           5282.591797
+Right Ascen at Week(rad):   2.6047094900E+000
+Argument of Perigee(rad):  -0.990553113
+Mean Anom(rad):            -2.7404948770E+000
+Af0(s):                    -1.1348720000E-004
+Af1(s/s):                   1.4551900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-37 ********
+ID:                         37
+Health:                     000
+Eccentricity:               6.0224533081E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0042603920
+Rate of Right Ascen(r/s):  -6.9145737300E-009
+SQRT(A)  (m 1/2):           5282.577637
+Right Ascen at Week(rad):   2.6045634320E+000
+Argument of Perigee(rad):  -0.215183874
+Mean Anom(rad):            -1.9580957660E+000
+Af0(s):                    -9.0503690000E-004
+Af1(s/s):                  -1.4551900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-38 ********
+ID:                         38
+Health:                     000
+Eccentricity:               2.3789405823E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0590043313
+Rate of Right Ascen(r/s):  -2.3200966400E-009
+SQRT(A)  (m 1/2):           6493.770020
+Right Ascen at Week(rad):  -3.0181746100E-001
+Argument of Perigee(rad):  -2.811454596
+Mean Anom(rad):            -1.1597714930E+000
+Af0(s):                     1.2111660000E-004
+Af1(s/s):                   3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-39 ********
+ID:                         39
+Health:                     000
+Eccentricity:               3.2682418823E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0193305548
+Rate of Right Ascen(r/s):  -1.7372152200E-009
+SQRT(A)  (m 1/2):           6493.931641
+Right Ascen at Week(rad):   1.7867434460E+000
+Argument of Perigee(rad):  -2.936891981
+Mean Anom(rad):             3.1274909660E+000
+Af0(s):                    -5.7220460000E-006
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-04 ********
+ID:                         04
+Health:                     000
+Eccentricity:               8.2731246948E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0240283709
+Rate of Right Ascen(r/s):   1.7943604600E-009
+SQRT(A)  (m 1/2):           6493.463867
+Right Ascen at Week(rad):  -1.8945187000E-002
+Argument of Perigee(rad):  -3.090740966
+Mean Anom(rad):            -4.2487747500E-001
+Af0(s):                     1.5354160000E-004
+Af1(s/s):                   1.5279500000E-010
+week:                        934
+
+******** Week 934 almanac for PRN-40 ********
+ID:                         40
+Health:                     000
+Eccentricity:               3.3707618713E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0419447872
+Rate of Right Ascen(r/s):  -1.7943604600E-009
+SQRT(A)  (m 1/2):           6493.790527
+Right Ascen at Week(rad):  -2.3362089230E+000
+Argument of Perigee(rad):  -3.014630651
+Mean Anom(rad):             1.0809613570E+000
+Af0(s):                    -4.5776370000E-005
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-41 ********
+ID:                         41
+Health:                     000
+Eccentricity:               1.4309883118E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0311589848
+Rate of Right Ascen(r/s):  -6.7088508800E-009
+SQRT(A)  (m 1/2):           5282.582520
+Right Ascen at Week(rad):   5.0766450000E-001
+Argument of Perigee(rad):  -1.514601922
+Mean Anom(rad):             2.1744997840E+000
+Af0(s):                    -8.7165830000E-004
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-42 ********
+ID:                         42
+Health:                     000
+Eccentricity:               1.1925697327E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0311949374
+Rate of Right Ascen(r/s):  -6.6974218300E-009
+SQRT(A)  (m 1/2):           5282.583496
+Right Ascen at Week(rad):   5.0823674700E-001
+Argument of Perigee(rad):  -1.232688011
+Mean Anom(rad):            -2.8237530330E+000
+Af0(s):                    -4.9018860000E-004
+Af1(s/s):                   7.2759600000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-43 ********
+ID:                         43
+Health:                     000
+Eccentricity:               4.1580200195E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0115168401
+Rate of Right Ascen(r/s):  -6.9145737300E-009
+SQRT(A)  (m 1/2):           5282.570312
+Right Ascen at Week(rad):  -1.6122310350E+000
+Argument of Perigee(rad):   0.356473766
+Mean Anom(rad):            -3.0752457370E+000
+Af0(s):                     5.0544740000E-005
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-44 ********
+ID:                         44
+Health:                     000
+Eccentricity:               6.2704086304E-004
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0119722407
+Rate of Right Ascen(r/s):  -6.9031446900E-009
+SQRT(A)  (m 1/2):           5282.575195
+Right Ascen at Week(rad):  -1.6118602730E+000
+Argument of Perigee(rad):   0.423578684
+Mean Anom(rad):            -2.1716082150E+000
+Af0(s):                     3.0803680000E-004
+Af1(s/s):                   1.0913900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-45 ********
+ID:                         45
+Health:                     000
+Eccentricity:               6.0844421387E-004
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0081912177
+Rate of Right Ascen(r/s):  -6.8802865900E-009
+SQRT(A)  (m 1/2):           5282.559570
+Right Ascen at Week(rad):   2.6085043690E+000
+Argument of Perigee(rad):   0.379760987
+Mean Anom(rad):             8.0933627800E-001
+Af0(s):                    -5.0544740000E-005
+Af1(s/s):                  -3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-46 ********
+ID:                         46
+Health:                     000
+Eccentricity:               9.2983245850E-004
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0082211783
+Rate of Right Ascen(r/s):  -6.8802865900E-009
+SQRT(A)  (m 1/2):           5282.562988
+Right Ascen at Week(rad):   2.6090414120E+000
+Argument of Perigee(rad):   0.324680741
+Mean Anom(rad):             2.4004380020E+000
+Af0(s):                    -1.0395050000E-004
+Af1(s/s):                  -3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-05 ********
+ID:                         05
+Health:                     000
+Eccentricity:               8.7451934814E-004
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0335078928
+Rate of Right Ascen(r/s):   1.6686409300E-009
+SQRT(A)  (m 1/2):           6493.519043
+Right Ascen at Week(rad):   7.7642797000E-002
+Argument of Perigee(rad):  -2.756717773
+Mean Anom(rad):            -2.6214233640E+000
+Af0(s):                    -6.6757200000E-006
+Af1(s/s):                  -6.1845600000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-56 ********
+ID:                         56
+Health:                     000
+Eccentricity:               4.6024322510E-003
+Time of Applicability(s):   94208.0000
+Orbital Inclination(rad):  -0.0281509443
+Rate of Right Ascen(r/s):  -2.7429714000E-009
+SQRT(A)  (m 1/2):           6493.225586
+Right Ascen at Week(rad):  -2.6700501050E+000
+Argument of Perigee(rad):  -2.960955930
+Mean Anom(rad):             1.6172280830E+000
+Af0(s):                     4.1580200000E-004
+Af1(s/s):                   3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-57 ********
+ID:                         57
+Health:                     000
+Eccentricity:               4.6539306641E-004
+Time of Applicability(s):   94208.0000
+Orbital Inclination(rad):   0.0337775379
+Rate of Right Ascen(r/s):  -6.7545670700E-009
+SQRT(A)  (m 1/2):           5282.583984
+Right Ascen at Week(rad):  -1.1289896370E+000
+Argument of Perigee(rad):  -1.011672688
+Mean Anom(rad):            -1.3079508200E-001
+Af0(s):                     4.1580200000E-004
+Af1(s/s):                   3.6379800000E-012
+week:                        934
+
+******** Week 934 almanac for PRN-58 ********
+ID:                         58
+Health:                     000
+Eccentricity:               6.9904327393E-004
+Time of Applicability(s):   98304.0000
+Orbital Inclination(rad):   0.0324652653
+Rate of Right Ascen(r/s):  -7.0745804000E-009
+SQRT(A)  (m 1/2):           5282.567871
+Right Ascen at Week(rad):   2.0974157510E+000
+Argument of Perigee(rad):   0.915884277
+Mean Anom(rad):             7.9508179200E-001
+Af0(s):                    -9.7656250000E-004
+Af1(s/s):                  -1.8917500000E-010
+week:                        934
+
+******** Week 934 almanac for PRN-59 ********
+ID:                         59
+Health:                     000
+Eccentricity:               1.2254714966E-004
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0296789330
+Rate of Right Ascen(r/s):   1.4857761700E-010
+SQRT(A)  (m 1/2):           6493.458496
+Right Ascen at Week(rad):   9.3706789200E-001
+Argument of Perigee(rad):   0.300739630
+Mean Anom(rad):             8.6539586100E-001
+Af0(s):                    -9.5367430000E-007
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-06 ********
+ID:                         06
+Health:                     000
+Eccentricity:               3.7646293640E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0032477249
+Rate of Right Ascen(r/s):  -1.8515056900E-009
+SQRT(A)  (m 1/2):           6493.072266
+Right Ascen at Week(rad):   1.8628039510E+000
+Argument of Perigee(rad):  -2.990767813
+Mean Anom(rad):             2.9666922540E+000
+Af0(s):                     4.6730040000E-005
+Af1(s/s):                   1.8189900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-60 ********
+ID:                         60
+Health:                     000
+Eccentricity:               3.4809112549E-004
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0370672076
+Rate of Right Ascen(r/s):   3.3029947300E-009
+SQRT(A)  (m 1/2):           6493.499023
+Right Ascen at Week(rad):  -7.7238367000E-001
+Argument of Perigee(rad):  -2.286094639
+Mean Anom(rad):            -2.1697615210E+000
+Af0(s):                     0.0000000000E+000
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-61 ********
+ID:                         61
+Health:                     000
+Eccentricity:               1.0094642639E-003
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0103843309
+Rate of Right Ascen(r/s):   2.0686576000E-009
+SQRT(A)  (m 1/2):           6493.559082
+Right Ascen at Week(rad):  -1.0697849440E+000
+Argument of Perigee(rad):  -0.923922696
+Mean Anom(rad):            -2.7015349110E+000
+Af0(s):                     0.0000000000E+000
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-62 ********
+ID:                         62
+Health:                     000
+Eccentricity:               4.2343139648E-004
+Time of Applicability(s):  339968.0000
+Orbital Inclination(rad):   0.0459834710
+Rate of Right Ascen(r/s):  -3.5430047200E-010
+SQRT(A)  (m 1/2):           6493.343750
+Right Ascen at Week(rad):  -2.3728151120E+000
+Argument of Perigee(rad):  -2.129502390
+Mean Anom(rad):             6.6863286400E-001
+Af0(s):                     0.0000000000E+000
+Af1(s/s):                   0.0000000000E+000
+week:                        934
+
+******** Week 934 almanac for PRN-07 ********
+ID:                         07
+Health:                     000
+Eccentricity:               2.8996467590E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):  -0.0824394831
+Rate of Right Ascen(r/s):  -1.7943604600E-009
+SQRT(A)  (m 1/2):           6493.770996
+Right Ascen at Week(rad):  -2.4685911650E+000
+Argument of Perigee(rad):  -2.597410722
+Mean Anom(rad):             5.9755442600E-001
+Af0(s):                    -3.9768220000E-004
+Af1(s/s):                  -6.1845600000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-08 ********
+ID:                         08
+Health:                     000
+Eccentricity:               2.7365684509E-003
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.1238749407
+Rate of Right Ascen(r/s):  -2.1600899800E-009
+SQRT(A)  (m 1/2):           6493.706055
+Right Ascen at Week(rad):  -2.7173518400E-001
+Argument of Perigee(rad):   3.134786737
+Mean Anom(rad):            -1.0515198620E+000
+Af0(s):                     2.1076200000E-004
+Af1(s/s):                  -2.1827900000E-011
+week:                        934
+
+******** Week 934 almanac for PRN-09 ********
+ID:                         09
+Health:                     000
+Eccentricity:               1.1149406433E-002
+Time of Applicability(s):  344064.0000
+Orbital Inclination(rad):   0.0080354228
+Rate of Right Ascen(r/s):  -1.8400766500E-009
+SQRT(A)  (m 1/2):           6493.684082
+Right Ascen at Week(rad):   1.9074852610E+000
+Argument of Perigee(rad):  -2.327463809
+Mean Anom(rad):             1.9976976370E+000
+Af0(s):                    -1.5354160000E-004
+Af1(s/s):                  -5.0931700000E-011
+week:                        934
+
