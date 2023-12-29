@@ -12,5 +12,5 @@ Once all dependencies are installed, we can run "app.py" from the Python CLI (or
 $ python app.py
 ```
 #### Step 3: Run BDViSim with any browser
-localhost:83,make sure that the port used is not taken
+localhost:83(make sure that the port used is not taken)
 
