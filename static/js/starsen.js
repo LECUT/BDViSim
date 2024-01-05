@@ -46,12 +46,8 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
   // vrButton: true
 });
 // viewer.scene.debugShowFramesPerSecond = true;
-
 viewer.baseLayerPicker.viewModel.selectedImagery = viewer.baseLayerPicker.viewModel.imageryProviderViewModels[3];
-
-
 viewer.clock.shouldAnimate = true;
-// viewer.animation.viewModel.dateFormatter = CesiumDateFormatter;
 viewer.animation.viewModel.timeFormatter = CesiumTimeFormatter;
 
 
@@ -245,7 +241,6 @@ function switchpath(obj) {
   for (var i in sat) {
     if (sat[i]['_id'] == id) {
       if (obj.checked) {
-        console.log(sat[i]['_id'])
         sat[i].path.show = true;
       }
       else {
@@ -262,7 +257,6 @@ function switchpoint(obj) {
   var sat = satdata.entities.values
   for (var i in sat) {
     if (sat[i]['_id'] == id + 'points') {
-      console.log(sat[i]['_id'])
       if (obj.checked) {
         sat[i].polyline.show = true;
         sat[i].point.show = true;
@@ -288,7 +282,6 @@ function switchbillboard(obj) {
         sat[i].model.show = true;
       }
       else {
-        console.log(sat[i])
         sat[i].billboard.show = false;
         sat[i].label.show = false;
         sat[i].model.show = false;
@@ -592,7 +585,6 @@ function picksats() {
   var satnumbers=document.getElementById("satnums");
   var allsats=document.getElementsByTagName('li')
 
-  console.log()
 
   if (pick_geo.checked == true) {
     for (var i = 0; i < sat_geo.length; i++) { sat_geo[i].style.display = 'block'; }
@@ -614,39 +606,25 @@ function picksats() {
   }
   if (sat_bds2.checked == true) {
     bds_2.style.display = 'block';
-    // for(var i=0;i<b2.children.length;i++){
-    //   b2.children[i].style.display = 'block';
-    // }
+
   }
   else if (sat_bds2.checked != true) {
     bds_2.style.display = 'none';
-    // for(var i=0;i<b2.children.length;i++){
-    //   b2.children[i].style.display = 'none';
-    // }
   }
   if (sat_bds3.checked == true) {
     bds_3.style.display = 'block';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'block';
-    // }
+
   }
   else if (sat_bds3.checked != true) {
     bds_3.style.display = 'none';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
   }
   if (sat_bds3S.checked == true) {
     bds_3S.style.display = 'block';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
   else if (sat_bds3S.checked != true) {
     bds_3S.style.display = 'none';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
 
   satnumbers.value=numscal()
@@ -687,14 +665,12 @@ function numscal(){
       }
     }
   }
-  console.log(satnums)
  return satnums
 }
 
 function switchbar(){
   c=document.getElementById('panel')
   b=document.getElementById('openbar')
-  console.log(b.style.display)
   if(c.style.display=='none'){
     b.style.display='none'
     c.style.display='block'

@@ -190,15 +190,12 @@ h = $.ajax({
 });
 world_ion = $.parseJSON(h["responseText"]);
 station_info = $.parseJSON(f["responseText"]);
-// console.log(station_info)
-
 var nowdate = new Date()
 nowdate = (nowdate.setDate(nowdate.getDate() - 1));
 nowdate = new Date(nowdate);
 var year = nowdate.getFullYear().toString()
 var month = (nowdate.getMonth() + 1).toString()
 var day = (nowdate.getDate()).toString()
-// console.log(year,month,day)
 var datepick = document.getElementById("datepick")
 var site_datepick = document.getElementById("site_datepick")
 
@@ -216,8 +213,6 @@ else {
   var day1 = day
 }
 filedate = station_info['objtime']
-// datepick.value=year+'-'+month1+'-'+day1
-// site_datepick.value=year+'-'+month1+'-'+day1
 datepick.value = filedate.substr(0, 10)
 site_datepick.value = filedate.substr(0, 10)
 
@@ -243,7 +238,6 @@ calcBtn1.addEventListener('click', () => {
   var density = $('#density').val();
   var date = $('#datepick').val();
   var satname = satpick()
-  // console.log(satname)
   stoprun()
   if (alt < 0 || alt >= 90) {
     // alert('Error ! Input range 0-90 °')
@@ -257,11 +251,9 @@ calcBtn1.addEventListener('click', () => {
   }
   else {
 
-    // var url = '/resetalt'
     var url = '/reset'
 
     $.post(url, { 'alt': alt, 'density': density, 'date': date, 'satname': JSON.stringify(satname) }, function (res) {
-      console.log(res)
 
       station_info = res;
       $.post('/ion2', { 'date': date }, function (res) {
@@ -279,7 +271,6 @@ calcBtn1.addEventListener('click', () => {
         }
         else {
 
-          console.log(res)
           world_ion = res
           startrun()
           isDone1 = true;
@@ -311,16 +302,13 @@ var lon2 = document.getElementById('rightp').value.split(',')[0].replace('°', '
 var lat1 = document.getElementById('leftp').value.split(',')[1].replace('°', '')
 var lat2 = document.getElementById('rightp').value.split(',')[1].replace('°', '')
 
-// console.log('lat1',lat1,'lat2',lat2,'lon1',lon1,'lon2',lon2)
 function paintmap() {
   var timerange = document.getElementById("timerange").value;
 
   var timenum = document.getElementById("timenum");
-  // console.log(datepick.value)
   year = datepick.value.substr(0, 4)
   month = Math.floor(datepick.value.substr(5, 2))
   day = Math.floor(datepick.value.substr(8, 2))
-  // console.log(year,month,day)
   if (month < 10) {
     var month1 = '0' + month
   }
@@ -338,8 +326,6 @@ function paintmap() {
   var minute = '00'
   if (timerange < 10) { var hour = '0' + timerange }
   else { var hour = timerange }
-  // var ptime=document.getElementById("datepick").value
-  // console.log(ptime)
   var stime = year + '/' + month + '/' + day + '/' + hour + ':' + minute
   timeid = year + month + day + hour + minute
   timenum.value = stime;
@@ -347,7 +333,6 @@ function paintmap() {
   lon2 = document.getElementById('rightp').value.split(',')[0].replace('°', '')
   lat1 = document.getElementById('leftp').value.split(',')[1].replace('°', '')
   lat2 = document.getElementById('rightp').value.split(',')[1].replace('°', '')
-  // console.log('lat1',lat1,'lat2',lat2,'lon1',lon1,'lon2',lon2)
   paintnums()
   paintGDOP()
   paintPDOP()
@@ -404,7 +389,6 @@ function paintTDOP() {
 
     for (var j = 0; j < ld; j++) {
 
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
       if (!window.station_info[k][timeid][str1] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
 
         data1.push([j, z, NaN])
@@ -431,9 +415,7 @@ function paintTDOP() {
     lat.push(d)
     d = d - density
   }
-  // console.log(data1)
-  // console.log(lat)
-  // console.log(lon)
+
   var alt = $('#setalt').val();
 
 
@@ -442,7 +424,6 @@ function paintTDOP() {
     (option = {
       grid: {
         top: "13%",
-        // left: "%",
         right: "5.5%",
         bottom: "3%",
         show: true,
@@ -632,9 +613,7 @@ function paintTDOP() {
     })
   );
 
-  // window.addEventListener('resize',function(){
-  //   heatmap1.resize()
-  // })
+
 }
 function paintVDOP() {
   var vmin = 10;
@@ -650,7 +629,6 @@ function paintVDOP() {
   for (var c in station_info) {
     for (var t in station_info[c]) {
       if (!window.station_info[c][t]) {
-        // console.log(c)
         break
       }
       var i = station_info[c][t][str1]
@@ -673,7 +651,6 @@ function paintVDOP() {
 
     for (var j = 0; j < ld; j++) {
 
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
       if (!window.station_info[k][timeid][str1] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
 
         data1.push([j, z, NaN])
@@ -944,7 +921,6 @@ function paintHDOP() {
 
     for (var j = 0; j < ld; j++) {
 
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
       if (!window.station_info[k][timeid][str1] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
 
         data1.push([j, z, NaN])
@@ -1198,7 +1174,6 @@ function paintPDOP() {
   for (var c in station_info) {
     for (var t in station_info[c]) {
       if (!window.station_info[c][t]) {
-        // console.log(c)
         break
       }
       var i = station_info[c][t][str1]
@@ -1220,8 +1195,6 @@ function paintPDOP() {
     var zz = -180
 
     for (var j = 0; j < ld; j++) {
-
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
       if (!window.station_info[k][timeid][str1] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
 
         data1.push([j, z, NaN])
@@ -1259,7 +1232,6 @@ function paintPDOP() {
     (option = {
       grid: {
         top: "13%",
-        // left: "%",
         right: "5.5%",
         bottom: "3%",
         show: true,
@@ -1474,7 +1446,6 @@ function paintGDOP() {
   for (var c in station_info) {
     for (var t in station_info[c]) {
       if (!window.station_info[c][t]) {
-        // console.log(c)
         break
       }
       var i = station_info[c][t][str1]
@@ -1496,8 +1467,6 @@ function paintGDOP() {
     var zz = -180
 
     for (var j = 0; j < ld; j++) {
-
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
       if (!window.station_info[k][timeid][str1] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
 
         data1.push([j, z, NaN])
@@ -2084,11 +2053,10 @@ function painionmap() {
       }
 
       zz = zz + 5
-      // console.log(k,timeid,str1)
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
+
 
     }
-    // console.log(k)
+
     z = z - 1
     jj -= 5
   }
@@ -2105,8 +2073,6 @@ function painionmap() {
     d = d - 5
   }
 
-  // console.log(Math.floor((lon.length-1)/2-2)/2)
-  // var alt = $('#setalt').val();
 
 
 
@@ -2223,12 +2189,12 @@ function painionmap() {
 
             if (value == -180) {
               listData = '180°W'
-              // console.log(listData)
+
             }
             else if (value == -90) {
 
               listData = '90°W'
-              // console.log(listData)
+
             }
             else if (value == 0) {
               listData = '0°'
@@ -2242,7 +2208,7 @@ function painionmap() {
             else {
               listData = ''
             }
-            // console.log(listData)
+
             return listData
           }
         },
@@ -2507,15 +2473,10 @@ calcBtn.addEventListener('click', () => {
   var siteheight = $('#site_h').val();
   var date = $('#site_datepick').val();
   var pickp = $('#pickp').val();
-  // var url = $('#urlpick').val();
-  // alert(url)
-  // var url = '/paintchart'
   var satname = satpick()
-  // console.log(pickp)
   var name = document.getElementById("site_name").value
 
   if (alt < 0 || alt > 90 || alt == '') {
-    // alert('Error ! Input range 0-90 °')
     isDone = true;
     modal.innerHTML = 'Error ! Input range 0-90 °';
     document.body.style.pointerEvents = 'auto';
@@ -2549,7 +2510,6 @@ calcBtn.addEventListener('click', () => {
         paintmap2();
         var url2 = '/ion'
         $.post(url2, { 'lon': lon, 'lat': lat, 'date': date }, function (res) {
-          // console.log(res)
           if (res == "false") {
             alert(date + 'lack ION file')
             var infochart = echarts.init(document.querySelector(".ionosphereInfo .chart"));
@@ -2571,7 +2531,6 @@ calcBtn.addEventListener('click', () => {
           viewer.dataSources.add(satSource1);
           viewer._container.style.cursor = "default";
           div = document.getElementById('heatmap')
-          // console.log(satSource1.entities.values)
           viewer.scene.camera.flyTo(homeCameraView);
         })
         isDone = true;
@@ -2620,11 +2579,9 @@ function paintmap2() {
 
 
   var timenum = document.getElementById("timenum2");
-  // console.log(datepick.value)
   year = site_datepick.value.substr(0, 4)
   month = Math.floor(site_datepick.value.substr(5, 2))
   day = Math.floor(site_datepick.value.substr(8, 2))
-  // console.log(year,month,day)
   if (month < 10) {
     var month1 = '0' + month
   }
@@ -2642,8 +2599,6 @@ function paintmap2() {
   var minute = '00'
   if (timerange < 10) { var hour = '0' + timerange }
   else { var hour = timerange }
-  // var ptime=document.getElementById("datepick").value
-  // console.log(ptime)
   var stime = year + '/' + month + '/' + day + '/' + hour + ':' + minute
   timeid = year + month + day + hour + minute
   timenum.value = stime;
@@ -2994,7 +2949,6 @@ function painnums(xdata) {
   })
 }
 function painDOP(xdata) {
-  console.log(station)
   var infochart = echarts.init(document.querySelector(".DOP .chart"));
   infochart.clear();
   var textname = 'DOP values'
@@ -3245,7 +3199,7 @@ function painvisibility(sat, xdata) {
     if (z == 0) { delete sat[i] }
     zz += 1
   }
-  // console.log(sat)
+
   for (var i in sat) {
 
 
@@ -3268,10 +3222,9 @@ function painvisibility(sat, xdata) {
     seriesdata.push(s)
 
   }
-  // console.log(s)
+
   var tooltipdata = {
     formatter: (value) => {
-      // console.log(value)
       var obj = value[0]
 
       var time = obj.name
@@ -3340,7 +3293,6 @@ function painvisibility(sat, xdata) {
             }
           }
         }
-        console.log(value)
         return value;
       }
     },
@@ -3628,7 +3580,6 @@ function painionosphereInfo(ion_info) {
   var infochart = echarts.init(document.querySelector(".ionosphereInfo .chart"));
   infochart.clear();
   var textname = 'Ionospheric Electron Content'
-  // document.getElementById("height").value = ion_info['height'];
 
   var seriesdata = []
   var sdata = []
@@ -3770,7 +3721,6 @@ function painionosphereInfo(ion_info) {
   })
 }
 function paindistribution_map() {
-  // 卫星高度角对象初始化
   var sat = {}
   for (var i = 1; i < 65; i++) {
 
@@ -3794,7 +3744,6 @@ function paindistribution_map() {
   year = site_datepick.value.substr(0, 4)
   month = Math.floor(site_datepick.value.substr(5, 2))
   day = Math.floor(site_datepick.value.substr(8, 2))
-  // console.log(year,month,day)
   if (month < 10) {
     var month1 = '0' + month
   }
@@ -3817,7 +3766,6 @@ function paindistribution_map() {
   timenum3.value = stime;
 
   var infochart = echarts.init(document.querySelector(".distribution_map .chart"));
-  // infochart.clear();
   var seriesdata = []
   var polardata = {}
   var satdata = []
@@ -3864,7 +3812,7 @@ function paindistribution_map() {
       show: true,
       position: "right",
       color: '#f3f8fa',
-      formatter: '{@value}'   // 点旁边显示label，这里使用name: '横坐标'这样写也可以，鼠标移入出现提示。
+      formatter: '{@value}' 
     },
     symbol: 'image://../static/images/icon/scattericon.png',
     symbolSize: 15,
@@ -3906,7 +3854,7 @@ function paindistribution_map() {
     altdata.push([$('#alttext').val(), i * 5])
   }
   var s3 = {
-    name: '截止高度角',
+    name: 'Elevation cutoff',
     type: 'line',
     data: altdata,
     coordinateSystem: 'polar',
@@ -3937,26 +3885,19 @@ function paindistribution_map() {
       height: '70%'
     },
     legend: {
-      orient: 'vertical',      // 布局方式，默认为水平布局，可选为：
-      // 'horizontal' ¦ 'vertical'
-      x: 'left',               // 水平安放位置，默认为全图居中，可选为：
-      // 'center' ¦ 'left' ¦ 'right'
-      // ¦ {number}（x坐标，单位px）
+      orient: 'vertical',      
+      x: 'left',               
       y: '20px'
-      ,                  // 垂直安放位置，默认为全图顶端，可选为：
-      // 'top' ¦ 'bottom' ¦ 'center'
-      // ¦ {number}（y坐标，单位px）
+      ,                  
       backgroundColor: 'rgba(0,0,0,0)',
-      borderColor: '#ccc',       // 图例边框颜色
-      borderWidth: 0,            // 图例边框线宽，单位px，默认为0（无边框）
-      padding: 5,                // 图例内边距，单位px，默认各方向内边距为5，
-      // 接受数组分别设定上右下左边距，同css
-      itemGap: 10,               // 各个item之间的间隔，单位px，默认为10，
-      // 横向布局时为水平间隔，纵向布局时为纵向间隔
-      itemWidth: 20,             // 图例图形宽度
-      itemHeight: 20,            // 图例图形高度
+      borderColor: '#ccc',       
+      borderWidth: 0,            
+      padding: 5,               
+      itemGap: 10,              
+      itemWidth: 20,             
+      itemHeight: 20,           
       textStyle: {
-        color: 'white'          // 图例文字颜色
+        color: 'white'         
       },
       icon: 'image://../static/images/icon/scattericon.png',
       formatter: function (params) {
@@ -4021,7 +3962,6 @@ var timer_is_on2 = 0;
 function timedCount2() {
   document.getElementById("timerange2").value = c2;
   paindistribution_map();
-  // console.log(station)
   var j = 0
   var snums = []
   for (var i in station) {
@@ -4084,7 +4024,6 @@ function picksats() {
   var allsatnums = document.getElementById("allsatnums");
   var allsats = document.getElementsByTagName('li')
 
-  console.log()
 
   if (pick_geo.checked == true) {
     for (var i = 0; i < sat_geo.length; i++) { sat_geo[i].style.display = 'block'; }
@@ -4106,39 +4045,27 @@ function picksats() {
   }
   if (sat_bds2.checked == true) {
     bds_2.style.display = 'block';
-    // for(var i=0;i<b2.children.length;i++){
-    //   b2.children[i].style.display = 'block';
-    // }
+
   }
   else if (sat_bds2.checked != true) {
     bds_2.style.display = 'none';
-    // for(var i=0;i<b2.children.length;i++){
-    //   b2.children[i].style.display = 'none';
-    // }
+
   }
   if (sat_bds3.checked == true) {
     bds_3.style.display = 'block';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'block';
-    // }
+
   }
   else if (sat_bds3.checked != true) {
     bds_3.style.display = 'none';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
   if (sat_bds3S.checked == true) {
     bds_3S.style.display = 'block';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
   else if (sat_bds3S.checked != true) {
     bds_3S.style.display = 'none';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
 
   satnumbers.value = numscal()
@@ -4147,7 +4074,7 @@ function picksats() {
 function switchbar() {
   var cc = document.getElementById('panel')
   var bb = document.getElementById('openbar')
-  // console.log(b.style.display)
+
   if (cc.style.display == 'none') {
     bb.style.display = 'none'
     cc.style.display = 'block'
@@ -4307,7 +4234,6 @@ function setp1() {
     }
   });
 
-  // viewer.dataSources.remove(satSource);
   viewer._container.style.cursor = "crosshair";
   alert('Select the upper left corner point')
   var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -4321,12 +4247,10 @@ function setp1() {
     var lon = Cesium.Math.toDegrees(cartographic.longitude).toFixed(1);
     var lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(1);
 
-    // console.log(lon , lat)
     document.getElementById('leftp').value = lon + '°,' + lat + '°'
     handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
     viewer._container.style.cursor = "auto";
-    // viewer.scene.mode=Cesium.SceneMode.SCENE3D
     setp2()
 
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
@@ -4348,14 +4272,7 @@ function setp2() {
 
     var lon = Cesium.Math.toDegrees(cartographic.longitude).toFixed(1);
     var lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(1);
-    // console.log(lon , lat)
-    // lon=Math.floor(lon/density)*density
-    // lat=Math.floor(lat/density)*density
 
-    // console.log(lon, lat)
-
-
-    // alert(lon + ' , ' + lat)
     document.getElementById('rightp').value = lon + '°,' + lat + '°'
 
 
@@ -4406,19 +4323,17 @@ function pickall(obj) {
   var sat2 = document.getElementById('sat_all').children[1].children
   var sat3 = document.getElementById('sat_all').children[2].children
   var satnums = 0
-  // console.log(obj)
+
   if (document.getElementById('sat_all').children[0].style.display == 'block') {
     for (var i = 0; i < sat1.length; i++) {
       var obj1 = sat1[i].children;
-      // console.log(obj1)
+
       if (sat1[i].style.display == 'block'&& $(obj).prop("checked") == true &&!$(obj1).is(':disabled')) {
         satnums += 1
         $(obj1).prop('checked', true)
       }
       else if (sat1[i].style.display == 'block'&& $(obj).prop("checked") == false) {
         satnums += 1
-        console.log(obj1)
-        console.log(sat1[i])
         $(obj1).prop('checked', false)
       }
     }
@@ -4476,11 +4391,10 @@ function area_paint() {
 
 var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-// document.getElementById('startSelectBtn').addEventListener('click', startSelection);
 
 function startSelection() {
   alert('Please select the box area')
-  viewer.scene.mode = Cesium.SceneMode.SCENE2D//视角转换
+  viewer.scene.mode = Cesium.SceneMode.SCENE2D
   var rectangle = Cesium.Rectangle.fromDegrees(-180, 90, 180, -90);
   viewer.camera.setView({
     destination: rectangle,
@@ -4507,7 +4421,7 @@ function startDrawing(event) {
 
   startMousePosition = new Cesium.Cartesian2(event.position.x, event.position.y);
   start = Cesium.Cartesian3.clone(event.position);
-  console.log(start)
+
 
   rectangleElement = document.createElement('div');
   rectangleElement.className = 'rectangle';

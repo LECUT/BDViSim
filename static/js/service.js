@@ -1,6 +1,6 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMGNhYjhkOS00MGE2LTRkMDctOGZiYS1mZjc4MGQ0YmQyZTMiLCJpZCI6OTYzOTEsImlhdCI6MTY1NDQ5MDE5OH0.KMWej-d39eu-JXzFrpUTrc0rxYr0m5WcAriKMPSnqLs'
 console.log(Date())
-// cesium时钟时间格式化
+
 function CesiumTimeFormatter(datetime, viewModel) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -11,7 +11,7 @@ function CesiumTimeFormatter(datetime, viewModel) {
   let second = gregorianDT.second + "";
   return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}:${second.padStart(2, "0")}`;
 }
-//cesium时钟日期格式化
+
 function CesiumDateFormatter(datetime, viewModel, ignoredate) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -32,28 +32,16 @@ function CesiumDateTimeFormatter(datetime, viewModel, ignoredate) {
 
 Cesium.Timeline.prototype.makeLabel = CesiumDateTimeFormatter;
 var viewer = new Cesium.Viewer('cesiumContainer', {
-  // sceneModePicker: true,
-  // baseLayerPicker:true,
-  selectionIndicator: false,//关闭绿色点击框
-  animation: false, //是否显示动画控件
+  selectionIndicator: false,
+  animation: false, 
   shouldAnimate: true,
-  // homeButton: false, //是否显示Home按钮
-  fullscreenButton: false, //是否显示全屏按钮
-  // baseLayerPicker: false, //是否显示图层选择控件
-  // geocoder: false, //是否显示地名查找控件
-  timeline: false, //是否显示时间线控件
-  // sceneModePicker: false, //是否显示投影方式控件
-  navigationHelpButton: false, //是否显示帮助信息控件
-  infoBox: false, //是否显示点击要素之后显示的信息
-  requestRenderMode: true, //启用请求渲染模式
-  scene3DOnly: false, //每个几何实例将只能以3D渲染以节省GPU内存
-  sceneMode: 3, //初始场景模式 1 2D模式 2 2D循环模式 3 3D模式  Cesium.SceneMode
-  // fullscreenElement: document.body, //全屏时渲染的HTML元素 暂时没发现用处
-  //加载谷歌影像地图，UrlTemplateImageryProvider该接口是加载谷歌地图服务的接口
-  // imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
-  //   url: "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer",
-  // }),
-  //需要纯色背景必须设置
+  fullscreenButton: false, 
+  timeline: false, 
+  navigationHelpButton: false, 
+  infoBox: false, 
+  requestRenderMode: true, 
+  scene3DOnly: false, 
+  sceneMode: 3, 
   contextOptions: {
     webgl: {
       alpha: true,
@@ -62,38 +50,16 @@ var viewer = new Cesium.Viewer('cesiumContainer', {
 
 });
 this.viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-  // 影像图
-
   url: "http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
 }))
-// viewer.baseLayerPicker.viewModel.selectedImagery = viewer.baseLayerPicker.viewModel.imageryProviderViewModels[3];
 
 
-// viewer.animation.viewModel.dateFormatter = CesiumDateFormatter;
-// viewer.animation.viewModel.timeFormatter = CesiumTimeFormatter;
-
-
-
-
-// viewer.scene.skyBox = new Cesium.SkyBox({
-//   sources: {
-//     positiveX: '../static/images/stars/starmap_2020_16k_px.jpg',
-//     negativeX: '../static/images/stars/starmap_2020_16k_mx.jpg',
-//     positiveY: '../static/images/stars/starmap_2020_16k_py.jpg',
-//     negativeY: '../static/images/stars/starmap_2020_16k_my.jpg',
-//     positiveZ: '../static/images/stars/starmap_2020_16k_pz.jpg',
-//     negativeZ: '../static/images/stars/starmap_2020_16k_mz.jpg'
-//   }
-// });
 viewer.clock.shouldAnimate = true;
 viewer.clock.multiplier = 900;
 
-viewer.scene.skyBox.show = false //关闭天空盒，否则会显示天空颜色
-//背景透明
+viewer.scene.skyBox.show = false 
 viewer.scene.backgroundColor = new Cesium.Color(0.0, 0.0, 0.0, 0.0);
-//关闭大气
 viewer.scene.skyAtmosphere.show = false
-//清除月亮太阳
 viewer.scene.moon.show = false
 viewer.scene.sun.show = false
 
@@ -103,33 +69,16 @@ viewer.scene.sun.show = false
 
 function initalize() {
 
-  // viewer.scene.globe.enableLighting = true;
-  // viewer.shadows = true;
-
-  // 亮度设置
-  // var stages = viewer.scene.postProcessStages;
-  // viewer.scene.brightness = viewer.scene.brightness || stages.add(Cesium.PostProcessStageLibrary.createBrightnessStage());
-  // viewer.scene.brightness.enabled = true;
-  // viewer.scene.brightness.uniforms.brightness = Number(1.2);
-
-  // 抗锯齿
-  //是否开启抗锯齿
-  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {//判断是否支持图像渲染像素化处理
+  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     viewer.resolutionScale = window.devicePixelRatio;
   }
   viewer.scene.fxaa = true;
   viewer.scene.postProcessStages.fxaa.enabled = true;
-
-
-  // 解决模型变黑
   viewer.lightColor = new Cesium.Cartesian3(1000, 1000, 1000)
-
-  // 解决画面模糊
   viewer._cesiumWidget._supportsImageRenderingPixelated = Cesium.FeatureDetection.supportsImageRenderingPixelated();
   viewer._cesiumWidget._forceResize = true;
   if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     var vtxf_dpr = window.devicePixelRatio;
-    // 适度降低分辨率
     while (vtxf_dpr >= 2.0) {
       vtxf_dpr /= 2.0;
     }
@@ -166,7 +115,6 @@ viewer.homeButton.viewModel.command.beforeExecute.addEventListener(function (e) 
   viewer.scene.camera.flyTo(homeCameraView);
 
 })
-//设置初始位置为中国
 var initialPosition = new Cesium.Cartesian3.fromDegrees(113.42, 10.16, 140000000);
 var homeCameraView = {
   destination: initialPosition,
@@ -177,7 +125,7 @@ var CameraView = {
 };
 viewer.scene.camera.flyTo(CameraView);
 
-// 添加天地图标注
+
 var imageryLayers = viewer.scene.imageryLayers;
 var tdtAnnoLayer = imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
   url: "http://t0.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={TileMatrix}&TILEROW={TileRow}&TILECOL={TileCol}&tk=269b6942f19f345009e605301d0481c2",
@@ -210,22 +158,19 @@ world_ion = ''
 function openwindow() {
   document.getElementById("heatmap").style.display = "block";
   f = $.ajax({
-    url: "../static/json/stations.json",//json文件位置，文件名
-    type: "GET",//请求方式为get
-    dataType: "json", //返回数据格式为json
+    url: "../static/json/stations.json",
+    type: "GET",
+    dataType: "json",
     async: false,
-    success: function (data) {//请求成功完成后要执行的方法
-      // station_info=data
-      // console.log(station_info)
+    success: function (data) {
     }
   });
   h = $.ajax({
-    url: "../static/json/ion_info.json",//json文件位置，文件名
-    type: "GET",//请求方式为get
-    dataType: "json", //返回数据格式为json
+    url: "../static/json/ion_info.json",
+    type: "GET",
+    dataType: "json",
     async: false,
-    success: function (data) {//请求成功完成后要执行的方法
-      // station_info=data
+    success: function (data) {
       console.log(data)
     }
   });
@@ -242,36 +187,29 @@ function closewindow(obj) {
 
 
 f = $.ajax({
-  url: "../static/json/stations.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/stations.json",
+  type: "GET",
+  dataType: "json",
   async: false,
-  success: function (data) {//请求成功完成后要执行的方法
-    // station_info=data
-    // console.log(station_info)
+  success: function (data) {
   }
 });
 h = $.ajax({
-  url: "../static/json/ion_info.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/ion_info.json",
+  type: "GET",
+  dataType: "json",
   async: false,
-  success: function (data) {//请求成功完成后要执行的方法
-    // station_info=data
-    // console.log(data)
+  success: function (data) {
   }
 });
 world_ion = $.parseJSON(h["responseText"]);
 station_info = $.parseJSON(f["responseText"]);
-// console.log(station_info)
-
 var nowdate = new Date()
 nowdate = (nowdate.setDate(nowdate.getDate() - 1));
 nowdate = new Date(nowdate);
 var year = nowdate.getFullYear().toString()
 var month = (nowdate.getMonth() + 1).toString()
 var day = (nowdate.getDate()).toString()
-// console.log(year,month,day)
 var datepick = document.getElementById("datepick")
 var site_datepick = document.getElementById("site_datepick")
 
@@ -289,15 +227,12 @@ else {
   var day1 = day
 }
 filedate = station_info['objtime']
-// datepick.value=year+'-'+month1+'-'+day1
-// site_datepick.value=year+'-'+month1+'-'+day1
 datepick.value = filedate.substr(0, 10)
 site_datepick.value = filedate.substr(0, 10)
 
 
 paintmap();
 startrun();
-// 高度角设置
 
 var wion_info = ''
 let isDone1 = false;
@@ -314,14 +249,11 @@ calcBtn1.addEventListener('click', () => {
   var density = $('#density').val();
   var date = $('#datepick').val();
   var satname = satpick()
-  // console.log(satname)
   stoprun()
   if (alt < 0 || alt >= 90) {
-    // alert('Error ! Input range 0-90 °')
     isDone = true;
     modal.innerHTML = 'Error ! Input range 0-90 °';
     document.body.style.pointerEvents = 'auto';
-    // 动态创建确认按钮 
     
     confirmBtn.textContent = '确认';
     confirmBtn.addEventListener('click', onConfirm);
@@ -329,7 +261,6 @@ calcBtn1.addEventListener('click', () => {
   }
   else {
 
-    // var url = '/resetalt'
     var url = '/reset'
 
     $.post(url, { 'alt': alt, 'density': density, 'date': date, 'satname': JSON.stringify(satname) }, function (res) {
@@ -354,7 +285,6 @@ calcBtn1.addEventListener('click', () => {
 
           console.log(res)
           world_ion = res
-          // alert('完成')
           startrun()
           isDone = true;
           modal.innerHTML = '计算完成';
@@ -383,16 +313,13 @@ var lon2 = document.getElementById('rightp').value.split(',')[0].replace('°', '
 var lat1 = document.getElementById('leftp').value.split(',')[1].replace('°', '')
 var lat2 = document.getElementById('rightp').value.split(',')[1].replace('°', '')
 
-// console.log('lat1',lat1,'lat2',lat2,'lon1',lon1,'lon2',lon2)
 function paintmap() {
   var timerange = document.getElementById("timerange").value;
 
   var timenum = document.getElementById("timenum");
-  // console.log(datepick.value)
   year = datepick.value.substr(0, 4)
   month = Math.floor(datepick.value.substr(5, 2))
   day = Math.floor(datepick.value.substr(8, 2))
-  // console.log(year,month,day)
   if (month < 10) {
     var month1 = '0' + month
   }
@@ -410,8 +337,6 @@ function paintmap() {
   var minute = '00'
   if (timerange < 10) { var hour = '0' + timerange }
   else { var hour = timerange }
-  // var ptime=document.getElementById("datepick").value
-  // console.log(ptime)
   var stime = year + '/' + month + '/' + day + '/' + hour + ':' + minute
   timeid = year + month + day + hour + minute
   timenum.value = stime;
@@ -419,7 +344,6 @@ function paintmap() {
   lon2 = document.getElementById('rightp').value.split(',')[0].replace('°', '')
   lat1 = document.getElementById('leftp').value.split(',')[1].replace('°', '')
   lat2 = document.getElementById('rightp').value.split(',')[1].replace('°', '')
-  // console.log('lat1',lat1,'lat2',lat2,'lon1',lon1,'lon2',lon2)
   paintnums()
   paintGDOP()
   paintPDOP()
@@ -503,9 +427,6 @@ function paintTDOP() {
     lat.push(d)
     d = d - density
   }
-  // console.log(data1)
-  // console.log(lat)
-  // console.log(lon)
   var alt = $('#setalt').val();
 
 
@@ -529,15 +450,15 @@ function paintTDOP() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -546,8 +467,8 @@ function paintTDOP() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -602,7 +523,7 @@ function paintTDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -611,8 +532,8 @@ function paintTDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -628,7 +549,7 @@ function paintTDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -644,7 +565,7 @@ function paintTDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -652,9 +573,9 @@ function paintTDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -671,14 +592,14 @@ function paintTDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -709,8 +630,7 @@ function paintTDOP() {
     })
   );
 
-  // window.addEventListener('resize',function(){
-  //   heatmap1.resize()
+
   // })
 }
 function paintVDOP() {
@@ -803,15 +723,15 @@ function paintVDOP() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -820,8 +740,8 @@ function paintVDOP() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -878,7 +798,7 @@ function paintVDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -887,8 +807,8 @@ function paintVDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -904,7 +824,7 @@ function paintVDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -920,7 +840,7 @@ function paintVDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -928,9 +848,9 @@ function paintVDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -947,14 +867,14 @@ function paintVDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1079,15 +999,15 @@ function paintHDOP() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -1096,8 +1016,8 @@ function paintHDOP() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1154,7 +1074,7 @@ function paintHDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -1163,8 +1083,8 @@ function paintHDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -1180,7 +1100,7 @@ function paintHDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -1196,7 +1116,7 @@ function paintHDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -1204,9 +1124,9 @@ function paintHDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1223,14 +1143,14 @@ function paintHDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1356,15 +1276,15 @@ function paintPDOP() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -1373,8 +1293,8 @@ function paintPDOP() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1431,7 +1351,7 @@ function paintPDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -1440,8 +1360,8 @@ function paintPDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -1457,7 +1377,7 @@ function paintPDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -1473,7 +1393,7 @@ function paintPDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -1481,9 +1401,9 @@ function paintPDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1500,14 +1420,14 @@ function paintPDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1632,15 +1552,15 @@ function paintGDOP() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -1649,8 +1569,8 @@ function paintGDOP() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1707,7 +1627,7 @@ function paintGDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -1716,8 +1636,8 @@ function paintGDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -1733,7 +1653,7 @@ function paintGDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -1749,7 +1669,7 @@ function paintGDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -1757,9 +1677,9 @@ function paintGDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1776,14 +1696,14 @@ function paintGDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1908,15 +1828,15 @@ function paintnums() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -1925,8 +1845,8 @@ function paintnums() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1984,7 +1904,7 @@ function paintnums() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -1994,8 +1914,8 @@ function paintnums() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
             // if (listData < 0) {
             //   listData = Math.abs(listData) + '°W'
             // }
@@ -2034,7 +1954,7 @@ function paintnums() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -2050,7 +1970,7 @@ function paintnums() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -2058,9 +1978,9 @@ function paintnums() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -2077,14 +1997,14 @@ function paintnums() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -2218,15 +2138,15 @@ function painionmap() {
         left: 'center',
 
         textStyle: {
-          //文字颜色
+
           color: 'white',
-          //字体风格,'normal','italic','oblique'
+
           fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
           fontWeight: 'bold',
-          //字体系列
+
           fontFamily: 'sans-serif',
-          //字体大小
+          
           fontSize: 5
         },
 
@@ -2235,8 +2155,8 @@ function painionmap() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
+        formatter: (value) => { 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * 5
@@ -2294,7 +2214,7 @@ function painionmap() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
 
         axisLabel: {
@@ -2304,8 +2224,8 @@ function painionmap() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
+          formatter: (value) => { 
+            var listData = value
 
             if (value == -180) {
               listData = '180°W'
@@ -2335,7 +2255,7 @@ function painionmap() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         },
       },
@@ -2351,7 +2271,7 @@ function painionmap() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false  //坐标轴刻度线
+          show: false  
         },
         axisLabel: {
           color: "white",
@@ -2359,9 +2279,9 @@ function painionmap() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { //格式化数据的函数
+          formatter: (value) => { 
 
-            var listData = value // 获取对应的数据
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -2378,14 +2298,14 @@ function painionmap() {
         axisLine: {
 
           lineStyle: {
-            color: 'white',  //坐标轴的颜色
+            color: 'white',  
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
+        itemWidth: 10,
         itemHeight: 60,
         min: 0,
         max: vmax,
@@ -2429,19 +2349,19 @@ function choosepoint() {
 
   var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction(function (event) {
-    // 屏幕坐标转世界坐标——关键点
+
     var ellipsoid = viewer.scene.globe.ellipsoid;
     var cartesian = viewer.camera.pickEllipsoid(event.position, ellipsoid);
-    // 将笛卡尔坐标转换为地理坐标
+
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-    // 将弧度转为度的十进制度表示
+
     var lon = Cesium.Math.toDegrees(cartographic.longitude).toFixed(3);
     var lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(3);
     var height = Math.ceil(this.viewer.camera.positionCartographic.height);
     var height = 0
     var height1 = viewer.scene.globe.getHeight(cartographic);
     var height2 = cartographic.height;
-    // 输出经纬度
+
     alert(lon + ' , ' + lat)
     document.getElementById("site_lon").value = lon
     document.getElementById("site_lat").value = lat
@@ -2449,7 +2369,7 @@ function choosepoint() {
     handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
     alert('完成选点')
     viewer._container.style.cursor = "auto";
-    // document.getElementById("pickstation_bar").style.display = 'block';
+
 
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
@@ -2489,62 +2409,7 @@ function setstation() {
   viewer._container.style.cursor = "default";
 }
 
-function setstations() {
-  var data = [[116.4933005, 39.9050872, '北京', 'Beijing'], [91.1529843, 29.6642087, '拉萨', 'Lhasa'], [87.6127964, 43.8281616, '乌鲁木齐', 'Urumqi'],
-  [125.3433974, 43.8149808, '长春', 'Changchun'], [102.8358498, 24.8947942, '昆明', 'Kunming'], [121.4803963, 31.2333354, '上海', 'Shanghai'],
-  [114.3091426, 30.6077914, '武汉', 'Wuhan'], [108.9408599, 34.3507259, '西安', 'Xian'], [76.37777777777778, -69.37333333333333, '南极中山站', 'Antarctic'],
-  [11.933333333333334, 78.91666666666667, '北极黄河站', 'Arctic'], [7.3980840, 9.0772778, '阿布贾', 'Abuja'], [-48.5025933, -1.4540796, '贝伦', 'Belem'],
-  [10.532, 52.272, '布伦瑞克', 'Braunschweig'], [-58.569, -34.614, '布宜诺斯艾利斯', 'Buenos,Aires'], [67.2687198, 25.0557272, '卡拉奇', 'Karachi'],
-  [-43.1723215, -22.9036508, '里约', 'Rio'], [-114.0657203, 51.0442499, '卡尔加里', 'Calgary'], [-149.465, -17.660, '塔希提', 'Tahiti'], [19.2400999, -34.4188476, '赫曼努斯', 'Hermanus'],
-  [80.6349314, 7.2969387, '康提', 'Kandy'], [149.1549711, -35.3672861, '堪培拉', 'Canberra'], [115.8620542, -31.9487894, '珀斯', 'Perth'], [130.8959452, -12.4226013, '达尔文', 'Darwin'], [-0.1273838, 51.5087585, '伦敦', 'London']]
-  var stationczml = []
-  stationczml.push({
-    "id": "document",
-    "name": "CZML Point",
-    "version": "1.0"
-  })
-  for (var i in data) {
-    var cname = data[i][2]
-    var ename = data[i][3]
-    var sposition = [data[i][0], data[i][1], 0]
-    stationczml.push({
-      "id": cname + '/' + ename,
-      "name": cname + '/' + ename,
-      "label": {
 
-        "font": "6pt Lucida Console",
-        "outlineWidth": 2,
-        "outlineColor": { "rgba": [255, 0, 0, 255] },
-        "horizontalOrigin": "LEFT",
-        "pixelOffset": { "cartesian2": [12, 0] },
-        "fillColor": { "rgba": [213, 255, 0, 255] },
-        "text": cname,
-      },
-      "billboard": {
-
-        "image": { "uri": "../static/images/station.png" },
-
-        "scale": 0.08,
-      },
-      "position": {
-        "cartographicDegrees": sposition
-      },
-      "model": {
-        "gltf": "../static/models/ground_satellite_station_i.glb",
-        "scale": 8,
-        "minimumPixelSize": 2,
-        'maxmumPixelSize': 36,
-
-      }
-    }
-    )
-  }
-  var Source = new Cesium.CzmlDataSource(stationczml);
-  // Source.load(stationczml);
-  viewer.dataSources.add(Source);
-  Source.load(stationczml);
-}
-// setstations();
 function picktypediv() {
   id = $("input[name='picktype']:checked").val();
 
@@ -2614,7 +2479,7 @@ function picktypediv() {
     document.getElementById("onesat_set").style.display = 'block';
     document.getElementById("site_snums").style.display = 'block';
     // document.getElementById("onesat_panel").style.display = 'block';
-    // document.getElementById("pickstation_bar").style.display = 'block';
+
     document.getElementsByClassName("world")[0].style.display = 'none';
     document.getElementsByClassName("world")[1].style.display = 'none';
     document.getElementsByClassName("world")[2].style.display = 'none';
@@ -2639,13 +2504,10 @@ const calcBtn = document.getElementById('setbtn');
 const modal = document.getElementById('modal');
 
 calcBtn.addEventListener('click', () => {
-  // 显示对话框
-  // 重置状态
   isDone = false;
   modal.innerHTML = '计算中...';
   modal.showModal();
 
-  // 禁用背景交互
   document.body.style.pointerEvents = 'none';
 
   var timeid = year + month + day + '00' + '00'
@@ -2668,7 +2530,7 @@ calcBtn.addEventListener('click', () => {
     isDone = true;
     modal.innerHTML = 'Error ! Input range 0-90 °';
     document.body.style.pointerEvents = 'auto';
-    // 动态创建确认按钮 
+
     
     confirmBtn.textContent = '确认';
 
@@ -2676,17 +2538,17 @@ calcBtn.addEventListener('click', () => {
     modal.appendChild(confirmBtn);
   }
   else {
-    // alert('计算中...')
+  
     var url = '/rinexpaint'
     // var url = '/paintchart'
 
     $.post(url, { 'alt': alt, 'height': siteheight, 'lon': lon, 'lat': lat, 'date': date, 'satname': JSON.stringify(satname), 'pickp': pickp }, function (res) {
       if (res == "false") {
-        // alert(date + '缺少星历文件')
+        
         isDone = true;
         modal.innerHTML = date + '缺少星历文件';
         document.body.style.pointerEvents = 'auto';
-        // 动态创建确认按钮 
+    
         
         confirmBtn.textContent = '确认';
 
@@ -2694,14 +2556,12 @@ calcBtn.addEventListener('click', () => {
         modal.appendChild(confirmBtn);
       }
       else {
-        // alert('完成')
         station = res;
         var infochart = echarts.init(document.querySelector(".distribution_map .chart"));
         infochart.clear();
         paintmap2();
         var url2 = '/ion'
         $.post(url2, { 'lon': lon, 'lat': lat, 'date': date }, function (res) {
-          // console.log(res)
           if (res == "false") {
             alert(date + '缺少电离层文件')
             var infochart = echarts.init(document.querySelector(".ionosphereInfo .chart"));
@@ -2723,14 +2583,14 @@ calcBtn.addEventListener('click', () => {
           viewer.dataSources.add(satSource1);
           viewer._container.style.cursor = "default";
           div = document.getElementById('heatmap')
-          // console.log(satSource1.entities.values)
+
           viewer.scene.camera.flyTo(homeCameraView);
         })
-        // 计算完成后更新内容
+
         isDone = true;
         modal.innerHTML = '计算完成';
         document.body.style.pointerEvents = 'auto';
-        // 动态创建确认按钮 
+    
         
         confirmBtn.textContent = '确认';
 
@@ -2795,20 +2655,17 @@ function paintmap2() {
   var minute = '00'
   if (timerange < 10) { var hour = '0' + timerange }
   else { var hour = timerange }
-  // var ptime=document.getElementById("datepick").value
-  // console.log(ptime)
   var stime = year + '/' + month + '/' + day + '/' + hour + ':' + minute
   timeid = year + month + day + hour + minute
   timenum.value = stime;
 
   id = $("input[name='types2']:checked").val();
 
-  // X轴数据
   xdata = []
   for (var i in station) {
     xdata.push(station[i]['time'].slice(11, 16))
   }
-  // 卫星高度角对象初始化
+
   var sat = {}
   for (var i = 1; i < 63; i++) {
 
@@ -2883,8 +2740,8 @@ function painalt(sat, xdata) {
   }
 
   var tooltipdata = {
-    formatter: (value) => { //格式化数据的函数
-      var obj = value // 获取对应的数据
+    formatter: (value) => { 
+      var obj = value
       var time = obj.name
       var title = year + '/' + month + '/' + day + '/' + time
       var name = obj.seriesName
@@ -2903,15 +2760,15 @@ function painalt(sat, xdata) {
       padding: 15,
       color: 'white'
     },
-    splitLine: {//辅助线
-      show: true,//是否显示
-      lineStyle: {//辅助线样式
-        type: 'dashed',//刻度线为虚线，默认实线
+    splitLine: {
+      show: true,
+      lineStyle: {
+        type: 'dashed',
       }
     },
     axisLine: {
       lineStyle: {
-        color: 'white',  //坐标轴的颜色
+        color: 'white',  
       },
     },
     axisLabel: {
@@ -2938,15 +2795,15 @@ function painalt(sat, xdata) {
       show: false,
       left: 'center',
       textStyle: {
-        //文字颜色
+
         color: 'white',
-        //字体风格,'normal','italic','oblique'
+
         fontStyle: 'normal',
-        //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
         fontWeight: 'bold',
-        //字体系列
+
         fontFamily: 'sans-serif',
-        //字体大小
+        
         fontSize: 18
       },
       text: textname,
@@ -2955,28 +2812,6 @@ function painalt(sat, xdata) {
     tooltip: tooltipdata,
     legend: {
       show: false
-      // orient: 'horizontal',      // 布局方式，默认为水平布局，可选为：
-      // // 'horizontal' ¦ 'vertical'
-      // x: 'center',               // 水平安放位置，默认为全图居中，可选为：
-      // // 'center' ¦ 'left' ¦ 'right'
-      // // ¦ {number}（x坐标，单位px）
-      // y: 'bottom'
-      // ,                  // 垂直安放位置，默认为全图顶端，可选为：
-      // // 'top' ¦ 'bottom' ¦ 'center'
-      // // ¦ {number}（y坐标，单位px）
-      // backgroundColor: 'rgba(0,0,0,0)',
-      // borderColor: '#ccc',       // 图例边框颜色
-      // borderWidth: 0,            // 图例边框线宽，单位px，默认为0（无边框）
-      // padding: 3,                // 图例内边距，单位px，默认各方向内边距为5，
-      // // 接受数组分别设定上右下左边距，同css
-      // itemGap: 10,               // 各个item之间的间隔，单位px，默认为10，
-      // // 横向布局时为水平间隔，纵向布局时为纵向间隔
-      // itemWidth: 20,             // 图例图形宽度
-      // itemHeight: 14,            // 图例图形高度
-      // textStyle: {
-      //   color: 'white',          // 图例文字颜色
-      //   fontSize:16
-      // }
     },
     xAxis: {
       name: '时间',
@@ -2998,7 +2833,7 @@ function painalt(sat, xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       },
     },
@@ -3006,8 +2841,8 @@ function painalt(sat, xdata) {
     series: seriesdata
   };
   infochart.setOption(option);
-  infochart.on('mouseover', function (params) {// 鼠标移入
-    infochart.setOption({// 设置 鼠标移入后想要的样式
+  infochart.on('mouseover', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 4,
@@ -3017,8 +2852,8 @@ function painalt(sat, xdata) {
       }
     })
   })
-  infochart.on('mouseout', function (params) {// 鼠标移出
-    infochart.setOption({// 将样式复原
+  infochart.on('mouseout', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 2,
@@ -3051,8 +2886,8 @@ function painnums(xdata) {
   }
   seriesdata.push(s)
   var tooltipdata = {
-    formatter: (value) => { //格式化数据的函数
-      var obj = value[0] // 获取对应的数据
+    formatter: (value) => { 
+      var obj = value[0]
       var time = obj.name
       var title = year + '/' + month + '/' + day + '/' + time
 
@@ -3072,15 +2907,15 @@ function painnums(xdata) {
       padding: 15,
       color: 'white'
     },
-    splitLine: {//辅助线
-      show: true,//是否显示
-      lineStyle: {//辅助线样式
-        type: 'dashed',//刻度线为虚线，默认实线
+    splitLine: {
+      show: true,
+      lineStyle: {
+        type: 'dashed',
       }
     },
     axisLine: {
       lineStyle: {
-        color: 'white',  //坐标轴的颜色
+        color: 'white',  
       },
     },
     axisLabel: {
@@ -3093,15 +2928,15 @@ function painnums(xdata) {
       show: false,
       left: 'center',
       textStyle: {
-        //文字颜色
+
         color: 'white',
-        //字体风格,'normal','italic','oblique'
+
         fontStyle: 'normal',
-        //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
         fontWeight: 'bold',
-        //字体系列
+
         fontFamily: 'sans-serif',
-        //字体大小
+        
         fontSize: 18
       },
       text: textname,
@@ -3120,28 +2955,7 @@ function painnums(xdata) {
     tooltip: tooltipdata,
     legend: {
       show: false
-      // orient: 'horizontal',      // 布局方式，默认为水平布局，可选为：
-      // // 'horizontal' ¦ 'vertical'
-      // x: 'center',               // 水平安放位置，默认为全图居中，可选为：
-      // // 'center' ¦ 'left' ¦ 'right'
-      // // ¦ {number}（x坐标，单位px）
-      // y: 'bottom'
-      // ,                  // 垂直安放位置，默认为全图顶端，可选为：
-      // // 'top' ¦ 'bottom' ¦ 'center'
-      // // ¦ {number}（y坐标，单位px）
-      // backgroundColor: 'rgba(0,0,0,0)',
-      // borderColor: '#ccc',       // 图例边框颜色
-      // borderWidth: 0,            // 图例边框线宽，单位px，默认为0（无边框）
-      // padding: 3,                // 图例内边距，单位px，默认各方向内边距为5，
-      // // 接受数组分别设定上右下左边距，同css
-      // itemGap: 10,               // 各个item之间的间隔，单位px，默认为10，
-      // // 横向布局时为水平间隔，纵向布局时为纵向间隔
-      // itemWidth: 20,             // 图例图形宽度
-      // itemHeight: 14,            // 图例图形高度
-      // textStyle: {
-      //   color: 'white',          // 图例文字颜色
-      //   fontSize:16
-      // }
+
     },
     xAxis: {
       name: '时间',
@@ -3163,7 +2977,7 @@ function painnums(xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       },
     },
@@ -3171,8 +2985,8 @@ function painnums(xdata) {
     series: seriesdata
   };
   infochart.setOption(option);
-  infochart.on('mouseover', function (params) {// 鼠标移入
-    infochart.setOption({// 设置 鼠标移入后想要的样式
+  infochart.on('mouseover', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 4,
@@ -3182,8 +2996,8 @@ function painnums(xdata) {
       }
     })
   })
-  infochart.on('mouseout', function (params) {// 鼠标移出
-    infochart.setOption({// 将样式复原
+  infochart.on('mouseout', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 2,
@@ -3308,15 +3122,15 @@ function painDOP(xdata) {
       padding: 15,
       color: 'white'
     },
-    splitLine: {//辅助线
-      show: true,//是否显示
-      lineStyle: {//辅助线样式
-        type: 'dashed',//刻度线为虚线，默认实线
+    splitLine: {
+      show: true,
+      lineStyle: {
+        type: 'dashed',
       }
     },
     axisLine: {
       lineStyle: {
-        color: 'white',  //坐标轴的颜色
+        color: 'white',  
       },
     },
     axisLabel: {
@@ -3461,7 +3275,7 @@ function painvisibility(sat, xdata) {
       itemStyle: {
         normal: {
           lineStyle: {
-            width: 4//设置线条粗细
+            width: 4
           }
         },
         showSymbol: false,
@@ -3473,7 +3287,7 @@ function painvisibility(sat, xdata) {
   }
   // console.log(s)
   var tooltipdata = {
-    formatter: (value) => { //格式化数据的函数
+    formatter: (value) => { 
       // console.log(value)
       var obj = value[0]
 
@@ -3517,10 +3331,10 @@ function painvisibility(sat, xdata) {
       padding: 15,
       color: 'white'
     },
-    splitLine: {//辅助线
-      show: false,//是否显示
-      lineStyle: {//辅助线样式
-        type: 'dashed',//刻度线为虚线，默认实线
+    splitLine: {
+      show: false,
+      lineStyle: {
+        type: 'dashed',
       }
     },
     // minInterval: 1,
@@ -3549,7 +3363,7 @@ function painvisibility(sat, xdata) {
     },
     axisLine: {
       lineStyle: {
-        color: 'white',  //坐标轴的颜色
+        color: 'white',  
       },
     }
 
@@ -3561,15 +3375,15 @@ function painvisibility(sat, xdata) {
       show: false,
       left: 'center',
       textStyle: {
-        //文字颜色
+
         color: 'white',
-        //字体风格,'normal','italic','oblique'
+
         fontStyle: 'normal',
-        //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
         fontWeight: 'bold',
-        //字体系列
+
         fontFamily: 'sans-serif',
-        //字体大小
+        
         fontSize: 18
       },
       text: textname,
@@ -3610,7 +3424,7 @@ function painvisibility(sat, xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       },
     },
@@ -3618,8 +3432,8 @@ function painvisibility(sat, xdata) {
     series: seriesdata
   };
   infochart.setOption(option);
-  infochart.on('mouseover', function (params) {// 鼠标移入
-    infochart.setOption({// 设置 鼠标移入后想要的样式
+  infochart.on('mouseover', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 5,
@@ -3630,8 +3444,8 @@ function painvisibility(sat, xdata) {
     })
   })
 
-  infochart.on('mouseout', function (params) {// 鼠标移出
-    infochart.setOption({// 将样式复原
+  infochart.on('mouseout', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 8,
@@ -3695,7 +3509,7 @@ function painAccuracy(xdata) {
   }
   seriesdata.push(s3)
   var tooltipdata = {
-    formatter: (value) => { //格式化数据的函数
+    formatter: (value) => { 
       var h = value[0]
       var p = value[1]
       var v = value[2]
@@ -3719,15 +3533,15 @@ function painAccuracy(xdata) {
       padding: 12,
       color: 'white'
     },
-    splitLine: {//辅助线
-      show: true,//是否显示
-      lineStyle: {//辅助线样式
-        type: 'dashed',//刻度线为虚线，默认实线
+    splitLine: {
+      show: true,
+      lineStyle: {
+        type: 'dashed',
       }
     },
     axisLine: {
       lineStyle: {
-        color: 'white',  //坐标轴的颜色
+        color: 'white',  
       },
     },
     axisLabel: {
@@ -3741,15 +3555,15 @@ function painAccuracy(xdata) {
       show: false,
       left: 'center',
       textStyle: {
-        //文字颜色
+
         color: 'white',
-        //字体风格,'normal','italic','oblique'
+
         fontStyle: 'normal',
-        //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
         fontWeight: 'bold',
-        //字体系列
+
         fontFamily: 'sans-serif',
-        //字体大小
+        
         fontSize: 18
       },
       text: textname,
@@ -3790,7 +3604,7 @@ function painAccuracy(xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       },
     },
@@ -3798,8 +3612,8 @@ function painAccuracy(xdata) {
     series: seriesdata
   };
   infochart.setOption(option);
-  infochart.on('mouseover', function (params) {// 鼠标移入
-    infochart.setOption({// 设置 鼠标移入后想要的样式
+  infochart.on('mouseover', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 4,
@@ -3809,8 +3623,8 @@ function painAccuracy(xdata) {
       }
     })
   })
-  infochart.on('mouseout', function (params) {// 鼠标移出
-    infochart.setOption({// 将样式复原
+  infochart.on('mouseout', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 2,
@@ -3858,15 +3672,15 @@ function painionosphereInfo(ion_info) {
       show: false,
       left: 'center',
       textStyle: {
-        //文字颜色
+
         color: 'white',
-        //字体风格,'normal','italic','oblique'
+
         fontStyle: 'normal',
-        //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+
         fontWeight: 'bold',
-        //字体系列
+
         fontFamily: 'sans-serif',
-        //字体大小
+        
         fontSize: 18
       },
       text: textname,
@@ -3883,8 +3697,8 @@ function painionosphereInfo(ion_info) {
       height: '70%'
     },
     tooltip: {
-      formatter: (value) => { //格式化数据的函数
-        var obj = value[0] // 获取对应的数据
+      formatter: (value) => { 
+        var obj = value[0]
         var time = obj.name
         var title = year + '/' + month + '/' + day + '/' + time
 
@@ -3920,7 +3734,7 @@ function painionosphereInfo(ion_info) {
       axisLine: {
 
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       },
     },
@@ -3932,10 +3746,10 @@ function painionosphereInfo(ion_info) {
         padding: 55,
         color: 'white'
       },
-      splitLine: {//辅助线
-        show: true,//是否显示
-        lineStyle: {//辅助线样式
-          type: 'dashed',//刻度线为虚线，默认实线
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: 'dashed',
         }
       },
       axisLabel: {
@@ -3948,15 +3762,15 @@ function painionosphereInfo(ion_info) {
       },
       axisLine: {
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       }
     },
     series: seriesdata
   };
   infochart.setOption(option);
-  infochart.on('mouseover', function (params) {// 鼠标移入
-    infochart.setOption({// 设置 鼠标移入后想要的样式
+  infochart.on('mouseover', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 4,
@@ -3966,8 +3780,8 @@ function painionosphereInfo(ion_info) {
       }
     })
   })
-  infochart.on('mouseout', function (params) {// 鼠标移出
-    infochart.setOption({// 将样式复原
+  infochart.on('mouseout', function (params) {
+    infochart.setOption({
       series: {
         name: params.seriesName,
         symbolSize: 2,
@@ -3982,7 +3796,7 @@ function painionosphereInfo(ion_info) {
   })
 }
 function paindistribution_map() {
-  // 卫星高度角对象初始化
+  
   var sat = {}
   for (var i = 1; i < 65; i++) {
 
@@ -4149,26 +3963,21 @@ function paindistribution_map() {
       height: '70%'
     },
     legend: {
-      orient: 'vertical',      // 布局方式，默认为水平布局，可选为：
-      // 'horizontal' ¦ 'vertical'
-      x: 'left',               // 水平安放位置，默认为全图居中，可选为：
-      // 'center' ¦ 'left' ¦ 'right'
-      // ¦ {number}（x坐标，单位px）
+      orient: 'vertical',      
+      
+      x: 'left',               
       y: '20px'
-      ,                  // 垂直安放位置，默认为全图顶端，可选为：
-      // 'top' ¦ 'bottom' ¦ 'center'
-      // ¦ {number}（y坐标，单位px）
+      ,
+
       backgroundColor: 'rgba(0,0,0,0)',
-      borderColor: '#ccc',       // 图例边框颜色
-      borderWidth: 0,            // 图例边框线宽，单位px，默认为0（无边框）
-      padding: 5,                // 图例内边距，单位px，默认各方向内边距为5，
-      // 接受数组分别设定上右下左边距，同css
-      itemGap: 10,               // 各个item之间的间隔，单位px，默认为10，
-      // 横向布局时为水平间隔，纵向布局时为纵向间隔
-      itemWidth: 20,             // 图例图形宽度
-      itemHeight: 20,            // 图例图形高度
+      borderColor: '#ccc',      
+      borderWidth: 0,            
+      padding: 5,                
+      itemGap: 10,              
+      itemWidth: 20,             
+      itemHeight: 20,           
       textStyle: {
-        color: 'white'          // 图例文字颜色
+        color: 'white'          
       },
       icon: 'image://../static/images/icon/scattericon.png',
       formatter: function (params) {
@@ -4198,7 +4007,7 @@ function paindistribution_map() {
       axisLine: {
         // show: false
         lineStyle: {
-          color: 'white',  //坐标轴的颜色
+          color: 'white',  
         },
       },
       axisLabel: {
@@ -4487,7 +4296,6 @@ function satpick() {
 
 function setp1(callback) {
   setTimeout(function () {
-    //f1的代码
     setp('leftp')
     callback();
   }, 1000)
@@ -4504,10 +4312,10 @@ function setarea() {
 function setp1() {
   var density = $('#density').val();
 
-  // 设置视图
-  viewer.scene.mode = Cesium.SceneMode.SCENE2D//视角转换
-  viewer.scene.screenSpaceCameraController.enableTranslate = false;//关闭平移
-  viewer.scene.screenSpaceCameraController.enableZoom = false;//关闭缩放
+
+  viewer.scene.mode = Cesium.SceneMode.SCENE2D
+  viewer.scene.screenSpaceCameraController.enableTranslate = false;
+  viewer.scene.screenSpaceCameraController.enableZoom = false;
   var rectangle = Cesium.Rectangle.fromDegrees(-180, 90, 180, -90);
   viewer.camera.setView({
     destination: rectangle,
@@ -4516,7 +4324,7 @@ function setp1() {
       pitch: Cesium.Math.toRadians(-90),
       roll: Cesium.Math.toRadians(0)
     }
-  });//相机区域限制
+  });
 
   // viewer.dataSources.remove(satSource);
   viewer._container.style.cursor = "crosshair";
@@ -4524,24 +4332,17 @@ function setp1() {
   var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction(function (event) {
 
-    // 屏幕坐标转世界坐标——关键点
+
     var ellipsoid = viewer.scene.globe.ellipsoid;
     var cartesian = viewer.camera.pickEllipsoid(event.position, ellipsoid);
-    // 将笛卡尔坐标转换为地理坐标
+
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-    // 将弧度转为度的十进制度表示
+
     var lon = Cesium.Math.toDegrees(cartographic.longitude).toFixed(1);
     var lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(1);
-    // console.log(lon , lat)
-    // lon=Math.floor(lon/density)*density
-    // lat=Math.floor(lat/density)*density
-    // 输出经纬度
-    // console.log(lon , lat)
     document.getElementById('leftp').value = lon + '°,' + lat + '°'
     handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
-
     viewer._container.style.cursor = "auto";
-    // viewer.scene.mode=Cesium.SceneMode.SCENE3D
     setp2()
 
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
@@ -4555,22 +4356,14 @@ function setp2() {
   var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction(function (event) {
 
-    // 屏幕坐标转世界坐标——关键点
+
     var ellipsoid = viewer.scene.globe.ellipsoid;
     var cartesian = viewer.camera.pickEllipsoid(event.position, ellipsoid);
-    // 将笛卡尔坐标转换为地理坐标
+
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-    // 将弧度转为度的十进制度表示
+
     var lon = Cesium.Math.toDegrees(cartographic.longitude).toFixed(1);
     var lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(1);
-    // console.log(lon , lat)
-    // lon=Math.floor(lon/density)*density
-    // lat=Math.floor(lat/density)*density
-    // 输出经纬度
-    // console.log(lon, lat)
-
-    // 输出经纬度
-    // alert(lon + ' , ' + lat)
     document.getElementById('rightp').value = lon + '°,' + lat + '°'
 
 
@@ -4591,19 +4384,19 @@ function setp(id) {
   var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction(function (event) {
 
-    // 屏幕坐标转世界坐标——关键点
+
     var ellipsoid = viewer.scene.globe.ellipsoid;
     var cartesian = viewer.camera.pickEllipsoid(event.position, ellipsoid);
-    // 将笛卡尔坐标转换为地理坐标
+
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-    // 将弧度转为度的十进制度表示
+
     var lon = Cesium.Math.toDegrees(cartographic.longitude).toFixed(1);
     var lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(1);
     var height = Math.ceil(this.viewer.camera.positionCartographic.height);
     var height = 0
     var height1 = viewer.scene.globe.getHeight(cartographic);
     var height2 = cartographic.height;
-    // 输出经纬度
+
     // alert(lon + ' , ' + lat)
     document.getElementById(id).value = lon + '°,' + lat + '°'
 
@@ -4621,11 +4414,9 @@ function pickall(obj) {
   var sat2 = document.getElementById('sat_all').children[1].children
   var sat3 = document.getElementById('sat_all').children[2].children
   var satnums = 0
-  // console.log(obj)
   if (document.getElementById('sat_all').children[0].style.display == 'block') {
     for (var i = 0; i < sat1.length; i++) {
       var obj1 = sat1[i].children;
-      // console.log(obj1)
       if (sat1[i].style.display == 'block' && $(obj).prop("checked") == true && !$(obj1).is(':disabled')) {
         satnums += 1
         $(obj1).prop('checked', true)
@@ -4680,8 +4471,6 @@ function area_paint() {
   rectangleEntity = viewer.entities.add({
     rectangle: {
       coordinates: rec,
-      // fill: false,
-      // outline: true,
       material: Cesium.Color.RED.withAlpha(0.5)
     }
   });
@@ -4691,11 +4480,9 @@ function area_paint() {
 
 var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-// document.getElementById('startSelectBtn').addEventListener('click', startSelection);
 
 function startSelection() {
-  // 切换到2D模式
-  viewer.scene.mode = Cesium.SceneMode.SCENE2D//视角转换
+  viewer.scene.mode = Cesium.SceneMode.SCENE2D
   var rectangle = Cesium.Rectangle.fromDegrees(-180, 90, 180, -90);
   alert('请框选区域')
   viewer.camera.setView({
@@ -4705,40 +4492,33 @@ function startSelection() {
       pitch: Cesium.Math.toRadians(-90),
       roll: Cesium.Math.toRadians(0)
     }
-  });//相机区域限制
-  // 禁用鼠标拖拽和缩放功能
+  });
+  
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
   viewer.scene.screenSpaceCameraController.enableZoom = false;
   viewer.scene.screenSpaceCameraController.enableTilt = false;
   viewer.scene.screenSpaceCameraController.enableLook = false;
-  // 改变鼠标指针样式
   viewer.container.style.cursor = 'crosshair';
-  // 监听鼠标左键按下事件
   handler.setInputAction(startDrawing, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 }
 var startMousePosition;
 var start = new Cesium.Cartesian2();
 var rectangleElement;
 function startDrawing(event) {
-  // 获取鼠标点击位置
   startMousePosition = new Cesium.Cartesian2(event.position.x, event.position.y);
   start = Cesium.Cartesian3.clone(event.position);
   console.log(start)
-  // 创建矩形元素
   rectangleElement = document.createElement('div');
   rectangleElement.className = 'rectangle';
   rectangleElement.style.left = start.x + 'px';
   rectangleElement.style.top = start.y + 'px';
-  // 设置矩形元素样式
   rectangleElement.style.position = 'absolute';
   rectangleElement.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
   rectangleElement.style.border = '1px solid rgba(255, 255, 255, 0.7)';
   rectangleElement.style.pointerEvents = 'none';
   rectangleElement.style.zIndex = '9999';
-  // 添加到容器中
   viewer.container.appendChild(rectangleElement);
-  // 添加后续监听事件
   handler.setInputAction(updateDrawing, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   handler.setInputAction(endSelection, Cesium.ScreenSpaceEventType.LEFT_UP);
 }
@@ -4746,12 +4526,10 @@ function startDrawing(event) {
 function updateDrawing(event) {
   if (!Cesium.Cartesian3.equals(start, Cesium.Cartesian3.ZERO)) {
     var end = Cesium.Cartesian3.clone(event.endPosition);
-    // 更新矩形元素的宽度和高度
     var width = Math.abs(end.x - start.x);
     var height = Math.abs(end.y - start.y);
     rectangleElement.style.width = width + 'px';
     rectangleElement.style.height = height + 'px';
-    // 更新矩形元素的位置
     if (end.x < start.x) {
       rectangleElement.style.left = end.x + 'px';
     }
@@ -4764,23 +4542,17 @@ function updateDrawing(event) {
 var endMousePosition;
 function endSelection(event) {
   viewer.scene.morphTo3D();
-  // 移除鼠标事件监听器
   handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
   handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP);
-  // 移除矩形图元
   viewer.container.removeChild(rectangleElement);
-  // 恢复鼠标指针样式
   viewer.container.style.cursor = 'default';
-  // 启用鼠标拖拽和缩放功能
   viewer.scene.screenSpaceCameraController.enableRotate = true;
   viewer.scene.screenSpaceCameraController.enableTranslate = true;
   viewer.scene.screenSpaceCameraController.enableZoom = true;
   viewer.scene.screenSpaceCameraController.enableTilt = true;
   viewer.scene.screenSpaceCameraController.enableLook = true;
-  // 获取选取结束时的鼠标位置
   endMousePosition = new Cesium.Cartesian2(event.position.x, event.position.y);
-  // 计算选取区域的弧度范围
   var startCartesian3 = viewer.camera.pickEllipsoid(startMousePosition, viewer.scene.globe.ellipsoid);
   var endCartesian3 = viewer.camera.pickEllipsoid(endMousePosition, viewer.scene.globe.ellipsoid);
   if (!startCartesian3 || !endCartesian3) {

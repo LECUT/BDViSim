@@ -3,20 +3,20 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMGNhYjhkOS00MGE2LTRkMDctOGZiYS1mZjc4MGQ0YmQyZTMiLCJpZCI6OTYzOTEsImlhdCI6MTY1NDQ5MDE5OH0.KMWej-d39eu-JXzFrpUTrc0rxYr0m5WcAriKMPSnqLs'
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
-  selectionIndicator: false,//关闭绿色点击框
-  animation: false, //是否显示动画控件
-  homeButton: false, //是否显示Home按钮
-  fullscreenButton: false, //是否显示全屏按钮
-  baseLayerPicker: false, //是否显示图层选择控件
-  geocoder: false, //是否显示地名查找控件
-  timeline: false, //是否显示时间线控件
-  sceneModePicker: false, //是否显示投影方式控件
-  navigationHelpButton: false, //是否显示帮助信息控件
-  infoBox: false, //是否显示点击要素之后显示的信息
-  requestRenderMode: true, //启用请求渲染模式
-  scene3DOnly: false, //每个几何实例将只能以3D渲染以节省GPU内存
-  sceneMode: 3, //初始场景模式 1 2D模式 2 2D循环模式 3 3D模式  Cesium.SceneMode
-  fullscreenElement: document.body, //全屏时渲染的HTML元素 暂时没发现用处
+  selectionIndicator: false,
+  animation: false, 
+  homeButton: false, 
+  fullscreenButton: false,
+  baseLayerPicker: false, 
+  geocoder: false, 
+  timeline: false, 
+  sceneModePicker: false, 
+  navigationHelpButton: false, 
+  infoBox: false, 
+  requestRenderMode: true, 
+  scene3DOnly: false,
+  sceneMode: 3, 
+  fullscreenElement: document.body, 
   contextOptions: {
     webgl: {
       alpha: true,
@@ -94,24 +94,17 @@ viewer.scene.skyBox = new Cesium.SkyBox({
 
 function initalize() {
 
-  // 抗锯齿
-  //是否开启抗锯齿
-  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {//判断是否支持图像渲染像素化处理
+
+  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     viewer.resolutionScale = window.devicePixelRatio;
   }
   viewer.scene.fxaa = true;
   viewer.scene.postProcessStages.fxaa.enabled = true;
-
-
-  // 解决模型变黑
   viewer.lightColor = new Cesium.Cartesian3(1000, 1000, 1000)
-
-  // 解决画面模糊
   viewer._cesiumWidget._supportsImageRenderingPixelated = Cesium.FeatureDetection.supportsImageRenderingPixelated();
   viewer._cesiumWidget._forceResize = true;
   if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     var vtxf_dpr = window.devicePixelRatio;
-    // 适度降低分辨率
     while (vtxf_dpr >= 2.0) {
       vtxf_dpr /= 2.0;
     }
@@ -144,7 +137,7 @@ function rotate() {
 
 initalize();
 
-//设置初始位置为中国
+
 var initialPosition = new Cesium.Cartesian3.fromDegrees(113.42, 10.16, 24000000);
 var homeCameraView = {
   destination: initialPosition,
@@ -359,7 +352,7 @@ function showDiv4() {
 }
 
 
-//写文件
+
 var saveAs = saveAs || (function (view) {
   "use strict";
   // IE <10 is explicitly unsupported
@@ -553,42 +546,42 @@ var satid = "s";
 
 
 a = $.ajax({
-  url: "../static/json/orbit_info.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/orbit_info.json",
+  type: "GET",
+  dataType: "json", 
   async: false,
   success: function (data) {
   }
 });
 b = $.ajax({
-  url: "../static/json/satellite_info.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/satellite_info.json",
+  type: "GET",
+  dataType: "json", 
   async: false,
   success: function (data) {
   }
 });
 C = $.ajax({
-  url: "../static/json/satellite_info2.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/satellite_info2.json",
+  type: "GET",
+  dataType: "json", 
   async: false,
   success: function (data) {
   }
 });
 
 d = $.ajax({
-  url: "../static/json/satellite_info3.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/satellite_info3.json",
+  type: "GET",
+  dataType: "json", 
   async: false,
   success: function (data) {
   }
 });
 e = $.ajax({
-  url: "../static/json/satellite_info4.json",//json文件位置，文件名
-  type: "GET",//请求方式为get
-  dataType: "json", //返回数据格式为json
+  url: "../static/json/satellite_info4.json",
+  type: "GET",
+  dataType: "json", 
   async: false,
   success: function (data) {
 
@@ -743,7 +736,7 @@ function newset() {
   // sp3text.value = "\t\t\t时间\t\t\t\t\t\t\tX\t\t\t\t\t\t\tY\t\t\t\t\t\t\tZ\t\t\t\t\t钟差\n";
   if(result4=='false')
   {
-    td_t1.textContent = "缺少SP3数据"
+    td_t1.textContent = "SP3 data missing"
     td_x1.textContent = ""
     td_y1.textContent = ""
     td_z1.textContent = ""
@@ -757,8 +750,7 @@ function newset() {
   else{
     if (!window.result4[id]) {
 
-      // sp3text.value ="SP3无该颗卫星数据"
-      td_t1.textContent = "SP3无该颗卫星数据"
+      td_t1.textContent = "SP3 has no satellite data"
       td_x1.textContent = ""
       td_y1.textContent = ""
       td_z1.textContent = ""
@@ -782,11 +774,6 @@ function newset() {
         tdy = tdy + (Number(result4[id][sp3][1])).toFixed(3) + '\n'
         tdz = tdz + (Number(result4[id][sp3][2])).toFixed(3) + '\n'
         tdg = tdg + (Number(result4[id][sp3][3])).toFixed(3) + '\n'
-        // sp3text.value = sp3text.value + fix(result4[id][sp3][4], 22) +
-        //   "\t" + fix((Number(result4[id][sp3][0])/1000).toFixed(6), 22) +
-        //   "\t" + fix((Number(result4[id][sp3][1])/1000).toFixed(6), 22) +
-        //   "\t" + fix((Number(result4[id][sp3][2])/1000).toFixed(6), 22) +
-        //   "\t" + fix(Number(result4[id][sp3][3]).toFixed(6), 22) + "\t"+'\n'
       }
       td_time.textContent = tdt;
       td_x.textContent = tdx;
@@ -809,13 +796,6 @@ function closeout() {
   var div4 = document.getElementById("div5");
   div5.style.display = 'none';
 }
-
-
-// function openorbit() {
-
-// document.getElementById("orbit_cal").style.display = "block";//显示
-
-
 
 for (var prn in result3) {
   for (var i = 0; i < newselect.options.length; i++) {
@@ -963,7 +943,6 @@ function neworbitcal() {
 
 
         if (!window.result3[id][timeid]) {
-          // alert("Rinex中无匹配数据")
           break;
         }
         else {
@@ -1011,7 +990,6 @@ function neworbitcal() {
           if (c3.checked == true) {
             if (!window.result4[id]||!window.result4[id][timeid]) {
               modal.innerHTML = 'No match data in the SP3 file';
-              // alert("SP3无匹配数据")
               document.body.style.pointerEvents = 'auto';     
               confirmBtn.textContent = 'Confirm';
               confirmBtn.addEventListener('click', onConfirm);
@@ -1110,7 +1088,7 @@ function neworbitcal() {
 
     text1.value = text1.value + '\n';
   }
-  // < !--计算差值-->
+
   gap_x1 = [];
   gap_x2 = [];
   gap_x3 = [];
@@ -1545,7 +1523,7 @@ function paintchart() {
   myChart6.setOption(option6);
 
 }
-// < !--对比图-->
+
 function show2() {
   id = $("input[name='b']:checked").val();
   if (id == 'chart_x') {
@@ -1565,7 +1543,7 @@ function show2() {
   }
 
 }
-// < !--结果选项-->
+
 function show1() {
   id = $("input[name='a']:checked").val();
   dt=document.getElementById('downtext')
@@ -1590,7 +1568,7 @@ function show1() {
 
 
 }
-// < !--差值图-->
+
 function show3() {
   id = $("input[name='c']:checked").val();
   if (id == 'gap_chart1') {
@@ -1638,81 +1616,42 @@ function jiequ() {
   });
 
 }
-// function jiequ() {
-//   if(document.getElementById('gap_chart1').style.display=='block'){
-//     var obj='#gap_chart1'
-//     var select=1
-//   }
-//   else if(document.getElementById('gap_chart2').style.display=='block'){
-//     var obj='#gap_chart2'
-//     var select=2
-//   }
-//   else if(document.getElementById('gap_chart3').style.display=='block'){
-//     var obj='#gap_chart3'
-//     var select=3
-//   }
-//   else{
-//     alert('no pictrue')
-//   }
-//   document.getElementById('downchart').style.display='block'
-//   paintdownchart('downchart',select)
-//   // html2canvas($(obj), {
-//   //     backgroundColor:'#ffffff',
-//   //     height: ($("#contbox").outerHeight())*10,
-//   //     width: ($("#contbox").outerWidth())*10,
-//   //     scale: 10,
-//   //     logging:true,
-//   //     foreignObjectRendering: true,
-//   //     useCORS: true,
-//   //     onrendered: function (canvas) {
-//   //         var img = convertCanvasToImage(canvas);
-//   //         download(img.src)
-//   //     }
-//   // });
 
-// }
-//绘制显示图片
 function convertCanvasToImage(canvas) {
   var image = new Image();
 
-  image.src = canvas.toDataURL("image/png"); //生成图片地址
+  image.src = canvas.toDataURL("image/png"); 
   return image;
 }
-//生成canvas元素
+
 function convertImageToCanvas(image, startX, startY, width, height) {
   var canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  canvas.getContext("2d").drawImage(image, startX, startY, width, height, 0, 0, width, height);//在这调整图片中内容的显示（大小,放大缩小,位置等）
+  canvas.getContext("2d").drawImage(image, startX, startY, width, height, 0, 0, width, height);
   return canvas;
-}// 另存为图片
+}
 function download(src) {
 
 
   var $a = $("<a></a>").attr("href", src).attr("download",
-    "图像.png");
+    "chart.png");
   $a[0].click();
 }
 
-// 获取颜色选择器元素
+
 var colorPicker = document.getElementById("colorPicker");
 
-// 获取目标容器元素
 var chart2 = document.getElementById("chart2");
 
-// 监听颜色选择器的变化事件
 colorPicker.addEventListener("change", function () {
-  // 获取选择的颜色值
+
   var color = colorPicker.value;
 
-  // 将颜色应用于目标容器的背景颜色
   chart2.style.backgroundColor = color;
 });
 function calculateRMS(numbers) {
-  // 计算平方和
   const squareSum = numbers.reduce((sum, num) => sum + num * num, 0);
-
-  // 计算均方根并返回
   const rms = Math.sqrt(squareSum / numbers.length);
   return rms;
 }

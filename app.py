@@ -19,11 +19,11 @@ app = Flask(__name__)
 @app.route('/')
 def star():
     datacal.orbits()
-    return render_template('mainview.html')
-@app.route('/mainviewen')
+    return render_template('mainviewen.html')
+@app.route('/mainviewcn')
 def star_en():
     datacal.orbits_en()
-    return render_template('mainviewen.html')
+    return render_template('mainview.html')
 
 @app.route('/index')
 def index():

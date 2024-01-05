@@ -1,6 +1,5 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMGNhYjhkOS00MGE2LTRkMDctOGZiYS1mZjc4MGQ0YmQyZTMiLCJpZCI6OTYzOTEsImlhdCI6MTY1NDQ5MDE5OH0.KMWej-d39eu-JXzFrpUTrc0rxYr0m5WcAriKMPSnqLs'
 
-// cesium时钟时间格式化
 function CesiumTimeFormatter(datetime, viewModel) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -11,7 +10,7 @@ function CesiumTimeFormatter(datetime, viewModel) {
   let second = gregorianDT.second + "";
   return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}:${second.padStart(2, "0")}`;
 }
-//cesium时钟日期格式化
+
 function CesiumDateFormatter(datetime, viewModel, ignoredate) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -20,7 +19,7 @@ function CesiumDateFormatter(datetime, viewModel, ignoredate) {
   return `${gregorianDT.year}年${gregorianDT.month}月${gregorianDT.day}日`;
 }
 
-//cesium时间轴格式化
+
 function CesiumDateTimeFormatter(datetime, viewModel, ignoredate) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -35,17 +34,17 @@ Cesium.Timeline.prototype.makeLabel = CesiumDateTimeFormatter;
 var viewer = new Cesium.Viewer('cesiumContainer', {
   sceneModePicker: true,
   baseLayerPicker:true,
-    requestRenderMode: true, //启用请求渲染模式
-  scene3DOnly: false, //每个几何实例将只能以3D渲染以节省GPU内存
-  sceneMode: 3, //初始场景模式 1 2D模式 2 2D循环模式 3 3D模式  Cesium.SceneMode
+    requestRenderMode: true, 
+  scene3DOnly: false, 
+  sceneMode: 3, 
   contextOptions: {
     webgl: {
       alpha: true,
     }
   },
-  // vrButton: true
+
 });
-// viewer.scene.debugShowFramesPerSecond = true;
+
 
 viewer.baseLayerPicker.viewModel.selectedImagery = viewer.baseLayerPicker.viewModel.imageryProviderViewModels[3];
 
@@ -53,16 +52,6 @@ viewer.baseLayerPicker.viewModel.selectedImagery = viewer.baseLayerPicker.viewMo
 viewer.clock.shouldAnimate = true;
 viewer.animation.viewModel.dateFormatter = CesiumDateFormatter;
 viewer.animation.viewModel.timeFormatter = CesiumTimeFormatter;
-
-// viewer.scene.skyBox.show = false //关闭天空盒，否则会显示天空颜色
-//     //背景透明
-// viewer.scene.backgroundColor = new Cesium.Color(0.0, 0.0, 0.0, 0.0);
-//     //关闭大气
-// viewer.scene.skyAtmosphere.show = false
-//     //清除月亮太阳
-// viewer.scene.moon.show = false
-// viewer.scene.sun.show = false
-
 var satczml = '../static/czml/stellites.czml';
 
 var satdata = new Cesium.CzmlDataSource(satczml);
@@ -82,14 +71,7 @@ satdata.load(satczml).then(function () {
       // console.log(sat[i].model)
 
     }
-    // if(sat[i]['_id']=="C01(abnormality)" ){
-    //   sat[i].billboard.show=false
-    //   sat[i].label.show=false
-    //   sat[i].model.show = false;
-    //   sat[i].path.show = false;
-    //   // console.log(sat[i].model)
 
-    // }
 
   }
 
@@ -114,37 +96,23 @@ viewer.scene.skyBox = new Cesium.SkyBox({
 
 function initalize() {
 
-  // viewer.scene.globe.enableLighting = true;
-  // viewer.shadows = true;
-
-  // 亮度设置
-  // var stages = viewer.scene.postProcessStages;
-  // viewer.scene.brightness = viewer.scene.brightness || stages.add(Cesium.PostProcessStageLibrary.createBrightnessStage());
-  // viewer.scene.brightness.enabled = true;
-  // viewer.scene.brightness.uniforms.brightness = Number(1.2);
-
-// 抗锯齿
-  //是否开启抗锯齿
-  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {//判断是否支持图像渲染像素化处理
+  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     viewer.resolutionScale = window.devicePixelRatio;
   }
   viewer.scene.fxaa = true;
   viewer.scene.postProcessStages.fxaa.enabled = true;
  
-
-// 解决模型变黑
 viewer.lightColor = new Cesium.Cartesian3(1000, 1000, 1000)
 
-// 解决画面模糊
   viewer._cesiumWidget._supportsImageRenderingPixelated = Cesium.FeatureDetection.supportsImageRenderingPixelated();
   viewer._cesiumWidget._forceResize = true;
   if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     var vtxf_dpr = window.devicePixelRatio;
-    // 适度降低分辨率
+
     while (vtxf_dpr >= 2.0) {
       vtxf_dpr /= 2.0;
     }
-    //alert(dpr);
+
     viewer.resolutionScale = vtxf_dpr;
   }
 
@@ -177,14 +145,14 @@ viewer.homeButton.viewModel.command.beforeExecute.addEventListener(function(e) {
   viewer.scene.camera.flyTo(homeCameraView);
 
 })
-//设置初始位置为中国
+
 var initialPosition = new Cesium.Cartesian3.fromDegrees(113.42, 24.16, 150000000);
 var homeCameraView = {
   destination: initialPosition,
 };
 viewer.scene.camera.flyTo(homeCameraView);
 
-//添加天地图标注
+
 var imageryLayers = viewer.scene.imageryLayers;
 var tdtAnnoLayer = imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
   url: "http://t0.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={TileMatrix}&TILEROW={TileRow}&TILECOL={TileCol}&tk=269b6942f19f345009e605301d0481c2",
@@ -208,7 +176,7 @@ var tdtAnnoLayer = imageryLayers.addImageryProvider(new Cesium.WebMapTileService
           }
       });
       var tencentMap =new Cesium.UrlTemplateImageryProvider({
-        // 影像图
+
         url: "https://p2.map.gtimg.com/sateTiles/{z}/{sx}/{sy}/{x}_{reverseY}.jpg?version=400",
         customTags: {
             sx: function(imageryProvider, x, y, level) {
@@ -230,13 +198,12 @@ var tdtAnnoLayer = imageryLayers.addImageryProvider(new Cesium.WebMapTileService
   });
 
 
-      //新增
       var providerViewModels = viewer.baseLayerPicker.viewModel.imageryProviderViewModels;
       providerViewModels.push(godMapModel);
       providerViewModels.push(tencentMapModel);
       viewer.baseLayerPicker.viewModel.imageryProviderViewModels = providerViewModels;
  
-//汉化
+
 function replace2Chinese(){
 
   var cesium_baseLayerPicker_sectionTitle = document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle");
@@ -276,22 +243,14 @@ function replace2Chinese(){
 	var v1 = v0[0].getElementsByClassName("cesium-viewer-toolbar");
 	var v2 = v1[0].getElementsByClassName("cesium-button cesium-toolbar-button cesium-home-button");
     v2[0].title = "复位视图(View Home)";
-
-    // v2[0].innerHTML =
-    //     '<img src="Cesium_1.49/Widgets/Images/ImageryProviders/earthfull.png" width="30" height="30" />';
-   
-   
-
     v2 = v1[0].getElementsByClassName("cesium-button cesium-toolbar-button cesium-navigation-help-button");
-    v2[0].title = "操作指南";//"操作指南(Navigation Instructions)"
+    v2[0].title = "操作指南";
 
     v2 = v1[0].getElementsByClassName("cesium-viewer-geocoderContainer");
     
 	var v3 = v2[0].getElementsByClassName("cesium-geocoder-input");
 	v3[0].title = "输入: 经度,纬度,视点高度(可选)。如：121,31.5,1000";
     v3[0].placeholder = "经度,纬度,高度。如：121,31.5,1000";
-    //v2[0].innerHTML =
-    //    '<img src="Cesium_1.49/Widgets/Images/ImageryProviders/earth3.png" width="30" height="30" />';
 
 
 	v1 = v0[0].getElementsByClassName("cesium-viewer-fullscreenContainer");
@@ -314,10 +273,6 @@ function replace2Chinese(){
   xxx = $('.cesium-baseLayerPicker-categoryTitle')[3];
   $(xxx).text('Cesium ion内置地形');
 
-  // xxx = $('.cesium-baseLayerPicker-categoryTitle')[3];
-  //$(xxx).text('地表形态');
-  //xxx = $('.cesium-baseLayerPicker-itemLabel')[1];
-  //$(xxx).text('光滑椭球体(WGS84)');
 }      
 replace2Chinese()    
 function flyTo(obj) {
@@ -347,7 +302,6 @@ function switchpath(obj) {
   for (var i in sat) {
     if (sat[i]['_id'] == id) {
       if (obj.checked) {
-        console.log(sat[i]['_id'])
         sat[i].path.show = true;
       }
       else {
@@ -364,7 +318,6 @@ function switchpoint(obj) {
   var sat = satdata.entities.values
   for (var i in sat) {
     if (sat[i]['_id'] == id + 'points') {
-      console.log(sat[i]['_id'])
       if (obj.checked) {
         sat[i].polyline.show = true;
         sat[i].point.show = true;
@@ -390,7 +343,6 @@ function switchbillboard(obj) {
         sat[i].model.show = true;
       }
       else {
-        console.log(sat[i])
         sat[i].billboard.show = false;
         sat[i].label.show = false;
         sat[i].model.show = false;
@@ -398,7 +350,7 @@ function switchbillboard(obj) {
     }
   }
 }
-// 未使用
+
 function switchAllpath(obj) {
   var sat = satdata.entities.values
   for (var i in sat) {
@@ -410,7 +362,7 @@ function switchAllpath(obj) {
     }
   }
 }
-// 未使用
+
 function switchAllpoint(obj) {
   var sat = satdata.entities.values
   for (var i in sat) {
@@ -425,39 +377,7 @@ function switchAllpoint(obj) {
   }
 
 }
-// function showall(){
-//   var allsats=document.getElementsByTagName('li')
-//   console.log(allsats)
-//   for(var i=0;i<allsats.length;i++){
-//     var obj2 = allsats[i].getElementsByTagName('input');
-//     if(allsats[i].style.display=='block'){
-//       obj2[0].checked = true;
-//       obj2[2].checked = true;
-//       var sat = satdata.entities.values
-//       for (var j in sat) {
-//         if (sat[j].id == allsats[i].id.substr(0,3) ) {
-//           sat[j].billboard.show = true;
-//           sat[j].path.show = true;
-//           sat[j].label.show = true;
-//           sat[j].model.show = true;
-//         }
-//       }
-//     }
-//     else{
-//       obj2[0].checked = false;
-//       obj2[2].checked = false;
-//       var sat = satdata.entities.values
-//       for (var j in sat) {
-//         if (sat[j].id == allsats[i].id.substr(0,3) ) {
-//           sat[j].billboard.show = false;
-//           sat[j].path.show = false;
-//           sat[j].label.show =false;
-//           sat[j].model.show = false;
-//         }
-//       }
-//     }
-//   }
-// }
+
 function showall(){
   var sat1=document.getElementById('sat_all').children[0].children
   var sat2=document.getElementById('sat_all').children[1].children
@@ -726,7 +646,6 @@ function picksats() {
   var satnumbers=document.getElementById("satnums");
   var allsats=document.getElementsByTagName('li')
 
-  console.log()
 
   if (pick_geo.checked == true) {
     for (var i = 0; i < sat_geo.length; i++) { sat_geo[i].style.display = 'block'; }
@@ -748,39 +667,26 @@ function picksats() {
   }
   if (sat_bds2.checked == true) {
     bds_2.style.display = 'block';
-    // for(var i=0;i<b2.children.length;i++){
-    //   b2.children[i].style.display = 'block';
-    // }
+
   }
   else if (sat_bds2.checked != true) {
     bds_2.style.display = 'none';
-    // for(var i=0;i<b2.children.length;i++){
-    //   b2.children[i].style.display = 'none';
-    // }
+
   }
   if (sat_bds3.checked == true) {
     bds_3.style.display = 'block';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'block';
-    // }
+
   }
   else if (sat_bds3.checked != true) {
     bds_3.style.display = 'none';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
   if (sat_bds3S.checked == true) {
     bds_3S.style.display = 'block';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
+
   }
   else if (sat_bds3S.checked != true) {
     bds_3S.style.display = 'none';
-    // for(var i=0;i<b3.children.length;i++){
-    //   b3.children[i].style.display = 'none';
-    // }
   }
 
   satnumbers.value=numscal()
@@ -821,14 +727,14 @@ function numscal(){
       }
     }
   }
-  console.log(satnums)
+
  return satnums
 }
 
 function switchbar(){
   c=document.getElementById('panel')
   b=document.getElementById('openbar')
-  console.log(b.style.display)
+
   if(c.style.display=='none'){
     b.style.display='none'
     c.style.display='block'

@@ -1,6 +1,6 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMGNhYjhkOS00MGE2LTRkMDctOGZiYS1mZjc4MGQ0YmQyZTMiLCJpZCI6OTYzOTEsImlhdCI6MTY1NDQ5MDE5OH0.KMWej-d39eu-JXzFrpUTrc0rxYr0m5WcAriKMPSnqLs'
 
-// cesium时钟时间格式化
+
 function CesiumTimeFormatter(datetime, viewModel) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -11,7 +11,7 @@ function CesiumTimeFormatter(datetime, viewModel) {
   let second = gregorianDT.second + "";
   return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}:${second.padStart(2, "0")}`;
 }
-//cesium时钟日期格式化
+
 function CesiumDateFormatter(datetime, viewModel, ignoredate) {
   var julianDT = new Cesium.JulianDate();
   Cesium.JulianDate.addHours(datetime, 8, julianDT);
@@ -32,20 +32,20 @@ function CesiumDateTimeFormatter(datetime, viewModel, ignoredate) {
 
 // Cesium.Timeline.prototype.makeLabel = CesiumDateTimeFormatter;
 var viewer = new Cesium.Viewer('cesiumContainer', {
-  selectionIndicator: false,//关闭绿色点击框
-  animation: false, //是否显示动画控件
+  selectionIndicator: false,
+  animation: false, 
   // shouldAnimate: true,
-  // homeButton: false, //是否显示Home按钮
-  // fullscreenButton: false, //是否显示全屏按钮
-  //  baseLayerPicker: false, //是否显示图层选择控件
-  geocoder: false, //是否显示地名查找控件
-  timeline: false, //是否显示时间线控件
-  // sceneModePicker: false, //是否显示投影方式控件
-  // navigationHelpButton: false, //是否显示帮助信息控件
-  infoBox: false, //是否显示点击要素之后显示的信息
-  requestRenderMode: true, //启用请求渲染模式
-  scene3DOnly: false, //每个几何实例将只能以3D渲染以节省GPU内存
-  sceneMode: 3, //初始场景模式 1 2D模式 2 2D循环模式 3 3D模式  Cesium.SceneMode
+  // homeButton: false, 
+  // fullscreenButton: false, 
+  //  baseLayerPicker: false, 
+  geocoder: false, 
+  timeline: false,
+  // sceneModePicker: false, 
+  // navigationHelpButton: false, 
+  infoBox: false, 
+  requestRenderMode: true, 
+  scene3DOnly: false, 
+  sceneMode: 3, 
   contextOptions: {
     webgl: {
       alpha: true,
@@ -60,12 +60,9 @@ viewer.clock.shouldAnimate = true;
 // viewer.animation.viewModel.dateFormatter = CesiumDateFormatter;
 // viewer.animation.viewModel.timeFormatter = CesiumTimeFormatter;
 
-// viewer.scene.skyBox.show = false //关闭天空盒，否则会显示天空颜色
-//     //背景透明
+// viewer.scene.skyBox.show = false 
 // viewer.scene.backgroundColor = new Cesium.Color(0.0, 0.0, 0.0, 0.0);
-//     //关闭大气
 // viewer.scene.skyAtmosphere.show = false
-//     //清除月亮太阳
 // viewer.scene.moon.show = false
 // viewer.scene.sun.show = false
 
@@ -94,31 +91,22 @@ function initalize() {
 
   // viewer.scene.globe.enableLighting = true;
   // viewer.shadows = true;
-
-  // 亮度设置
   var stages = viewer.scene.postProcessStages;
   viewer.scene.brightness = viewer.scene.brightness || stages.add(Cesium.PostProcessStageLibrary.createBrightnessStage());
   viewer.scene.brightness.enabled = true;
   viewer.scene.brightness.uniforms.brightness = Number(1.2);
 
-  // 抗锯齿
-  //是否开启抗锯齿
-  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {//判断是否支持图像渲染像素化处理
+
+  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     viewer.resolutionScale = window.devicePixelRatio;
   }
   viewer.scene.fxaa = true;
   viewer.scene.postProcessStages.fxaa.enabled = true;
-
-
-  // 解决模型变黑
   viewer.lightColor = new Cesium.Cartesian3(1000, 1000, 1000)
-
-  // 解决画面模糊
   viewer._cesiumWidget._supportsImageRenderingPixelated = Cesium.FeatureDetection.supportsImageRenderingPixelated();
   viewer._cesiumWidget._forceResize = true;
   if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     var vtxf_dpr = window.devicePixelRatio;
-    // 适度降低分辨率
     while (vtxf_dpr >= 2.0) {
       vtxf_dpr /= 2.0;
     }
@@ -311,8 +299,8 @@ var purpleArrow3 = viewer.entities.add({
 }
 )
 
-var spos0 = Cesium.Cartesian3.fromDegrees(0, 0, 0); // 给定的点的经纬度和高程坐标
-var spos = Cesium.Cartesian3.fromDegrees(0, 0, (document.getElementById('sqrt_A_value').value) * (document.getElementById('sqrt_A_value').value) - 6378137); // 地表的经纬度和高程坐标
+var spos0 = Cesium.Cartesian3.fromDegrees(0, 0, 0); 
+var spos = Cesium.Cartesian3.fromDegrees(0, 0, (document.getElementById('sqrt_A_value').value) * (document.getElementById('sqrt_A_value').value) - 6378137); 
 
 function getascend(ascendpos, sat,truepos) {
   if (point != '') {
@@ -368,7 +356,6 @@ function getascend(ascendpos, sat,truepos) {
     viewer.entities.removeById("orbitpoint");
   }
 
-  // 轨道六根数
   var semimajoraxis = (document.getElementById('sqrt_A_value').value) * (document.getElementById('sqrt_A_value').value)
 
   var e = document.getElementById('e_value').value;
@@ -378,30 +365,27 @@ function getascend(ascendpos, sat,truepos) {
   var ω = document.getElementById('w_value').value;
   var E = document.getElementById('M0_value').value;
 
-  // 转换升交点的经纬度为赤道坐标系
-  const ascNodeLongitudeRadians = (longitudeOfAscendingNode * Math.PI) / 180; // 将升交点的经度转换为弧度
-  const ascNodeLatitudeRadians = (0 * Math.PI) / 180; // 将升交点的纬度转换为弧度
+  const ascNodeLongitudeRadians = (longitudeOfAscendingNode * Math.PI) / 180; 
+  const ascNodeLatitudeRadians = (0 * Math.PI) / 180; 
   const x = Math.cos(ascNodeLongitudeRadians) * Math.cos(ascNodeLatitudeRadians);
   const y = Math.sin(ascNodeLongitudeRadians) * Math.cos(ascNodeLatitudeRadians);
   const z = Math.sin(ascNodeLatitudeRadians);
 
-  // 计算近地点的赤道坐标
-  const argOfPerigeeRadians = (ω * Math.PI) / 180; // 将近地点幅角转换为弧度
-  const inclinationRadians = (inclination * Math.PI) / 180; // 将轨道倾角转换为弧度
+  const argOfPerigeeRadians = (ω * Math.PI) / 180; 
+  const inclinationRadians = (inclination * Math.PI) / 180; 
   const distanceToPerigee = Math.cos(argOfPerigeeRadians);
   const xPerigee = x * Math.cos(argOfPerigeeRadians) - y * Math.sin(argOfPerigeeRadians) * Math.cos(inclinationRadians);
   const yPerigee = x * Math.sin(argOfPerigeeRadians) + y * Math.cos(argOfPerigeeRadians) * Math.cos(inclinationRadians);
   const zPerigee = z * Math.sin(inclinationRadians);
 
-  // 计算近地点经纬度
+
 var perigeeLongitude = calculatePerigeeLongitude( longitudeOfAscendingNode, ω);
 
   // const perigeeLatitude = calculatePerigeeLatitude(semimajoraxis, e, inclination, ω, longitudeOfAscendingNode);
 
   const perigeeLatitude = calculatePerigeeLatitude(inclination, ω);
 
-  // 计算近地点的高度
-  const earthRadius = 6371000; // 地球半径（单位：km）
+  const earthRadius = 6371000; 
   const perigeeAltitude = semimajoraxis + (Math.sqrt(xPerigee ** 2 + yPerigee ** 2 + zPerigee ** 2) - earthRadius) - (e * semimajoraxis);
   var ascendingNodeAltitude=ascendpos[2]
   
@@ -466,12 +450,7 @@ var perigeeLongitude = calculatePerigeeLongitude( longitudeOfAscendingNode, ω);
   var equator = new Cesium.Entity({
     id: 'equator',
     name: 'Equatorial plane',
-    // label:{
-    //   font: '10pt Lucida Console',
-    //   fillColor: Cesium.Color.YELLOW,
-    //   pixelOffset: new Cesium.Cartesian2(160, 14),
-    //   text: '赤道面'
-    // },
+
     position: Cesium.Cartesian3.fromDegrees(0, 0, -6378137),
     ellipsoid: {
       radii: new Cesium.Cartesian3(semimajoraxis + 6378137, semimajoraxis + 6378137, 1),
@@ -482,9 +461,9 @@ var perigeeLongitude = calculatePerigeeLongitude( longitudeOfAscendingNode, ω);
 
 
 
-  var pointPosition = Cesium.Cartesian3.fromDegrees(longitudeOfAscendingNode, 0, ascendingNodeAltitude); // 给定的点的经纬度和高程坐标
+  var pointPosition = Cesium.Cartesian3.fromDegrees(longitudeOfAscendingNode, 0, ascendingNodeAltitude); 
 
-  var groundPosition = Cesium.Cartesian3.fromDegrees(longitudeOfAscendingNode, 0, 0); // 地表的经纬度和高程坐标
+  var groundPosition = Cesium.Cartesian3.fromDegrees(longitudeOfAscendingNode, 0, 0); 
   var acendline = new Cesium.Entity({
     id: 'acendline',
     polyline: {
@@ -520,7 +499,7 @@ var perigeeLongitude = calculatePerigeeLongitude( longitudeOfAscendingNode, ω);
     }
   });
   //  var nearpoint=Cesium.Cartesian3.fromDegrees(perigeeLongitude, perigeeLatitude, perigeeAltitude)
-  var groundnpointpos = Cesium.Cartesian3.fromDegrees(perigeeLongitude, perigeeLatitude, 0); // 地表的经纬度和高程坐标
+  var groundnpointpos = Cesium.Cartesian3.fromDegrees(perigeeLongitude, perigeeLatitude, 0); 
   //  console.log(groundnpointpos)
 
 
@@ -743,27 +722,18 @@ var perigeeLongitude = calculatePerigeeLongitude( longitudeOfAscendingNode, ω);
 
 
 
-// 计算近地点经度
+
 function calculatePerigeeLongitude(longitudeOfAscendingNode, argumentOfPerigee) {
-  // 将角度转换为弧度
   const longitudeOfAscendingNodeRad = (Math.PI / 180) * longitudeOfAscendingNode;
   const argumentOfPerigeeRad = (Math.PI / 180) * argumentOfPerigee;
-
-  // 计算近地点经度
   const perigeeLongitude = (longitudeOfAscendingNodeRad + argumentOfPerigeeRad) % (2 * Math.PI);
-
-  // 将弧度转换为度，并转换为 [-180, 180] 范围内的值
   const perigeeLongitudeDeg = ((perigeeLongitude * 180 / Math.PI + 180) % 360) - 180;
 
   return perigeeLongitudeDeg;
 }
-// 计算近地点纬度
 function calculatePerigeeLatitude(inclination, argumentOfPerigee) {
-  // 将角度转换为弧度
   inclination = inclination * Math.PI / 180;
   argumentOfPerigee = argumentOfPerigee * Math.PI / 180;
-
-  // 计算近地点纬度
   var periapsisLatitude = Math.atan(Math.tan(inclination) * Math.sin(argumentOfPerigee)) * 180 / Math.PI;
 
 
@@ -772,7 +742,6 @@ function calculatePerigeeLatitude(inclination, argumentOfPerigee) {
 
 
 function calculateAscendingNodeAltitude(semiMajorAxis, eccentricity, radius) {
-  // 椭圆的升交点高度公式
   const ascendingNodeAltitude = semiMajorAxis * (1 - eccentricity) - radius;
 
   return ascendingNodeAltitude;

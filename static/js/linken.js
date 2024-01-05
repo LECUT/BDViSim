@@ -72,7 +72,7 @@ viewer.scene.skyBox = new Cesium.SkyBox({
 
 function initalize() {
 
-  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {//判断是否支持图像渲染像素化处理
+  if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
     viewer.resolutionScale = window.devicePixelRatio;
   }
   viewer.scene.fxaa = true;
