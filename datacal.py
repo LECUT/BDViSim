@@ -10,6 +10,10 @@ import os
 import urllib.request
 from wget import download
 from gzip import GzipFile
+import ftpdown
+import unlzw3
+from pathlib import Path
+import gzip
 def dops(az, el, elmin,P):
     """ calculate DOP from az/el """
     nm = az.shape[0]
@@ -63,6 +67,14 @@ def dops_accuracy(az, el, elmin,P):
 def sp3un_gz(file_name):
     f_name = file_name.replace(".gz", ".sp3")
     g_file = GzipFile(file_name)
+    open(f_name, "wb+").write(g_file.read())
+    g_file.close()
+def ionun_gz(file_name):
+    # 获取文件的名称，去掉后缀名
+    f_name = file_name.replace(".zip", ".ion")
+    # 开始解压
+    g_file = gzip.GzipFile(file_name)
+    # 读取解压后的文件，并写入去掉后缀名的同名文件（即得到解压后的文件）
     open(f_name, "wb+").write(g_file.read())
     g_file.close()
 def lagrange(x, w):
@@ -2639,3 +2651,37 @@ def sp3get2(obj_time):
             except FileNotFoundError:
                 continue
     print('sp3 success')
+def ionexget(obj_time):
+    target_name = []
+    my_ftp = ftpdown.MyFTP("gdc.cddis.eosdis.nasa.gov")
+    my_ftp.login("anonymous", "cctcasm@163.com")
+    for i in range(1):
+        date=obj_time-datetime.timedelta(days=i)+datetime.timedelta(days=2)
+        doy=date2doy(date)
+        if doy<100 and doy>=10:
+            doy='0'+str(doy)
+        if doy<10:
+            doy='00'+str(doy)
+        url1 = '/pub/gnss/products/ionex/' + str(date.year) +'/' + str(doy)  + '/c2pg'+str(doy)+'0.'+ str(date.year)[2:4] + 'i.Z'
+        try:
+            if os.path.exists('./static/ion/' + str((date).isoformat().strip()[0:10]) + '.Z'):
+                os.remove('./static/ion/' + str((date).isoformat().strip()[0:10]) + '.Z')
+            my_ftp.download_file(r'./static/ion/' + str((date).isoformat().strip()[0:10]) + '.Z', url1)
+            target_name.append('./static/ion/' + str((date).isoformat().strip()[0:10]) + '.Z')
+            print(url1 + 'success')
+        except urllib.error.HTTPError:
+            print(url1 + '=error')
+        except urllib.error.URLError:
+            print(url1 + '=error')
+    for file in target_name:
+        if file.endswith('Z'):
+            try:
+                uncompressed_data = unlzw3.unlzw(Path(file))
+                unfilename=file.replace('.Z','.'+str(date.year)[2:4]+'i')
+                with open(unfilename, 'wb+') as uncompressed_zfile:
+                    uncompressed_zfile.write(uncompressed_data)
+                ionun_gz(file)
+                os.remove(file)
+            except FileNotFoundError:
+                continue
+    print('ion download success')

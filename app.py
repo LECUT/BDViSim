@@ -3117,11 +3117,31 @@ def ioncal():
             a = interp1d(x, y, kind='cubic')
             for i in range(97):
                 tec.append(float(a(i)))
-
+            ion_info['tec']=tec
             file.close()
         return jsonify(ion_info)
     else:
-        return 'false'
+        datacal.ionexget(obj_time)
+        if os.path.exists(filename):
+            with open(filename) as file:
+                inx = ionex.reader(file)
+                x = []
+                y = []
+                t = 0
+
+                for ionex_map in inx:
+                    x.append(t)
+                    y.append(ionex_map.tec[p])
+                    t += 4
+                    ion_info['height'] = str(ionex_map.height).strip('\n')[12:15]
+                a = interp1d(x, y, kind='cubic')
+                for i in range(97):
+                    tec.append(float(a(i)))
+                ion_info['tec'] = tec
+                file.close()
+            return jsonify(ion_info)
+        else:
+            return 'false'
 
 
 
