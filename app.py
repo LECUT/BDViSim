@@ -4088,7 +4088,7 @@ def calorbit():
     print(date)
     print(tstep)
     # Rinex ***
-    rinexfile = '../BDS_Simulation/static/Rinex/' + date + '.rx'
+    rinexfile = './static/Rinex/' + date + '.rx'
     if os.path.exists(rinexfile):
         with open(rinexfile, 'r') as f:
             nfile_lines = f.readlines()  
@@ -4105,7 +4105,7 @@ def calorbit():
             rinexdata='false'
     # Rinex ***
     # SP3 ***
-    sp3file = '../BDS_Simulation/static/sp3/' + date + '.sp3'
+    sp3file = './static/sp3/' + date + '.sp3'
     if os.path.exists(sp3file):
         with open(sp3file, 'r') as f:
             nfile_lines = f.readlines()  
@@ -4122,8 +4122,8 @@ def calorbit():
             sp3data='false'
     # SP3 ***
     # Yuma ***
-    yumafile1 = '../BDS_Simulation/static/YUMA/' + date + '-c.alc'
-    yumafile2 = '../BDS_Simulation/static/YUMA/' + date + '-t.alc'
+    yumafile1 = './static/YUMA/' + date + '-c.alc'
+    yumafile2 = './static/YUMA/' + date + '-t.alc'
     if os.path.exists(yumafile1):
         with open(yumafile1, 'r') as f:
             content = f.readlines() 
@@ -4150,7 +4150,7 @@ def calorbit():
             yumadate = 'false'
     # Yuma ***
     # TLE ***
-    tlefile='../BDS_Simulation/static/tle/BDSTLE'+date+'.txt'
+    tlefile='./static/tle/BDSTLE'+date+'.txt'
     if os.path.exists(tlefile):
         with open(tlefile, 'r') as f:
             content = f.readlines()  

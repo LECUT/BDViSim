@@ -7,7 +7,6 @@
 }
 
 .cesium-viewer-bottom .cesium-widget-credits {
-  /*隐藏cesium信用信息*/
   display: none;
 }
 
@@ -204,19 +203,17 @@ input {
   will-change: transform;
 }
 
-/*整个滚动条样式*/
 .chart::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 
 }
 
-/*设置滚动条上的滚动滑块样式*/
+
 .chart::-webkit-scrollbar-thumb {
   background: transparent;
 }
 
-/*鼠标位于内容上时，滚动条样式*/
 .chart:hover::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -224,7 +221,6 @@ input {
   border-radius: 6px;
 }
 
-/*鼠标位于内容上时，滚动滑块样式*/
 .chart:hover::-webkit-scrollbar-thumb {
   background: #9bcaff;
   border-radius: 10px;
@@ -342,7 +338,7 @@ input {
 .navbar ul li a:hover{
   color: #41a4da;
 }
-/* 二级菜单样式 */
+
 .navbar ul li ul{
   position: absolute;
   display: none;
@@ -353,7 +349,7 @@ input {
 .navbar ul li ul li{
   background-color: #3F3D56;
 }
-/* 悬浮展开二级菜单 */
+
 .navbar ul li ul li a:hover{
   color: white;
 }
@@ -415,5 +411,5 @@ dialog button {
   cursor: pointer;
 }
 .logo {
-  display: inline-block; /* 确保 a 元素可以与其内容在同一行上 */
+  display: inline-block;
 }

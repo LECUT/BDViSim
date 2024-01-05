@@ -16,7 +16,6 @@ body {
 }
 
 .cesium-viewer-bottom .cesium-widget-credits {
-  /*隐藏cesium信用信息*/
   display: none;
 }
 
@@ -293,7 +292,6 @@ li::marker {
 .map3d-clear:hover{
   color: #fff;
   fill: #fff;
-  /* background: #48b url(../../Img/home/清空.png); */
   background-size: cover;
   border-color: #aef;
   box-shadow: 0 0 8px #fff;
@@ -377,7 +375,7 @@ li::marker {
 .navbar ul li a:hover{
   color: #41a4da;
 }
-/* 二级菜单样式 */
+
 .navbar ul li ul{
   position: absolute;
   display: none;
@@ -387,7 +385,6 @@ li::marker {
 .navbar ul li ul li{
   background-color: #3F3D56;
 }
-/* 悬浮展开二级菜单 */
 .navbar ul li ul li a:hover{
   color: white;
 }
@@ -446,5 +443,5 @@ dialog button {
   will-change: transform;
 }
 .logo {
-  display: inline-block; /* 确保 a 元素可以与其内容在同一行上 */
+  display: inline-block; 
 }

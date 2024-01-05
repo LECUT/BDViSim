@@ -1616,7 +1616,6 @@ def tlecal3(content, obj_time,tstep):
         for k in range(24):
             next_time2 = obj_time + datetime.timedelta(hours=k)
             next_time3 = obj_time + datetime.timedelta(hours=k) - datetime.timedelta(seconds=18)
-            print(next_time3)
             # print(next_time2)
             for st in range(int(60/tstep)):
 
@@ -1633,8 +1632,6 @@ def tlecal3(content, obj_time,tstep):
                 next_time_str3 = [int(z) for z in next_time_str3]
                 time_key3 = ['year', 'month', 'day', 'hour', 'minute', 'second']
                 time_map3 = dict(zip(time_key3, next_time_str3))
-                print(time_map2)
-                print(time_map3)
                 position2, velocity2 = satellite.propagate(
                     year=time_map3['year'],
                     month=time_map3['month'],
