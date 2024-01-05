@@ -24,12 +24,7 @@ def star():
 def star_en():
     datacal.orbits_en()
     return render_template('mainviewen.html')
-# @app.route('/visu')
-# def function():
-#     datacal.orbits()
-#     return True
 
-    # return render_template('index.html')
 @app.route('/index')
 def index():
     # orbits()
@@ -80,78 +75,62 @@ def upload():
     file = request.get_json()
     content = file["data"]
 
-    # 广播星历解算
     satellite_info2 = {}
-    nfile_lines = content  # 按行读取N文件
+    nfile_lines = content
 
-    def start_num():  # 定义数据记录的起始行
+    def start_num():
         for i in range(len(nfile_lines)):
             if nfile_lines[i].find('END OF HEADER') != -1:
                 start_num = i + 1
         return start_num
 
-    print('起始行' + str(start_num()))
-
+    print('start line' + str(start_num()))
     n_dic_list = []
-
     n_data_lines_nums = int((len(nfile_lines) - start_num()) / 8)
-    print("一共%d组数据" % (n_data_lines_nums))
 
-    # 第j组，第i行
     for j in range(n_data_lines_nums):
         n_dic = {}
         if ('C' in nfile_lines[start_num() + 8 * j + 0]):
             print(nfile_lines[start_num() + 8 * j + 0])
         else:
-            # print(nfile_lines[start_num() + 8 * j + 0])
             continue
         for i in range(8):
             data_content = nfile_lines[start_num() + 8 * j + i]
             n_dic['数据组数'] = j + 1
             if i == 0:
                 n_dic['卫星PRN号'] = str(data_content.strip('\n')[0:3].strip(' '))
-
-
                 n_dic['历元'] = data_content.strip('\n')[3:23]
                 n_dic['卫星钟偏差(s)'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(
-                        ' '))  # 利用字符串切片功能来进行字符串的修改
+                        ' '))
                 n_dic['卫星钟漂移(s/s)'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
                 n_dic['卫星钟漂移速度(s/s*s)'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 1:
-                # 星历表数据龄期IODE
                 n_dic['IODE'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 矢径的正弦调和项改正数
                 n_dic['C_rs'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 平均角速度之差
                 n_dic['n'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 平近点角M0
                 n_dic['M0'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 2:
                 n_dic['C_uc'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 轨道偏心率
                 n_dic['e'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
                 n_dic['C_us'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 轨道长半轴的平方根
                 n_dic['sqrt_A'] = float(
                     (data_content.strip('\n')[62:80][0:-4] + 'e' + data_content.strip('\n')[62:80][-3:]).strip(' '))
             if i == 3:
-                # 参考历元
                 n_dic['TEO'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_ic'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 升交点赤经
                 n_dic['OMEGA'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
                 #
@@ -159,28 +138,21 @@ def upload():
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 4:
-                # 轨道倾角
                 n_dic['I_0'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_rc'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 近地点角距
                 n_dic['w'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 升交点赤经变化率
                 n_dic['OMEGA_DOT'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 5:
-                # 轨道倾角变化率
                 n_dic['IDOT'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # l2上的码
                 n_dic['L2_code'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # GPS周数
                 n_dic['PS_week_num'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # L2码数据标记
                 if data_content.strip('\n')[61:80][0:-4]=='':
                     continue
                 else:
@@ -191,10 +163,8 @@ def upload():
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['卫星健康状态'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 电离层延迟改正数
                 n_dic['TGD'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 星钟数据龄期
                 n_dic['IODC'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
@@ -222,13 +192,13 @@ def upload():
                     sqrt_A,
                     TOE, C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1, zz):
 
-        # 1.计算卫星运行平均角速度 GM:WGS84下的引力常数 =3.986005e14
+        # 1
         GM = 3.986004418e+14
         # GM = 3.9860047e14
         n_0 = m.sqrt(GM) / m.pow(sqrt_A, 3)
         n = n_0 + δn
 
-        # 2.计算归化时间t_k 计算t时刻的卫星位置  UT:世界时 此处以小时为单位
+        # 2
         UT = hour + (minute / 60.0) + (second / 3600);
         if year >= 80:
             if year == 80 and month == 1 and day < 6:
@@ -239,12 +209,11 @@ def upload():
             year = year + 2000
         if month <= 2:
             year = year - 1
-            month = month + 12  # 1，2月视为前一年13，14月
-        # 需要将当前需计算的时刻先转换到儒略日再转换到GPS时间
+            month = month + 12
         JD = (365.25 * year) + int(30.6001 * (month + 1)) + day + UT / 24 + 1720981.5;
-        WN = int((JD - 2444244.5) / 7);  # WN:GPS_week number 目标时刻的GPS周
-        t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;  # t_GPS:目标时刻的GPS秒
-        # 对观测时刻t1进行钟差改正,注意:t1应是由接收机接收到的时间
+        WN = int((JD - 2444244.5) / 7);
+        t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;
+
         if t1 is None:
             t_k = 0
         else:
@@ -253,10 +222,10 @@ def upload():
             t = t1 - δt
 
             t_k = t - TOE
-        # 3.平近点角计算M_k = M_0+n*t_k
+        # 3
         M_k = M0 + n * t_k
 
-        # 4.偏近点角计算 E_k  (迭代计算) E_k = M_k + e*sin(E_k)
+        # 4
         E = 0;
         E1 = 1;
         count = 0;
@@ -268,33 +237,31 @@ def upload():
                 print("计算偏近点角时未收敛！")
                 break
 
-        # 5.计算卫星的真近点角
+        # 5
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e))
 
-        # 6.计算升交距角 u_0(φ_k), ω:卫星电文给出的近地点角距
+        # 6
         u_0 = V_k + w
 
-        # 7.摄动改正项 δu、δr、δi :升交距角u、卫星矢径r和轨道倾角i的摄动量
+        # 7
         δu = C_uc * m.cos(2 * u_0) + C_us * m.sin(2 * u_0)
         δr = C_rc * m.cos(2 * u_0) + C_rs * m.sin(2 * u_0)
         δi = C_ic * m.cos(2 * u_0) + C_is * m.sin(2 * u_0)
 
-        # 8.计算经过摄动改正的升交距角u_k、卫星矢径r_k和轨道倾角 i_k
+        # 8
         u = u_0 + δu
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E)) + δr
         i = I_0 + δi + IDOT * (t_k);
 
-        # 9.计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为:
+        # 9
         x_k = r * m.cos(u)
         y_k = r * m.sin(u)
         omega_e = 7.2921150e-5
         if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61':
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
-            # omega_e = 7.2921151467e-5  # 地球自转角速度
+            # 10
             orbit_type = "GEO"
             OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * TOE;
-            # OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
-            # 11.计算卫星在地固系中的直角坐标l
+            # 11
             X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k1 = (y_k * m.sin(i))
@@ -305,21 +272,17 @@ def upload():
             Z_k = -(Y_k1 * m.sin(-(5 * m.pi / 180))) + Z_k1 * m.cos(-(5 * m.pi / 180))
 
         else:
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
-            # omega_e = 7.292115e-5  # 地球自转角速度
-            # omega_e = 7.2921151467e-5
+            # 10
             orbit_type = "GEO"
             OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
 
-            # 11.计算卫星在地固系中的直角坐标l
+            # 11
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k = (y_k * m.sin(i))
 
-            # 12.计算卫星在协议地球坐标系中的坐标，考虑级移
-            # [X,Y,Z]=[[1,0,X_P],[0,1,-Y_P],[-X_p,Y_P,1]]*[X_k,Y_k,Z_k]
 
-        if month > 12:  # 恢复历元
+        if month > 12:
             year = year + 1
             month = month - 12
 
@@ -351,12 +314,6 @@ def upload():
                                       "Z_k": '%.12f' % Z_k,
                                       }
 
-        # print("历元:", year, "年", month, "月", day, "日", hour, "时", minute, "分", second, "秒", '\n', "卫星PRN号:", PRN, '\n',
-        #       "平均角速度:", n, '\n',
-        #       "卫星平近点角:", M_k, '\n', "偏近点角:", E, '\n', "真近点角:", V_k, '\n', "升交距角:", u_0, '\n', "摄动改正项:", δu, δr, δi,
-        #       '\n', "经摄动改正后的升交距角、卫星矢径和轨道倾角:", u, r,
-        #       i, '\n', "轨道平面坐标X,Y:", x_k, y_k, '\n', "观测时刻升交点经度:", OMEGA_k, '\n', "地固直角坐标系X:", X_k, '\n', "地固直角坐标系Y:",
-        #       Y_k, '\n', "地固直角坐标系Z:", Z_k)
 
     with open('/brdc.csv', 'rt') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -397,73 +354,42 @@ def upload():
                 L2_P_code=''
             else:
                 L2_P_code = float(row["L2_P_code"])
-            # 卫星精度(m)=2
-            # 卫星健康状态=0
             # print('tgd'+row["TGD"])
             wxjd = float(row["卫星精度(m)"])
             wxjkzt = float(row["卫星健康状态"])
             TGD = float(row["TGD"])
             IODC = float(row["IODC"])
-            # print(TGD)
-            # print(sqrt_A)
             t1 = TOE
             satellite_info2['in' + str(zz)] = {"PRN": PRN,
                                                "epoch": "20" + str(year) + "-" + str(month) + "-" + str(
                                                    day) + "T" + str(
                                                    hour) + ":" + str(minute) + ":" + str(second),
-                                               # 卫星种差
                                                "a_0": a_0,
-                                               # 卫星钟速
                                                "a_1": a_1,
-                                               # 卫星钟速变率
                                                "a_2": a_2,
-                                               # 星历数据期号
                                                "IODE": IODE,
-                                               # 轨道半径的正弦调和改正项振幅
                                                "C_rs": C_rs,
-                                               # 卫星平均运动速率与计算值之差
                                                "sn": δn,
-                                               # 参考时间的平近点角
                                                "M0": M0,
-                                               # 纬度幅角的余弦调和改正项振幅
                                                "C_uc": C_uc,
-                                               # 偏心率
                                                "e": e,
-                                               # 纬度幅角的正弦调和改正项振幅
                                                "C_us": C_us,
-                                               # 轨道长半轴的平方根
                                                "sqrt_A": sqrt_A,
-                                               # 星历参考时刻
                                                "TOE": TOE,
-                                               # 轨道倾角的余弦调和改正数的振幅
                                                "C_ic": C_ic,
-                                               # 参考时刻的升交点赤经
                                                "OMEGA": OMEGA,
-                                               # 轨道倾角的正弦调和改正数的振幅
                                                "C_is": C_is,
-                                               # 参考时刻的轨道倾角
                                                "I_0": I_0,
-                                               # 轨道向径的余弦调和改正数的振幅
                                                "C_rc": C_rc,
-                                               # 近地点角距
                                                "w": w,
-                                               # 升交点赤经的变化率
                                                "OMEGA_DOT": OMEGA_DOT,
-                                               # 轨道倾角的变化率
                                                "IDOT": IDOT,
-                                               #
                                                "L2_code": L2_code,
-                                               #
                                                "PS_week_num": PS_week_num,
-                                               #
                                                "L2_P_code": L2_P_code,
-                                               # 卫星健康度
                                                "wxjd": wxjd,
-                                               # 卫星健康状态
                                                "wxjkzt": wxjkzt,
-                                               #
                                                "TGD": TGD,
-                                               # 星钟数据事件
                                                "IODC": IODC,
                                                }
             CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
@@ -480,25 +406,22 @@ def upload():
             satellite_info2['endtime'] = endtime.isoformat()
             satellite_info2['num'] = zz
 
-    print("Rinex加载完毕")
+    print("Rinex upload success")
     return jsonify(satellite_info2)
 
 
 @app.route('/SP3', methods=["POST", "GET"])
 def upload2():
-    print('导入SP3')
+    print('read SP3')
     file = request.get_json()
     content = file["data"]
     satellite_info3 = {}
 
     nfile_lines = content
-    # print(nfile_lines)
     for i in range(len(nfile_lines)):
         if (nfile_lines[i].startswith('*') == True):
             start_num = i
             break
-    # start_num = 32
-    # start_num = 26
     print(start_num)
     t = []
     time = []
@@ -533,12 +456,11 @@ def upload2():
             x = float(content[5:19]) * 1000
             y = float(content[19:33]) * 1000
             z = float(content[33:47]) * 1000
-            # x, y, z = pm.ecef2eci(x, y, z, time2)
 
             GAP = float(content[47:60])
             satellite_info3[satname][time0] = ['%.12f' % float(x), '%.12f' % float(y), '%.12f' % float(z), GAP, time1]
 
-    print("SP3加载完毕")
+    print("SP3 success")
     return jsonify(satellite_info3)
 
 @app.route('/YUMA', methods=["POST", "GET"])
@@ -569,51 +491,35 @@ def upload4():
     sat_data = {}
     for i in range(rr):
         sat = {}
-        # print("数据组" + str(i) + ": ")
         for j in range(15):
             data_content = content[j + i * 15]
             if j == 1:
-                # 卫星的PRN号，范围为1—31
                 sat["ID"] = data_content[28:30]
             if j == 2:
-                #  Health: 卫星健康状况，零为信号可用，非零为信号不可用
                 sat["Health"] = data_content[28:31]
             if j == 3:
-                # Eccentricity: 轨道偏心率
                 sat["Eccentricity"] = float(data_content[27:])
             if j == 4:
-                # Time of Applicability(s): 历书的基准时间
                 sat["Time_of_Applicability(s)"] = float(data_content[27:])
             if j == 5:
-                # Orbital Inclination(rad): 轨道倾角
                 sat["Orbital_Inclination(rad)"] = float(data_content[27:])
             if j == 6:
-                # Rate of Right Ascen(r/s): 升交点赤经变化率
                 sat["Rate_of_Right_Ascen(r/s)"] = float(data_content[27:])
             if j == 7:
-                # SQRT(A) (m 1/2): 轨道长半轴的平方根
                 sat["SQRT(A)(m_1/2)"] = float(data_content[27:])
             if j == 8:
-                # Right Ascen at Week(rad): 升交点赤经
                 sat["Right_Ascen_at_Week(rad)"] = float(data_content[27:])
             if j == 9:
-                # Argument of Perigee(rad): 近地点俯角
                 sat["Argument_of_Perigee(rad)"] = float(data_content[27:])
             if j == 10:
-                # Mean Anom(rad): 平均近点角
                 sat["Mean_Anom(rad)"] = float(data_content[27:])
             if j == 11:
-                # Af0(s): 卫星时钟校正参数（钟差）
                 sat["Af0(s)"] = float(data_content[27:])
             if j == 12:
-                # Af1(s/s): 卫星时钟校正参数（钟速）
                 sat["Af1(s/s)"] = float(data_content[27:])
             if j == 13:
-                # week: GPS周数
                 sat["week"] = float(data_content[27:])
-            # print(data_content)
         sat_data["sat" + str(i)] = sat
-    # print(sat_data)
     xx = 0
     xxx = 1
     for i in range(80):
@@ -623,21 +529,21 @@ def upload4():
             sat_data["C" + str(i)] = {}
 
     def yumacal(year, month, day, hour, minute, second, t, toe, PRN, sqrt_A, M0, e, w, I_0, OMEGA_DOT, OMEGA, week):
-        # 1计算归化时间t_k
+        # 1
         objtime = datetime.datetime(year, month, day, hour, minute, second)
         t_oc = BDS_NYRToweekwis(objtime)[1]
         t = t_oc - (c_gap + c_v * (t_oc - toe))
         if (BDS_NYRToweekwis(objtime)[0] - week) > 0:
             t += 604800
         t_k = t - toe
-        # 2计算卫星平均角速度n
+        # 2
         GM = 398600441800000
         GM = 3.9860047e14
         n_0 = m.sqrt(GM) / m.pow(sqrt_A, 3)
         n = n_0
-        # 3观测时刻平近点角Mk
+        # 3
         M_k = M0 + n * t_k
-        # 4偏近点角计算 E_k  (迭代计算) E_k = M_k + e*sin(E_k)
+        # 4
         E = 0;
         E1 = 1;
         count = 0;
@@ -646,12 +552,12 @@ def upload4():
             E1 = E;
             E = M_k + e * m.sin(E);
             if count > 1e8:
-                print("计算偏近点角时未收敛！")
+                print("Not convergent!")
                 break
-        # 5计算卫星的真近点角
+        # 5
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e));
 
-        # 6计算升交距角 u_0(φ_k), ω:卫星电文给出的近地点角距
+        # 6
         u_0 = V_k + w
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E))
         # 7
@@ -695,27 +601,16 @@ def upload4():
     for i in range(rr):
         PRN = "C" + sat_data["sat" + str(i)]["ID"]
         sqrt_A = sat_data["sat" + str(i)]["SQRT(A)(m_1/2)"]
-        # Mean Anom(rad): 平均近点角
         M0 = sat_data["sat" + str(i)]["Mean_Anom(rad)"]
-        # Eccentricity: 轨道偏心率
         e = sat_data["sat" + str(i)]["Eccentricity"]
-        # Argument of Perigee(rad): 近地点俯角
         w = sat_data["sat" + str(i)]["Argument_of_Perigee(rad)"]
-        # Orbital Inclination(rad): 轨道倾角
         I_0 = sat_data["sat" + str(i)]["Orbital_Inclination(rad)"]
-        # Rate of Right Ascen(r/s): 升交点赤经变化率
         OMEGA_DOT = sat_data["sat" + str(i)]["Rate_of_Right_Ascen(r/s)"]
-        # Right Ascen at Week(rad): 升交点赤经
         OMEGA = sat_data["sat" + str(i)]["Right_Ascen_at_Week(rad)"]
-        # 钟差
         c_gap = sat_data["sat" + str(i)]["Af0(s)"]
-        # 钟速
         c_v = sat_data["sat" + str(i)]["Af1(s/s)"]
-        # 卫星周
         week = sat_data["sat" + str(i)]["week"]
-        # 健康度
         health = sat_data["sat" + str(i)]["Health"]
-        # 历书基准时间
         toe = sat_data["sat" + str(i)]["Time_of_Applicability(s)"]
         t1 = 0
         t = toe
@@ -723,12 +618,10 @@ def upload4():
         xxx = 1
         for j in range(24):
             next_time = obj_time + datetime.timedelta(hours=j)
-            # print(next_time2)
             next_time_str = next_time.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str = [int(z) for z in next_time_str]
             time_key = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map = dict(zip(time_key, next_time_str))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
             # print(time_map2)
             year = time_map['year']
             month = time_map['month']
@@ -742,7 +635,7 @@ def upload4():
             t1 += 3600
             xxx += 1
         xx += 1
-    print("YUMA加载完毕")
+    print("YUMA success")
     return jsonify(sat_data)
 
 
@@ -753,8 +646,6 @@ def upload5():
     objyear = file['year']
     objmonth = file['month']
     objday = file['day']
-    print(objyear)
-    print(content)
     obj_time = datetime.datetime(int(objyear), int(objmonth), int(objday), 00, 00, 00, 00)
     satellite_info = {}
 
@@ -770,24 +661,17 @@ def upload5():
         name = name[-4:-1]
         if name.startswith('C') == False:
             name = 'C62'
-        # if sat_name.find(str(name)) == -1:
-        #     j += 3
-        #     continue
         line1 = content[j + 1]
         line2 = content[j + 2]
-        # 调用sgp4算法计算星历每个时刻的位置
         satellite = twoline2rv(line1, line2, wgs84)
 
         p_list = []
         for k in range(24):
             next_time2 = obj_time + datetime.timedelta(hours=k)
-            # print(next_time2)
             next_time_str2 = next_time2.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str2 = [int(z) for z in next_time_str2]
             time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map2 = dict(zip(time_key2, next_time_str2))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
-            # print(time_map2)
 
             if time_map2['hour'] < 10:
                 timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + "0" + str(
@@ -833,7 +717,7 @@ def upload5():
                                             }
         j += 3
 
-    print("TLE加载完毕")
+    print("TLE success")
     return jsonify(satellite_info,orbit_info)
 
 @app.route('/resetalt', methods=["POST", "GET"])
@@ -849,24 +733,22 @@ def reseta():
 
     obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
     print(obj_time)
-    # obj_time = datetime.datetime.now() - datetime.timedelta(hours=24)
-    # obj_time = datetime.datetime(obj_time.year, obj_time.month, obj_time.day, 0, 0)
+
     date = str(exdate)
     file='./static/sp3/'+date+'.sp3'
     if os.path.exists(file):
         with open(file, 'r') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("导航文件打开成功！")
-            nfile_lines = f.readlines()  # 按行读取N文件
+                print("success")
+            nfile_lines = f.readlines()
             f.close()
 
         for i in range(len(nfile_lines)):
             if (nfile_lines[i].startswith('*') == True):
                 start_num = i
                 break
-        # start_num = 32
 
         t = []
         time = []
@@ -903,16 +785,13 @@ def reseta():
                 GAP = float(content[47:60])
                 satellite_info3[satname][time0] = ['%.12f' % x, '%.12f' % y, '%.12f' % z, GAP, time1]
 
-        # 热力图
+
         B0 = 90
         L0 = 180
         H0 = 0
         s = []
         bd = int(B0 * 2 / density + 1)
         ld = int(L0 * 2 / density + 1)
-        # print("bd ld :")
-        # print(bd)
-        # print(ld)
         stations_B = np.random.random(size=(bd, ld))
         stations_L = np.random.random(size=(bd, ld))
         stations_H = np.random.random(size=(bd, ld))
@@ -945,11 +824,10 @@ def reseta():
             k = k + 1
 
         for lasttime in stations[1]:
-            # print(lasttime)
+
             for i in range(lines):
 
                 content = nfile_lines[start_num + i]
-                # print(content)
                 if content.find('*') != -1:
                     year = content[3:7]
                     month = content[8:10].replace(' ', '')
@@ -962,7 +840,7 @@ def reseta():
                                                                                                                                 21:31])
                     time0 = year + month + day + hour + minute
                     time1 = year + "-" + month + "-" + day + "T" + hour + ":" + minute
-                    # print(time1)
+
                     t.append(k)
                     k = k + 15
                 elif content.startswith('PC') == True and str(time0) == lasttime and sat_name.find(str(content[1:4]))!=-1:
@@ -993,7 +871,7 @@ def reseta():
                                 stations[dian][time0]['counts'] += 1
                                 stations[dian][time0]['Q'].append([cosa, cosb, cosr, 1])
                             dian += 1
-                            # print(str(dian)+'/'+str(bd*ld))
+
 
         for zz in stations:
             for tid in stations[zz]:
@@ -1029,15 +907,15 @@ def reseta():
                 stations[zz][tid]['HDOP'] = HDOP
                 stations[zz][tid]['VDOP'] = VDOP
                 stations[zz][tid]['TDOP'] = TDOP
-        # stations['objtime'] = obj_time.isoformat()
-        print("计算完毕")
+
+        print("success")
 
         return jsonify(stations)
     else:
         print(file)
         return 'false'
 
-# TLE服务性能
+# TLE performance
 @app.route('/reset', methods=["POST", "GET"])
 def reset():
     seta=request.form['alt']
@@ -1050,28 +928,26 @@ def reset():
     satellite_info3 = {}
 
     obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
-    # print(obj_time)
-    # obj_time = datetime.datetime.now() - datetime.timedelta(hours=24)
-    # obj_time = datetime.datetime(obj_time.year, obj_time.month, obj_time.day, 0, 0)
+
     date = str(exdate)
     file="./static/tle/BDSTLE" + date + ".txt"
     if os.path.exists(file):
         with open(file, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！计算全球服务性能")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()
             f.close()
     else:
         closedate=datacal.closedata(obj_time, './static/tle')
         file="./static/tle/BDSTLE" + closedate + ".txt"
         with open(file, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！计算全球服务性能")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()
             f.close()
     B0 = 90
     L0 = 180
@@ -1121,22 +997,17 @@ def reset():
         if sat_name.find(str(name)) == -1:
             j += 3
             continue
-        # print(name + '1')
         line1 = content[j + 1]
         line2 = content[j + 2]
-        # 调用sgp4算法计算星历每个时刻的位置
         satellite = twoline2rv(line1, line2, wgs84)
 
         p_list = []
         for k in range(24):
             next_time2 = obj_time + datetime.timedelta(hours=k)
-            # print(next_time2)
             next_time_str2 = next_time2.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str2 = [int(z) for z in next_time_str2]
             time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map2 = dict(zip(time_key2, next_time_str2))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
-            # print(time_map2)
 
             timeid = str(next_time2.year) + str(next_time2.month) + str(next_time2.day) + (next_time2.isoformat())[11:13] + (
                                                                                                                                 next_time2.isoformat())[
@@ -1151,7 +1022,6 @@ def reset():
                 second=time_map2['second']
             )
             x, y, z = pm.eci2ecef(position2[0] * 1000, position2[1] * 1000, position2[2] * 1000, next_time2)
-            # # 热力图
             x = float(x)
             y = float(y)
             z = float(z)
@@ -1215,27 +1085,25 @@ def reset():
             stations[z][tid]['VDOP'] = round(VDOP, 2)
             stations[z][tid]['TDOP'] = round(TDOP, 2)
             del stations[z][tid]['Q']
-    print("基于TLE全球服务性能计算完毕")
+    print("success")
     return jsonify(stations)
 
 
-# 区域电离层信息
+#
 @app.route('/ion2', methods=["POST", "GET"])
 def ioncal2():
     exdate=request.form['date']
     # sat_name=request.form['satname']
     obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
-    # print(obj_time)
     date = str(exdate)
     file='./static/ion/'+date+'.'+str(obj_time.year)[2:4]+'i'
     print(file)
     if os.path.exists(file):
         with open(file, 'r') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("导航文件打开成功！")
-            # nfile_lines = f.readlines()  # 按行读取N文件
+                print("success")
             ion_info = {}
             inx = ionex.reader(f)
             t = 0
@@ -1253,14 +1121,14 @@ def ioncal2():
                 t += 1
                 timeid = str(time.year) + str(time.month) + str(time.day) + str(time.isoformat().strip()[11:13]) + '00'
                 ion_info[timeid] = tec
-            print("ion计算完毕")
+            print("ion calculate success")
             return jsonify(ion_info)
             f.close()
 
         # with open('./static/json/ion_info.json', 'w') as f:
         #     dump(ion_info, f)
     else:
-        print(file+'打开错误')
+        print(file+'open error')
         return 'false'
 
 @app.route('/linkstar', methods=["POST", "GET"])
@@ -1269,10 +1137,10 @@ def link():
     obj_time=datetime.datetime(2022,9,15)
     with open('./static/tle/BDSTLE2022-09-15.txt', 'r') as f:
         if f == 0:
-            print("不能打开文件！")
+            print("can not open file")
         else:
-            print("导航文件打开成功！")
-        content = f.readlines()  # 按行读取N文件
+            print("success")
+        content = f.readlines()
         f.close()
     satellite_info = {}
 
@@ -1288,14 +1156,11 @@ def link():
     begintime2 = str(datetime.datetime(2022, 9, 15, 8, 00, 00, 00).isoformat())
     endtime2 = str(datetime.datetime(2022, 9, 15, 17, 00, 00, 00).isoformat())
     doc = []
-    # 定义头部
     header = {
-        # id和version为固定格式
         'id': "document",
         "version": "1.0",
         # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
             "currentTime": begintime2,
             "multiplier": 500,
             "range": "LOOP_STOP",
@@ -1313,19 +1178,15 @@ def link():
                 textname='C40'
             line1 = content[j + 1]
             line2 = content[j + 2]
-            # 调用sgp4算法计算星历每个时刻的位置
             satellite = twoline2rv(line1, line2, wgs84)
 
             p_list = []
             for k in range(24*12*2):
                 next_time2 = obj_time + datetime.timedelta(minutes=k*5)
-                # print(next_time2)
                 next_time_str2 = next_time2.strftime('%Y %m %d %H %M %S').split(' ')
                 next_time_str2 = [int(z) for z in next_time_str2]
                 time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
                 time_map2 = dict(zip(time_key2, next_time_str2))
-                # 调用sgp4库的propagate函数计算对应时刻的位置
-                # print(time_map2)
 
                 if time_map2['hour'] < 10:
                     timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + "0" + str(
@@ -1348,12 +1209,8 @@ def link():
                 p_list.append(position2[1] * 1000)
                 p_list.append(position2[2] * 1000)
 
-            # filename = "./static/czml/starlink/{}starlink.czml".format(name)
             begintime = str(datetime.datetime(2022, 9, 15, 00, 00, 00, 00).isoformat())
 
-
-            # 定义主体
-            # 判断类型
 
             if (
                     'IGSO' in name or 'BEIDOU 8 (C08)' == name or 'BEIDOU 5 (C06)' == name or 'BEIDOU 9 (C09)' == name or 'BEIDOU 7 (C07)' == name or 'BEIDOU 20 (C18)' == name or 'BEIDOU 17 (C31)' == name or 'BEIDOU 10 (C10)' == name):
@@ -1370,7 +1227,6 @@ def link():
                                    '每天绕地球飞行圈数:' + line2[52:63] + '<br/>',
                     "availability": '{}/{}'.format(begintime, next_time2.isoformat()),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [255, 0, 0, 255]},
@@ -1406,9 +1262,7 @@ def link():
 
                 },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": 'INERTIAL',
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begintime,
@@ -1434,7 +1288,6 @@ def link():
                                    '每天绕地球飞行圈数:' + line2[52:63] + '<br/>',
                     "availability": '{}/{}'.format(begintime, next_time2.isoformat()),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -1449,9 +1302,7 @@ def link():
                                 "color": {
                                     "rgba": [255, 69, 0, 255]
                                 },
-                                # "outlineColor": {
-                                #     "rgba": [0, 0, 0, 255]
-                                # },
+
 
                                 "outlineWidth": 2
                             }
@@ -1460,7 +1311,6 @@ def link():
                         "resolution": 120
                     },
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdgeo.png",
                         "scale": 0.37,
 
@@ -1473,9 +1323,7 @@ def link():
 
                 },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": "INERTIAL",
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begintime,
@@ -1498,7 +1346,6 @@ def link():
                                    '每天绕地球飞行圈数:' + line2[52:63] + '<br/>',
                     "availability": '{}/{}'.format(begintime, next_time2.isoformat()),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -1523,7 +1370,6 @@ def link():
                     },
 
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdmeo.png",
                         "scale": 0.37
                     },
@@ -1535,9 +1381,7 @@ def link():
 
                 },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": "INERTIAL",
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begintime,
@@ -1881,14 +1725,13 @@ def link():
 
 @app.route('/linkstaren', methods=["POST", "GET"])
 def linken():
-    # seta = request.form['data']
     obj_time=datetime.datetime(2022,9,15)
     with open('./static/tle/BDSTLE2022-09-15.txt', 'r') as f:
         if f == 0:
-            print("不能打开文件！")
+            print("can not open file")
         else:
-            print("导航文件打开成功！")
-        content = f.readlines()  # 按行读取N文件
+            print("success")
+        content = f.readlines()
         f.close()
     satellite_info = {}
 
@@ -1904,14 +1747,11 @@ def linken():
     begintime2 = str(datetime.datetime(2022, 9, 15, 8, 00, 00, 00).isoformat())
     endtime2 = str(datetime.datetime(2022, 9, 15, 17, 00, 00, 00).isoformat())
     doc = []
-    # 定义头部
+
     header = {
-        # id和version为固定格式
         'id': "document",
         "version": "1.0",
-        # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
             "currentTime": begintime2,
             "multiplier": 500,
             "range": "LOOP_STOP",
@@ -1929,19 +1769,15 @@ def linken():
                 textname='C40'
             line1 = content[j + 1]
             line2 = content[j + 2]
-            # 调用sgp4算法计算星历每个时刻的位置
             satellite = twoline2rv(line1, line2, wgs84)
 
             p_list = []
             for k in range(24*12*2):
                 next_time2 = obj_time + datetime.timedelta(minutes=k*5)
-                # print(next_time2)
                 next_time_str2 = next_time2.strftime('%Y %m %d %H %M %S').split(' ')
                 next_time_str2 = [int(z) for z in next_time_str2]
                 time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
                 time_map2 = dict(zip(time_key2, next_time_str2))
-                # 调用sgp4库的propagate函数计算对应时刻的位置
-                # print(time_map2)
 
                 if time_map2['hour'] < 10:
                     timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + "0" + str(
@@ -1968,16 +1804,12 @@ def linken():
             begintime = str(datetime.datetime(2022, 9, 15, 00, 00, 00, 00).isoformat())
 
 
-            # 定义主体
-            # 判断类型
-
             if (
                     'IGSO' in name or 'BEIDOU 8 (C08)' == name or 'BEIDOU 5 (C06)' == name or 'BEIDOU 9 (C09)' == name or 'BEIDOU 7 (C07)' == name or 'BEIDOU 20 (C18)' == name or 'BEIDOU 17 (C31)' == name or 'BEIDOU 10 (C10)' == name):
                 body = {
                     "id": "{}".format(name),
                     "availability": '{}/{}'.format(begintime, next_time2.isoformat()),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [255, 0, 0, 255]},
@@ -2013,9 +1845,7 @@ def linken():
 
                 },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": 'INERTIAL',
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begintime,
@@ -2057,7 +1887,6 @@ def linken():
                         "resolution": 120
                     },
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdgeo.png",
                         "scale": 0.37,
 
@@ -2070,9 +1899,7 @@ def linken():
 
                 },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": "INERTIAL",
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begintime,
@@ -2095,7 +1922,6 @@ def linken():
                                    '每天绕地球飞行圈数:' + line2[52:63] + '<br/>',
                     "availability": '{}/{}'.format(begintime, next_time2.isoformat()),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -2120,7 +1946,6 @@ def linken():
                     },
 
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdmeo.png",
                         "scale": 0.37
                     },
@@ -2132,9 +1957,7 @@ def linken():
 
                 },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": "INERTIAL",
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begintime,
@@ -2494,14 +2317,14 @@ def paint():
     print(pickp)
     file='./static/sp3/'+date+'.sp3'
     sat2=[]
-    # print(alt,lon,lat,timeid)
+
     if os.path.exists(file):
         with open(file, 'r') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("导航文件打开成功！")
-            nfile_lines = f.readlines()  # 按行读取N文件
+                print("success")
+            nfile_lines = f.readlines()
             f.close()
         satellite_info3 = {}
         station = {}
@@ -2563,8 +2386,7 @@ def paint():
                 blh = [lat, lon, 0]
                 xyz = datacal.blh2xyz(blh)
                 X_k1 = x - (xyz[0])
-                # print(x)
-                # print(xyz)
+
                 Y_k1 = y - (xyz[1])
                 Z_k1 = z - (xyz[2])
                 altitude = (m.pi / 2 - m.acos((m.cos(lat * m.pi / 180) * (
@@ -2588,9 +2410,7 @@ def paint():
 
                     else:
                         station[time0]['uereP'].append(1 / ((0.4) * (0.4)))
-                    # print(altitude)
-                    # print(m.radians(altitude))
-                    # print(np.deg2rad(altitude))
+
                     if (pickp == 'unit'):
                         var = 1
                         station[time0]['P'].append(1 / (var * var))
@@ -2629,7 +2449,6 @@ def paint():
                 print(Q)
                 Q1 = station[tid]['Q']
                 # Qt = np.transpose(Q)
-                # 权阵计算
                 P = np.diag(station[tid]['P'])
                 print(P)
                 Qt = np.transpose(Q)
@@ -2677,7 +2496,7 @@ def paint():
                 station[tid]['Position'] = Position
 
 
-        print("计算完毕")
+        print("success")
         # print(sat2)
         return jsonify(station)
     else:
@@ -2697,27 +2516,26 @@ def TLEpaint():
     timeid = str(obj_time.year)+str(obj_time.month)+str(obj_time.day)+'0000'
     date = str(exdate)
     pickp=request.form['pickp']
-    # print(pickp)
 
 
     file="./static/tle/BDSTLE" + date + ".txt"
     if os.path.exists(file):
         with open(file, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！计算单站服务性能")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()
             f.close()
     else:
         closedate=datacal.closedata(obj_time, './static/tle')
         file="./static/tle/BDSTLE" + closedate + ".txt"
         with open(file, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！计算单站服务性能")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()
             f.close()
 
 
@@ -2754,19 +2572,16 @@ def TLEpaint():
         # print(name+'1')
         line1 = content[j + 1]
         line2 = content[j + 2]
-        # 调用sgp4算法计算星历每个时刻的位置
         satellite = twoline2rv(line1, line2, wgs84)
 
         p_list = []
         for k in range(96):
             next_time2 = obj_time + datetime.timedelta(minutes=k * 15)
-            # print(next_time2)
             next_time_str2 = next_time2.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str2 = [int(z) for z in next_time_str2]
             time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map2 = dict(zip(time_key2, next_time_str2))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
-            # print(time_map2)
+
 
             timeid = str(next_time2.year) + str(next_time2.month) + str(next_time2.day) + (next_time2.isoformat())[11:13] + (next_time2.isoformat())[
                                                                                                                             14:16]
@@ -2827,9 +2642,6 @@ def TLEpaint():
                 else:
                     # station[timeid]['uereP'].append(1/((0.4) * (0.4)))
                     uerep = 0.4
-                # print(altitude)
-                # print(m.radians(altitude))
-                # print(np.deg2rad(altitude))
                 if(pickp=='unit'):
                     var = 1
                     station[timeid]['P'].append(1 /(var*var))
@@ -2944,7 +2756,7 @@ def TLEpaint():
 
 @app.route('/rinexpaint', methods=["POST", "GET"])
 def rinexpaint():
-    # ****画图数据
+    # ****
     # EL= []
     # AZ=[]
     # HDOP=[]
@@ -2956,7 +2768,7 @@ def rinexpaint():
     # HOR=[]
     # POS=[]
     # timear=[]
-    # *******画图数据
+    # *******
     alt=float(request.form['alt'])
     lon=float(request.form['lon'])
     lat = float(request.form['lat'])
@@ -2971,14 +2783,10 @@ def rinexpaint():
 
     file='./static/Rinex/' + date + '.rx'
     if os.path.exists(file):
-        with open(file, 'rt') as f:
-            if f == 0:
-                print("不能打开文件！")
-            else:
-                print("RINEX导航文件打开成功！计算单站服务性能")
-            content = f.readlines()  # 按行读取N文件
+        with open(file, 'r') as f:
+            nfile_lines = f.readlines()
             f.close()
-        satinfo = datacal.rinexcal2(content, obj_time, 15)
+        satinfo = datacal.rinexcal2(nfile_lines, obj_time, 15)
 
         station = {}
         for t in range(96):
@@ -3060,14 +2868,6 @@ def rinexpaint():
                     station[timeid]['visibility'][name] = round(altitude,2), round(azi_angle,2)
 
 
-        # 测试
-        # n_dic_list=[]
-        # n_dic={}
-        # hcounts=0
-        # vcounts=0
-        # hcounts2=0
-        # vcounts2=0
-        # 测试
         for tid in station:
             if (station[tid]['counts'] < 4):
                 station[tid]['GDOP'] = None
@@ -3081,7 +2881,6 @@ def rinexpaint():
             else:
                 Q = station[tid]['Q']
                 Qt = np.transpose(Q)
-                #权阵计算
                 P = np.diag(station[tid]['P'])
                 QX=np.dot(Qt, P)
                 QX=np.dot(QX, Q)
@@ -3114,7 +2913,7 @@ def rinexpaint():
                 station[tid]['Horizontal'] = round(dops_accuracy[2],2)
                 station[tid]['Position'] = round(dops_accuracy[1],2)
 
-                # *****画图
+                # *****
                 # GDOP.append(round(dops[0], 2))
                 # PDOP.append(round(dops[1], 2))
                 # HDOP.append(round(dops[2], 2))
@@ -3123,35 +2922,182 @@ def rinexpaint():
                 # VER.append(round(dops_accuracy[3],2))
                 # HOR.append(round(dops_accuracy[2],2))
                 # POS.append(round(dops_accuracy[1],2))
-        # 画图********
+        # *******
         # CNT=[]
         # for tid in station:
         #     CNT.append(station[tid]['counts'])
         # data = { 'GDOP': GDOP, 'HDOP': HDOP,'PDOP':PDOP,'VDOP': VDOP,'TDOP': TDOP1,'VER': VER,'HOR': HOR,'POS': POS,'COUNTS':CNT}
-        # # 使用pandas创建数据框
         # df = pd.DataFrame(data)
-        # # 将数据框保存为CSV文件
         # df.to_csv('data.csv', index=False)
 
-        # 画图****
-        print("计算完毕")
+        # ****
+        print("success")
 
         return jsonify(station)
-
     else:
-        return 'false'
+        datacal.rinexget(obj_time)
+        if os.path.exists(file):
+            with open(file, 'r') as f:
+                nfile_lines = f.readlines()
+                f.close()
+            satinfo = datacal.rinexcal2(nfile_lines, obj_time, 15)
+
+            station = {}
+            for t in range(96):
+                time = obj_time + datetime.timedelta(minutes=t * 15)
+
+                time0 = str(time.year) + str(time.month) + str(time.day) + (time.isoformat())[11:13] + (time.isoformat())[14:16]
+                station[time0] = {}
+                station[time0]['counts'] = 0
+                station[time0]['Q'] = []
+                station[time0]['P'] = []
+                station[time0]['uereP'] = []
+                station[time0]['visibility'] = {}
+                station[time0]['time'] = time.isoformat()
+                station[time0]['az'] = []
+                station[time0]['el'] = []
+
+            for name in satinfo:
+                if sat_name.find(str(name)) == -1:
+                    continue
+                for timeid in satinfo[name]:
+
+                    x = float(satinfo[name][timeid]['X_k'])
+                    y = float(satinfo[name][timeid]['Y_k'])
+                    z = float(satinfo[name][timeid]['Z_k'])
+                    blh = [lat, lon, height]
+                    blh2 = [np.radians(lat), np.radians(lon), height]
+                    xyz = datacal.blh2xyz(blh)
+                    xyz2 = pm.geodetic2ecef(blh[0], blh[1], blh[2])
+                    X_k1 = x - (xyz2[0])
+                    Y_k1 = y - (xyz2[1])
+                    Z_k1 = z - (xyz2[2])
+
+                    altitude = (m.pi / 2 - m.acos((m.cos(m.radians(lat)) * (
+                            m.cos(m.radians(lon)) * X_k1 + m.sin(
+                        m.radians(lon)) * Y_k1) + m.sin(
+                        m.radians(lat)) * Z_k1) / m.sqrt(
+                        X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)))
+                    altitude = np.rad2deg(altitude)
+
+                    azi_angle = m.atan2((-m.sin(m.radians(lon)) * X_k1) + m.cos(m.radians(lon)) * Y_k1,
+                                        (-m.sin(m.radians(lat))) * (m.cos(m.radians(lon)) * X_k1 + m.sin(m.radians(lon)) * Y_k1) + m.cos(
+                                            m.radians(lat)) * Z_k1)
+                    azi_angle = np.rad2deg(azi_angle)
+                    if (altitude > alt):
+                        cosa = X_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                        cosb = Y_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                        cosr = Z_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                        sv_accu = satinfo[name][timeid]['sv_accu']
+                        eptime = satinfo[name][timeid]['time']
+                        eptime = [eptime.year, eptime.month, eptime.day, eptime.hour, eptime.minute, eptime.second]
+                        gtime = UEREcal.epoch2time(eptime)
+                        az = np.radians(azi_angle)
+                        el = np.radians(altitude)
+                        uerep = UEREcal.get_UERE(gtime, blh2, az, el, None, sv_accu)
+                        # print(name,eptime,uerep,az,el,blh2)
+                        station[timeid]['counts'] += 1
+                        station[timeid]['Q'].append([cosa, cosb, cosr, 1])
+                        station[timeid]['az'].append(round(m.radians(azi_angle), 2))
+                        station[timeid]['el'].append(round(m.radians(altitude), 2))
+
+                        # ****
+                        # EL.append(altitude)
+                        # AZ.append(azi_angle)
+                        # timear.append(eptime)
+                        # *****
+
+                        if (pickp == 'unit'):
+                            var = 1
+                            station[timeid]['P'].append(1 / (var * var))
+                            station[timeid]['uereP'].append(1 / (uerep * uerep))
+                        if (pickp == 's_el'):
+                            a = 0.003
+                            b = 0.09
+                            s_el = np.sin(m.radians(altitude))
+                            var = a + b / (s_el ** 2)
+                            station[timeid]['P'].append((1 / (var)))
+                            station[timeid]['uereP'].append((1 / ((uerep) * (uerep))) * (1 / (var)))
+                        station[timeid]['visibility'][name] = round(altitude, 2), round(azi_angle, 2)
+
+            for tid in station:
+                if (station[tid]['counts'] < 4):
+                    station[tid]['GDOP'] = None
+                    station[tid]['PDOP'] = None
+                    station[tid]['HDOP'] = None
+                    station[tid]['VDOP'] = None
+                    station[tid]['TDOP'] = None
+                    station[tid]['Position'] = None
+                    station[tid]['Vertical'] = None
+                    station[tid]['Horizontal'] = None
+                else:
+                    Q = station[tid]['Q']
+                    Qt = np.transpose(Q)
+                    P = np.diag(station[tid]['P'])
+                    QX = np.dot(Qt, P)
+                    QX = np.dot(QX, Q)
+                    QX = np.linalg.inv(QX)
+                    tr = QX.diagonal()
+
+                    uereP = np.diag(station[tid]['uereP'])
+                    QX2 = np.dot(Qt, uereP)
+                    QX2 = np.dot(QX2, Q)
+                    QX2 = np.linalg.inv(QX2)
+                    tr2 = QX2.diagonal()
+
+                    if ((tr[3]) < 0):
+                        TDOP = 0
+                    else:
+                        TDOP = m.sqrt(tr[3])
+                    az = np.array(station[tid]['az'])
+                    el = np.array(station[tid]['el'])
+                    dops = datacal.dops(az, el, m.radians(alt), P)
+                    dops_accuracy = datacal.dops_accuracy(az, el, m.radians(alt), uereP)
+                    del station[tid]['Q']
+                    del station[tid]['P']
+                    del station[tid]['uereP']
+                    station[tid]['GDOP'] = round(dops[0], 2)
+                    station[tid]['PDOP'] = round(dops[1], 2)
+                    station[tid]['HDOP'] = round(dops[2], 2)
+                    station[tid]['VDOP'] = round(dops[3], 2)
+                    station[tid]['TDOP'] = round(TDOP, 2)
+                    station[tid]['Vertical'] = round(dops_accuracy[3], 2)
+                    station[tid]['Horizontal'] = round(dops_accuracy[2], 2)
+                    station[tid]['Position'] = round(dops_accuracy[1], 2)
+
+                    # *****
+                    # GDOP.append(round(dops[0], 2))
+                    # PDOP.append(round(dops[1], 2))
+                    # HDOP.append(round(dops[2], 2))
+                    # VDOP.append(round(dops[3], 2))
+                    # TDOP1.append(round(TDOP,2))
+                    # VER.append(round(dops_accuracy[3],2))
+                    # HOR.append(round(dops_accuracy[2],2))
+                    # POS.append(round(dops_accuracy[1],2))
+            # *******
+            # CNT=[]
+            # for tid in station:
+            #     CNT.append(station[tid]['counts'])
+            # data = { 'GDOP': GDOP, 'HDOP': HDOP,'PDOP':PDOP,'VDOP': VDOP,'TDOP': TDOP1,'VER': VER,'HOR': HOR,'POS': POS,'COUNTS':CNT}
+            # df = pd.DataFrame(data)
+            # df.to_csv('data.csv', index=False)
+
+            # ****
+            print("success")
+
+            return jsonify(station)
+        else:
+            return 'false'
+
 @app.route('/ion', methods=["POST", "GET"])
 def ioncal():
     ion_info={}
     tec=[]
     lon=float(request.form['lon'])
     lat = float(request.form['lat'])
-    print('计算单站电离层信息')
     p = int((lon + 180) / 5 + ((87.5 - lat) / 2.5) * 73)
     print(p)
     exdate=request.form['date']
-
-    # print(exdate)
     obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
     timeid = str(obj_time.year)+str(obj_time.month)+str(obj_time.day)+'0000'
     date = str(exdate)
@@ -3172,15 +3118,6 @@ def ioncal():
             for i in range(97):
                 tec.append(float(a(i)))
 
-            # import pandas as pd
-            #
-            # data = { 'TEC': tec}
-            # # 使用pandas创建数据框
-            # df = pd.DataFrame(data)
-            # # 将数据框保存为CSV文件
-            # df.to_csv('tec.csv', index=False)
-            #
-            # ion_info['tec']=tec
             file.close()
         return jsonify(ion_info)
     else:
@@ -3190,28 +3127,17 @@ def ioncal():
 
 @app.route('/keplercal', methods=["POST", "GET"])
 def keplercal():
-    # 轨道类型
 
     obj_time = datetime.datetime(2022, 9, 15,00,00,00)
     sattype = 1
-    # 轨道偏心率****
     e = float(request.form['e'])
-
-    # 基准时间
     toe = 345600.0000
-    # 轨道倾角*****
     I_0 = np.radians(float(request.form['I_0']))
-
-    # 升交点赤经变化率
     OMEGA_DOT = -4.7787704835E-009
-    # 长半轴****
     sqrt_A = float(request.form['sqrt_A'])
-    # 升交点赤经***
     OMEGA = np.radians(float(request.form['OMEGA']))
-    # 近地点角距***
     w = np.radians(float(request.form['w']))
     week = 871
-    # 平近点角
     M0 = np.radians(float(request.form['M0']))
     c_gap = 6.5470254049E-004
     c_v = 4.4104275787E-011
@@ -3261,14 +3187,10 @@ def keplercal():
             positive = 'true'
             # print(BLH)
         if(negative=='true'and positive == 'true'):
-            # print('stop')
             negative = 'false'
-            # closest_to_zero(a, b)
             if abs(oldblh[0]) < abs(BLH[0]):
-                # print(oldblh)
                 acendpos=[float(oldblh[0]),float(oldblh[1]),float(oldblh[2])]
             else:
-                # print(BLH)
                 acendpos = [float(oldblh[0]),float(oldblh[1]),float(oldblh[2])]
 
         # pm.geodetic2ecef(blh[0], blh[1], blh[2])
@@ -3280,9 +3202,7 @@ def keplercal():
         if(j==0):
             lon0=float(BLH[1])
             bposset = 'True'
-            # print('开始')
         if abs(float(BLH[1]) - lon0)<4 and j>10 and bposset == 'True':
-            # print('终止')
             bposset='False'
         if bposset == 'True':
             bpos.append(float(XYZ[0]))
@@ -3296,12 +3216,9 @@ def keplercal():
     end2=str((datetime.datetime(2022, 9, 15, 00, 00, 00, 00) + datetime.timedelta(hours=24)).isoformat())
 
     header = {
-        # id和version为固定格式
         'id': "document",
         "version": "1.0",
-        # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
             "currentTime": begin3,
             "multiplier": 1,
             "range": "LOOP_STOP",
@@ -3315,7 +3232,6 @@ def keplercal():
         "id": 'orbit',
         "availability": '{}/{}'.format(begin2, end),
         "label": {
-            # 使用label显示卫星名字
             "font": "10pt Lucida Console",
             "horizontalOrigin": "LEFT",
             "pixelOffset": {"cartesian2": [-20, -25]},
@@ -3345,7 +3261,6 @@ def keplercal():
         #
         # },
         "billboard": {
-            # 卫星的图标，使用base64编码表示图片
 
             "image": "/static/images/hdigso.png",
             "scale": 0.37,
@@ -3356,9 +3271,7 @@ def keplercal():
         },
 
         "position": {
-            # cartesian的格式:(time, x, y, z, time, x, y, z...)
-            "referenceFrame": 'FIXED',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-            # 插值填补轨道
+            "referenceFrame": 'FIXED',
             "interpolationDegree": 5,
             "interpolationAlgorithm": "LAGRANGE",
             "epoch": begin2,
@@ -3394,27 +3307,16 @@ def keplercal():
 
 @app.route('/keplercalen', methods=["POST", "GET"])
 def keplercalen():
-    # 轨道类型
     obj_time = datetime.datetime(2022, 9, 15,00,00,00)
     sattype = 1
-    # 轨道偏心率****
     e = float(request.form['e'])
-
-    # 基准时间
     toe = 345600.0000
-    # 轨道倾角*****
     I_0 = np.radians(float(request.form['I_0']))
-
-    # 升交点赤经变化率
     OMEGA_DOT = -4.7787704835E-009
-    # 长半轴****
     sqrt_A = float(request.form['sqrt_A'])
-    # 升交点赤经***
     OMEGA = np.radians(float(request.form['OMEGA']))
-    # 近地点角距***
     w = np.radians(float(request.form['w']))
     week = 871
-    # 平近点角
     M0 = np.radians(float(request.form['M0']))
     c_gap = 6.5470254049E-004
     c_v = 4.4104275787E-011
@@ -3471,17 +3373,13 @@ def keplercalen():
         oldblh=BLH
     end=str(next_time.isoformat())
     doc = []
-    # 定义头部
     begin2 = str(datetime.datetime(2022, 9, 15, 00, 00, 00, 00).isoformat())
     begin3 = str(datetime.datetime(2022, 9, 15, 7, 40, 00, 00).isoformat())
     end2=str((datetime.datetime(2022, 9, 15, 00, 00, 00, 00) + datetime.timedelta(hours=24)).isoformat())
     header = {
-        # id和version为固定格式
         'id': "document",
         "version": "1.0",
-        # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
             "currentTime": begin3,
             "multiplier": 1,
             "range": "LOOP_STOP",
@@ -3495,7 +3393,6 @@ def keplercalen():
         "id": 'Kepler orbit',
         "availability": '{}/{}'.format(begin2, end),
         "label": {
-            # 使用label显示卫星名字
             "font": "10pt Lucida Console",
             "horizontalOrigin": "LEFT",
             "pixelOffset": {"cartesian2": [-20, -25]},
@@ -3525,8 +3422,6 @@ def keplercalen():
         #
         # },
         "billboard": {
-            # 卫星的图标，使用base64编码表示图片
-
             "image": "/static/images/hdigso.png",
             "scale": 0.37,
 
@@ -3535,9 +3430,7 @@ def keplercalen():
         # }
         },
         "position": {
-            # cartesian的格式:(time, x, y, z, time, x, y, z...)
-            "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-            # 插值填补轨道
+            "referenceFrame": 'INERTIAL',
             "interpolationDegree": 5,
             "interpolationAlgorithm": "LAGRANGE",
             "epoch": begin2,
@@ -3563,10 +3456,10 @@ def satnumsview():
     if os.path.exists(file):
         with open(file, 'r') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("导航文件打开成功！计算单站可见卫星")
-            nfile_lines = f.readlines()  # 按行读取N文件
+                print("success")
+            nfile_lines = f.readlines()
             f.close()
         sat_info = {}
         station = {}
@@ -3637,16 +3530,13 @@ def satnumsview():
                         sat_info[satname]['endtime'].append((time-datetime.timedelta(minutes=15)).isoformat())
 
         doc = []
-        # 定义头部
         begin = starttime+ '+00:00'
         end = lasttime2
         header = {
-            # id和version为固定格式
             'id': "document",
             "version": "1.0",
             # 'name': name,
             "clock": {
-                # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
                 "multiplier": 900,
                 "range": "LOOP_STOP",
                 "step": "SYSTEM_CLOCK_MULTIPLIER",
@@ -3704,14 +3594,11 @@ def satnumsview():
                         },
 
                         "billboard": {
-                            # 卫星的图标，使用base64编码表示图片
                             "image": "/static/images/hdigso.png",
                             "scale": 0.37
                         },
                         "position": {
-                            # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                            "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                            # 插值填补轨道
+                            "referenceFrame": 'INERTIAL',
                             "interpolationDegree": 5,
                             "interpolationAlgorithm": "LAGRANGE",
                             "epoch": begin,
@@ -3741,15 +3628,12 @@ def satnumsview():
                             "resolution": 120
                         },
                         "billboard": {
-                            # 卫星的图标，使用base64编码表示图片
                             "image": "/static/images/hdmeo.png",
                             "scale": 0.37,
 
                         },
                         "position": {
-                            # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                            "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                            # 插值填补轨道
+                            "referenceFrame": "INERTIAL",
                             "interpolationDegree": 5,
                             "interpolationAlgorithm": "LAGRANGE",
                             "epoch": begin,
@@ -3774,14 +3658,11 @@ def satnumsview():
                             "width": 3,
                         },
                         "billboard": {
-                            # 卫星的图标，使用base64编码表示图片
                             "image": "/static/images/hdmeo.png",
                             "scale": 0.37
                         },
                         "position": {
-                            # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                            "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                            # 插值填补轨道
+                            "referenceFrame": "INERTIAL",
                             "interpolationDegree": 5,
                             "interpolationAlgorithm": "LAGRANGE",
                             "epoch": begin,
@@ -3842,20 +3723,20 @@ def satnumsview2():
     if os.path.exists(file):
         with open(file, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！单站可视仿真")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()
             f.close()
     else:
         closedate=datacal.closedata(obj_time, './static/tle')
         file="./static/tle/BDSTLE" + closedate + ".txt"
         with open(file, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！计算单站服务性能")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()
             f.close()
     sat_info = {}
     station = {}
@@ -3882,7 +3763,6 @@ def satnumsview2():
             continue
         line1 = content[j + 1]
         line2 = content[j + 2]
-        # 调用sgp4算法计算星历每个时刻的位置
         satellite = twoline2rv(line1, line2, wgs84)
         p_list = []
         for k in range(96):
@@ -3891,7 +3771,6 @@ def satnumsview2():
             next_time_str2 = [int(z) for z in next_time_str2]
             time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map2 = dict(zip(time_key2, next_time_str2))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
             czmltime = next_time2 - datetime.timedelta(hours=8)
             timeid = str(next_time2.isoformat())
             station[timeid] = {}
@@ -3944,19 +3823,14 @@ def satnumsview2():
         j += 3
 
     doc = []
-    # 定义头部
     starttime = (obj_time - datetime.timedelta(hours=8)).isoformat()
     lasttime2 = (obj_time + datetime.timedelta(minutes=15*96)).isoformat()
     begin = starttime + '+00:00'
     end = lasttime2
     header = {
-        # id和version为固定格式
         'id': "document",
         "version": "1.0",
-        # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
-            # "currentTime": begin2,
             "multiplier": 900,
             "range": "LOOP_STOP",
             "step": "SYSTEM_CLOCK_MULTIPLIER",
@@ -4003,8 +3877,7 @@ def satnumsview2():
             bg[sat] = sat_info[sat]['begintime']
             eg[sat] = sat_info[sat]['endtime']
 
-    # print(bg)
-    # print(eg)
+
     for sat in sat_info:
         if (len(sat_info[sat]['plist']) != 0):
             if (
@@ -4015,7 +3888,6 @@ def satnumsview2():
 
                     "availability": '{}/{}'.format(begin, end),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [255, 0, 0, 255]},
@@ -4047,14 +3919,11 @@ def satnumsview2():
                     #
                     # },
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdigso.png",
                         "scale": 0.37
                     },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": 'INERTIAL',  
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begin,
@@ -4069,7 +3938,6 @@ def satnumsview2():
                     "id": "{}".format(sat),
                     "availability": '{}/{}'.format(begin, end),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -4095,15 +3963,12 @@ def satnumsview2():
                         "resolution": 360
                     },
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdmeo.png",
                         "scale": 0.37,
 
                     },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": "INERTIAL",  
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begin,
@@ -4117,7 +3982,6 @@ def satnumsview2():
                     "id": "{}".format(sat),
                     "availability": '{}/{}'.format(begin, end),
                     "label": {
-                        # 使用label显示卫星名字
                         "font": "6pt Lucida Console",
                         "outlineWidth": 2,
                         "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -4142,14 +4006,11 @@ def satnumsview2():
                         "resolution": 360
                     },
                     "billboard": {
-                        # 卫星的图标，使用base64编码表示图片
                         "image": "/static/images/hdmeo.png",
                         "scale": 0.37
                     },
                     "position": {
-                        # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                        "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                        # 插值填补轨道
+                        "referenceFrame": "INERTIAL", 
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begin,
@@ -4163,8 +4024,6 @@ def satnumsview2():
                 if (i >= len(sat_info[sat]['endtime'])):
                     gap2 = lasttime
                 else:
-                    # print(i)
-                    # print(sat)
                     gap2 = sat_info[sat]['endtime'][i]
                 timegap = '{}/{}'.format(gap1, gap2)
                 link = {
@@ -4207,14 +4066,14 @@ def calorbit():
     rinexfile = '../BDS_Simulation/static/Rinex/' + date + '.rx'
     if os.path.exists(rinexfile):
         with open(rinexfile, 'r') as f:
-            nfile_lines = f.readlines()  # 按行读取N文件
+            nfile_lines = f.readlines()  
             f.close()
         rinexdata=datacal.rinexcal3(nfile_lines, obj_time,tstep)
     else:
         datacal.rinexget(obj_time)
         if os.path.exists(rinexfile):
             with open(rinexfile, 'r') as f:
-                nfile_lines = f.readlines()  # 按行读取N文件
+                nfile_lines = f.readlines()  
                 f.close()
             rinexdata = datacal.rinexcal3(nfile_lines, obj_time, tstep)
         else:
@@ -4224,14 +4083,14 @@ def calorbit():
     sp3file = '../BDS_Simulation/static/sp3/' + date + '.sp3'
     if os.path.exists(sp3file):
         with open(sp3file, 'r') as f:
-            nfile_lines = f.readlines()  # 按行读取N文件
+            nfile_lines = f.readlines()  
             f.close()
         sp3data=datacal.sp3cal2(nfile_lines,obj_time)
     else:
         datacal.sp3get2(obj_time)
         if os.path.exists(sp3file):
             with open(sp3file, 'r') as f:
-                nfile_lines = f.readlines()  # 按行读取N文件
+                nfile_lines = f.readlines()  
                 f.close()
             sp3data = datacal.sp3cal2(nfile_lines, obj_time)
         else:
@@ -4242,24 +4101,24 @@ def calorbit():
     yumafile2 = '../BDS_Simulation/static/YUMA/' + date + '-t.alc'
     if os.path.exists(yumafile1):
         with open(yumafile1, 'r') as f:
-            content = f.readlines()  # 按行读取N文件
+            content = f.readlines() 
             f.close()
         yumadate=datacal.yumacal2(content, obj_time,"c",tstep)
     elif os.path.exists(yumafile2):
         with open(yumafile2, 'r') as f:
-            content = f.readlines()  # 按行读取N文件
+            content = f.readlines()  
             f.close()
         yumadate=datacal.yumacal2(content, obj_time,'t',tstep)
     else:
         datacal.yumaget(obj_time)
         if os.path.exists(yumafile1):
             with open(yumafile1, 'r') as f:
-                content = f.readlines()  # 按行读取N文件
+                content = f.readlines()  
                 f.close()
             yumadate = datacal.yumacal2(content, obj_time, "c", tstep)
         elif os.path.exists(yumafile2):
             with open(yumafile2, 'r') as f:
-                content = f.readlines()  # 按行读取N文件
+                content = f.readlines()  
                 f.close()
             yumadate = datacal.yumacal2(content, obj_time, 't', tstep)
         else:
@@ -4269,7 +4128,7 @@ def calorbit():
     tlefile='../BDS_Simulation/static/tle/BDSTLE'+date+'.txt'
     if os.path.exists(tlefile):
         with open(tlefile, 'r') as f:
-            content = f.readlines()  # 按行读取N文件
+            content = f.readlines()  
             f.close()
         tledata=datacal.tlecal3(content,obj_time,tstep)
     else:
@@ -4277,10 +4136,10 @@ def calorbit():
         tlefile="./static/tle/BDSTLE" + closedate + ".txt"
         with open(tlefile, 'rt') as f:
             if f == 0:
-                print("不能打开文件！")
+                print("can not open file")
             else:
-                print("TLE导航文件打开成功！计算单站服务性能")
-            content = f.readlines()  # 按行读取N文件
+                print("success")
+            content = f.readlines()  
             f.close()
         tledata = datacal.tlecal3(content, obj_time, tstep)
         # tledata='false'

@@ -61,11 +61,8 @@ def dops_accuracy(az, el, elmin,P):
     dop = np.sqrt(np.array([gdop, pdop, hdop, vdop]))
     return dop
 def sp3un_gz(file_name):
-    # 获取文件的名称，去掉后缀名
     f_name = file_name.replace(".gz", ".sp3")
-    # 开始解压
     g_file = GzipFile(file_name)
-    # 读取解压后的文件，并写入去掉后缀名的同名文件（即得到解压后的文件）
     open(f_name, "wb+").write(g_file.read())
     g_file.close()
 def lagrange(x, w):
@@ -81,7 +78,7 @@ def lagrange(x, w):
         p += pt
     return p
 
-def blh2xyz(blh):  # 大地坐标转空间直角坐标
+def blh2xyz(blh):
     a = 6378137.0
     f = 1.0 / 298.257223563
     e = m.sqrt(2 * f - f * f);
@@ -104,14 +101,12 @@ def blh2xyz(blh):  # 大地坐标转空间直角坐标
     return [x, y, z]
 
 def XYZ_to_LLA(X, Y, Z):
-    # WGS84坐标系的参数
-    a = 6378137.0  # 椭球长半轴
-    b = 6356752.314245  # 椭球短半轴
+    a = 6378137.0
+    b = 6356752.314245
     ea = np.sqrt((a ** 2 - b ** 2) / a ** 2)
     eb = np.sqrt((a ** 2 - b ** 2) / b ** 2)
     p = np.sqrt(X ** 2 + Y ** 2)
     theta = np.arctan2(Z * a, p * b)
-    # 计算经纬度及海拔
     longitude = np.arctan2(Y, X)
     latitude = np.arctan2(Z + eb ** 2 * b * np.sin(theta) ** 3, p - ea ** 2 * a * np.cos(theta) ** 3)
     N = a / np.sqrt(1 - ea ** 2 * np.sin(latitude) ** 2)
@@ -137,15 +132,12 @@ def BDS_NYRToweekwis(bdsNYR):
     return week, bdsseconds
 
 def calculate_gps_week(date):
-    # GPS时代的开始日期是1980年1月6日
     gps_epoch = datetime.datetime(1980, 1, 6)
-    # 计算当前日期与GPS时代开始日期之间的天数差
     days_since_gps_epoch = (date.date() - gps_epoch.date()).days
-    # 计算GPS周数
     gps_week = days_since_gps_epoch // 7
     return gps_week
 
-# YUMA星历解算
+# YUMA
 def yumacal(content, obj_time,chosen):
     rr = int((len(content) - 1) / 15)
     sat_data = {}
@@ -155,43 +147,30 @@ def yumacal(content, obj_time,chosen):
         for j in range(15):
             data_content = content[j + i * 15]
             if j == 1:
-                # 卫星的PRN号，范围为1—31
                 sat["ID"] = data_content[28:30]
             if j == 2:
-                #  Health: 卫星健康状况，零为信号可用，非零为信号不可用
                 sat["Health"] = data_content[28:31]
             if j == 3:
-                # Eccentricity: 轨道偏心率
                 sat["Eccentricity"] = float(data_content[27:])
             if j == 4:
-                # Time of Applicability(s): 历书的基准时间
                 sat["Time_of_Applicability(s)"] = float(data_content[27:])
             if j == 5:
-                # Orbital Inclination(rad): 轨道倾角
                 sat["Orbital_Inclination(rad)"] = float(data_content[27:])
             if j == 6:
-                # Rate of Right Ascen(r/s): 升交点赤经变化率
                 sat["Rate_of_Right_Ascen(r/s)"] = float(data_content[27:])
             if j == 7:
-                # SQRT(A) (m 1/2): 轨道长半轴的平方根
                 sat["SQRT(A)(m_1/2)"] = float(data_content[27:])
             if j == 8:
-                # Right Ascen at Week(rad): 升交点赤经
                 sat["Right_Ascen_at_Week(rad)"] = float(data_content[27:])
             if j == 9:
-                # Argument of Perigee(rad): 近地点俯角
                 sat["Argument_of_Perigee(rad)"] = float(data_content[27:])
             if j == 10:
-                # Mean Anom(rad): 平均近点角
                 sat["Mean_Anom(rad)"] = float(data_content[27:])
             if j == 11:
-                # Af0(s): 卫星时钟校正参数（钟差）
                 sat["Af0(s)"] = float(data_content[27:])
             if j == 12:
-                # Af1(s/s): 卫星时钟校正参数（钟速）
                 sat["Af1(s/s)"] = float(data_content[27:])
             if j == 13:
-                # week: GPS周数
                 sat["week"] = float(data_content[27:])
         sat_data["sat" + str(i)] = sat
     xx = 0
@@ -203,8 +182,7 @@ def yumacal(content, obj_time,chosen):
             sat_data["C" + str(i)] = {}
 
     def yumacal(year, month, day, hour, minute, second, toe, PRN, sqrt_A, M0, e, w, I_0, OMEGA_DOT, OMEGA, week, c_gap, c_v,chosen):
-        # 1计算归化时间t_k
-        # 新文件
+        # 1t_k
         if chosen=='t':
             objtime = datetime.datetime(year, month, day, hour, minute, second)
             t_oc = BDS_NYRToweekwis(objtime)[1]
@@ -235,7 +213,7 @@ def yumacal(content, obj_time,chosen):
             E1 = E;
             E = M_k + e * m.sin(E);
             if count > 1e8:
-                print("计算偏近点角时未收敛！")
+                print("Not convergent!")
                 break
 
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e));
@@ -245,7 +223,6 @@ def yumacal(content, obj_time,chosen):
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E))
         if chosen=="c":
             i = I_0
-        # 新文件
         elif chosen=="t":
             if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
                 i = I_0
@@ -253,17 +230,14 @@ def yumacal(content, obj_time,chosen):
                 i=I_0+0.3*m.pi
 
 
-        # 9计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为：
+        # 9
         x_k = r * m.cos(u_0)
         y_k = r * m.sin(u_0)
-        # 10观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差  Ω_k=Ω_0+(ω_DOT-omega_e)*t_k-omega_e*t_oe
-        omega_e = 7.2921151467e-5  # 地球自转角速度
+        # 10
         omega_e = 7.292115e-5
         OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * toe;
-        # print('omgdot:' + str(OMEGA_DOT)+', omge:' + str(omega_e))
-        # print('OMGk:' + str(OMEGA_k))
-        # 11计算卫星在地固系中的直角坐标l
-        # 老文件
+        # 11
+        #old file
         if chosen=="c":
             if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
                 OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * toe;
@@ -280,7 +254,7 @@ def yumacal(content, obj_time,chosen):
                 X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
                 Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
                 Z_k = (y_k * m.sin(i))
-        # 新文件
+        # new file
         elif chosen=="t":
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
@@ -290,7 +264,6 @@ def yumacal(content, obj_time,chosen):
         if (minute < 10):
             minute = "0" + str(minute)
         epoch = BDS_weekwisToNYR(week, t_oc).isoformat()
-        # print(epoch)
         timeid = str(year) + str(month) + str(day) + str(hour) + str(minute)
         sat_data[PRN][timeid] = {"PRN": PRN,
                                  "epoch": epoch,
@@ -306,33 +279,20 @@ def yumacal(content, obj_time,chosen):
                                  "Z_k": '%.12f' % Z_k,
 
                                  }
-        # print('xyz:' + str(X_k)+','+str(Y_k)+','+str(Z_k))
-
 
     for i in range(rr):
         PRN = "C" + sat_data["sat" + str(i)]["ID"]
         sqrt_A = sat_data["sat" + str(i)]["SQRT(A)(m_1/2)"]
-        # Mean Anom(rad): 平均近点角
         M0 = sat_data["sat" + str(i)]["Mean_Anom(rad)"]
-        # Eccentricity: 轨道偏心率
         e = sat_data["sat" + str(i)]["Eccentricity"]
-        # Argument of Perigee(rad): 近地点俯角
         w = sat_data["sat" + str(i)]["Argument_of_Perigee(rad)"]
-        # Orbital Inclination(rad): 轨道倾角
         I_0 = sat_data["sat" + str(i)]["Orbital_Inclination(rad)"]
-        # Rate of Right Ascen(r/s): 升交点赤经变化率
         OMEGA_DOT = sat_data["sat" + str(i)]["Rate_of_Right_Ascen(r/s)"]
-        # Right Ascen at Week(rad): 升交点赤经
         OMEGA = sat_data["sat" + str(i)]["Right_Ascen_at_Week(rad)"]
-        # 钟差
         c_gap = sat_data["sat" + str(i)]["Af0(s)"]
-        # 钟速
         c_v = sat_data["sat" + str(i)]["Af1(s/s)"]
-        # 卫星周
         week = sat_data["sat" + str(i)]["week"]
-        # 健康度
         health = sat_data["sat" + str(i)]["Health"]
-        # 历书基准时间
         toe = sat_data["sat" + str(i)]["Time_of_Applicability(s)"]
         t1 = 0
         t = toe
@@ -366,43 +326,30 @@ def yumacal2(content, obj_time,chosen,tstep):
         for j in range(15):
             data_content = content[j + i * 15]
             if j == 1:
-                # 卫星的PRN号，范围为1—31
                 sat["ID"] = data_content[28:30]
             if j == 2:
-                #  Health: 卫星健康状况，零为信号可用，非零为信号不可用
                 sat["Health"] = data_content[28:31]
             if j == 3:
-                # Eccentricity: 轨道偏心率
                 sat["Eccentricity"] = float(data_content[27:])
             if j == 4:
-                # Time of Applicability(s): 历书的基准时间
                 sat["Time_of_Applicability(s)"] = float(data_content[27:])
             if j == 5:
-                # Orbital Inclination(rad): 轨道倾角
                 sat["Orbital_Inclination(rad)"] = float(data_content[27:])
             if j == 6:
-                # Rate of Right Ascen(r/s): 升交点赤经变化率
                 sat["Rate_of_Right_Ascen(r/s)"] = float(data_content[27:])
             if j == 7:
-                # SQRT(A) (m 1/2): 轨道长半轴的平方根
                 sat["SQRT(A)(m_1/2)"] = float(data_content[27:])
             if j == 8:
-                # Right Ascen at Week(rad): 升交点赤经
                 sat["Right_Ascen_at_Week(rad)"] = float(data_content[27:])
             if j == 9:
-                # Argument of Perigee(rad): 近地点俯角
                 sat["Argument_of_Perigee(rad)"] = float(data_content[27:])
             if j == 10:
-                # Mean Anom(rad): 平均近点角
                 sat["Mean_Anom(rad)"] = float(data_content[27:])
             if j == 11:
-                # Af0(s): 卫星时钟校正参数（钟差）
                 sat["Af0(s)"] = float(data_content[27:])
             if j == 12:
-                # Af1(s/s): 卫星时钟校正参数（钟速）
                 sat["Af1(s/s)"] = float(data_content[27:])
             if j == 13:
-                # week: GPS周数
                 sat["week"] = float(data_content[27:])
         sat_data["sat" + str(i)] = sat
     xx = 0
@@ -414,8 +361,7 @@ def yumacal2(content, obj_time,chosen,tstep):
             sat_data["C" + str(i)] = {}
 
     def yumacal(year, month, day, hour, minute, second, toe, PRN, sqrt_A, M0, e, w, I_0, OMEGA_DOT, OMEGA, week, c_gap, c_v,chosen):
-        # 1计算归化时间t_k
-        # 新文件
+        # 1t_k
         if chosen=='t':
             objtime = datetime.datetime(year, month, day, hour, minute, second)
             t_oc = BDS_NYRToweekwis(objtime)[1]
@@ -446,7 +392,7 @@ def yumacal2(content, obj_time,chosen,tstep):
             E1 = E;
             E = M_k + e * m.sin(E);
             if count > 1e8:
-                print("计算偏近点角时未收敛！")
+                print("Not convergent!")
                 break
 
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e));
@@ -456,7 +402,6 @@ def yumacal2(content, obj_time,chosen,tstep):
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E))
         if chosen=="c":
             i = I_0
-        # 新文件
         elif chosen=="t":
             if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
                 i = I_0
@@ -464,17 +409,13 @@ def yumacal2(content, obj_time,chosen,tstep):
                 i=I_0+0.3*m.pi
 
 
-        # 9计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为：
+        # 9
         x_k = r * m.cos(u_0)
         y_k = r * m.sin(u_0)
-        # 10观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差  Ω_k=Ω_0+(ω_DOT-omega_e)*t_k-omega_e*t_oe
-        omega_e = 7.2921151467e-5  # 地球自转角速度
+        # 10
         omega_e = 7.292115e-5
         OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * toe;
-        # print('omgdot:' + str(OMEGA_DOT)+', omge:' + str(omega_e))
-        # print('OMGk:' + str(OMEGA_k))
-        # 11计算卫星在地固系中的直角坐标l
-        # 老文件
+        # 11
         if chosen=="c":
             if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
                 OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * toe;
@@ -491,7 +432,6 @@ def yumacal2(content, obj_time,chosen,tstep):
                 X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
                 Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
                 Z_k = (y_k * m.sin(i))
-        # 新文件
         elif chosen=="t":
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
@@ -517,33 +457,19 @@ def yumacal2(content, obj_time,chosen,tstep):
                                  "Z_k": '%.12f' % Z_k,
 
                                  }
-        # print('xyz:' + str(X_k)+','+str(Y_k)+','+str(Z_k))
-
-
     for i in range(rr):
         PRN = "C" + sat_data["sat" + str(i)]["ID"]
         sqrt_A = sat_data["sat" + str(i)]["SQRT(A)(m_1/2)"]
-        # Mean Anom(rad): 平均近点角
         M0 = sat_data["sat" + str(i)]["Mean_Anom(rad)"]
-        # Eccentricity: 轨道偏心率
         e = sat_data["sat" + str(i)]["Eccentricity"]
-        # Argument of Perigee(rad): 近地点俯角
         w = sat_data["sat" + str(i)]["Argument_of_Perigee(rad)"]
-        # Orbital Inclination(rad): 轨道倾角
         I_0 = sat_data["sat" + str(i)]["Orbital_Inclination(rad)"]
-        # Rate of Right Ascen(r/s): 升交点赤经变化率
         OMEGA_DOT = sat_data["sat" + str(i)]["Rate_of_Right_Ascen(r/s)"]
-        # Right Ascen at Week(rad): 升交点赤经
         OMEGA = sat_data["sat" + str(i)]["Right_Ascen_at_Week(rad)"]
-        # 钟差
         c_gap = sat_data["sat" + str(i)]["Af0(s)"]
-        # 钟速
         c_v = sat_data["sat" + str(i)]["Af1(s/s)"]
-        # 卫星周
         week = sat_data["sat" + str(i)]["week"]
-        # 健康度
         health = sat_data["sat" + str(i)]["Health"]
-        # 历书基准时间
         toe = sat_data["sat" + str(i)]["Time_of_Applicability(s)"]
         t1 = 0
         t = toe
@@ -572,20 +498,16 @@ def yumacal2(content, obj_time,chosen,tstep):
 def rinexcal(nfile_lines,obj_time):
     satellite_info2 = {}
 
-    def start_num():  # 定义数据记录的起始行
+    def start_num():
         for i in range(len(nfile_lines)):
             if nfile_lines[i].find('END OF HEADER') != -1:
                 start_num = i + 1
         return start_num
 
-    print('起始行' + str(start_num()))
-
+    print('start line' + str(start_num()))
     n_dic_list = []
-
     n_data_lines_nums = int((len(nfile_lines) - start_num()) / 8)
-    print("一共%d组数据" % (n_data_lines_nums))
 
-    # 第j组，第i行
     for j in range(n_data_lines_nums):
         n_dic = {}
         for i in range(8):
@@ -603,65 +525,49 @@ def rinexcal(nfile_lines,obj_time):
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 1:
-                # 星历表数据龄期IODE
                 n_dic['IODE'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 矢径的正弦调和项改正数
                 n_dic['C_rs'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 平均角速度之差
                 n_dic['n'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 平近点角M0
                 n_dic['M0'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 2:
                 n_dic['C_uc'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 轨道偏心率
                 n_dic['e'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
                 n_dic['C_us'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 轨道长半轴的平方根
                 n_dic['sqrt_A'] = float(
                     (data_content.strip('\n')[62:80][0:-4] + 'e' + data_content.strip('\n')[62:80][-3:]).strip(' '))
             if i == 3:
-                # 参考历元
                 n_dic['TEO'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_ic'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 升交点赤经
                 n_dic['OMEGA'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                #
                 n_dic['C_is'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 4:
-                # 轨道倾角
                 n_dic['I_0'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_rc'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 近地点角距
                 n_dic['w'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 升交点赤经变化率
                 n_dic['OMEGA_DOT'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 5:
-                # 轨道倾角变化率
                 n_dic['IDOT'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # l2上的码
                 n_dic['L2_code'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # GPS周数
                 n_dic['PS_week_num'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # L2码数据标记
                 n_dic['L2_P_code'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 6:
@@ -669,10 +575,8 @@ def rinexcal(nfile_lines,obj_time):
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['卫星健康状态'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 电离层延迟改正数
                 n_dic['TGD1'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 星钟数据龄期
                 n_dic['TGD2'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 7:
@@ -696,13 +600,12 @@ def rinexcal(nfile_lines,obj_time):
     def CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
                     sqrt_A,
                     TOE, C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1):
-        # 1.计算卫星运行平均角速度 GM:WGS84下的引力常数 =3.986005e14
+        # 1
         GM = 3.986004418e+14
-        # GM = 3.9860047e14
         n_0 = m.sqrt(GM) / m.pow(sqrt_A, 3)
         n = n_0 + δn
 
-        # 2.计算归化时间t_k 计算t时刻的卫星位置  UT:世界时 此处以小时为单位
+        # 2
         UT = hour + (minute / 60.0) + (second / 3600);
         if year >= 80:
             if year == 80 and month == 1 and day < 6:
@@ -713,25 +616,21 @@ def rinexcal(nfile_lines,obj_time):
             year = year + 2000
         if month <= 2:
             year = year - 1
-            month = month + 12  # 1，2月视为前一年13，14月
-        # 需要将当前需计算的时刻先转换到儒略日再转换到GPS时间
+            month = month + 12
         JD = (365.25 * year) + int(30.6001 * (month + 1)) + day + UT / 24 + 1720981.5;
-        WN = int((JD - 2444244.5) / 7);  # WN:GPS_week number 目标时刻的GPS周
-        t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;  # t_GPS:目标时刻的GPS秒
-        # 对观测时刻t1进行钟差改正,注意:t1应是由接收机接收到的时间
+        WN = int((JD - 2444244.5) / 7);
+        t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;
         if t1 is None:
             t_k = 0
         else:
             δt = a_0 + a_1 * (t1 - TOE) + a_2 * (t1 - TOE) * (t1 - TOE)
-
             t = t1 - δt
-
             t_k = t - TOE-14
 
-        # 3.平近点角计算M_k = M_0+n*t_k
+        # 3
         M_k = M0 + n * t_k
 
-        # 4.偏近点角计算 E_k  (迭代计算) E_k = M_k + e*sin(E_k)
+        # 4
         E = 0;
         E1 = 1;
         count = 0;
@@ -740,36 +639,34 @@ def rinexcal(nfile_lines,obj_time):
             E1 = E;
             E = M_k + e * m.sin(E);
             if count > 1e8:
-                print("计算偏近点角时未收敛！")
+                print("Not convergent!")
                 break
 
-        # 5.计算卫星的真近点角
+        # 5
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e))
 
-        # 6.计算升交距角 u_0(φ_k), ω:卫星电文给出的近地点角距
+        # 6
         u_0 = V_k + w
 
-        # 7.摄动改正项 δu、δr、δi :升交距角u、卫星矢径r和轨道倾角i的摄动量
+        # 7
         δu = C_uc * m.cos(2 * u_0) + C_us * m.sin(2 * u_0)
         δr = C_rc * m.cos(2 * u_0) + C_rs * m.sin(2 * u_0)
         δi = C_ic * m.cos(2 * u_0) + C_is * m.sin(2 * u_0)
 
-        # 8.计算经过摄动改正的升交距角u_k、卫星矢径r_k和轨道倾角 i_k
+        # 8
         u = u_0 + δu
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E)) + δr
         i = I_0 + δi + IDOT * (t_k);
 
-        # 9.计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为:
+        # 9
         x_k = r * m.cos(u)
         y_k = r * m.sin(u)
         omega_e = 7.2921150e-5
         if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
-            # omega_e = 7.2921151467e-5  # 地球自转角速度
-
+            # 10
             OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * TOE;
-            # OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
-            # 11.计算卫星在地固系中的直角坐标l
+
+            # 11
             X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k1 = (y_k * m.sin(i))
@@ -780,21 +677,16 @@ def rinexcal(nfile_lines,obj_time):
             Z_k = -(Y_k1 * m.sin(-(5 * m.pi / 180))) + Z_k1 * m.cos(-(5 * m.pi / 180))
 
         else:
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
-            # omega_e = 7.292115e-5  # 地球自转角速度
-            # omega_e = 7.2921151467e-5
 
             OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
 
-            # 11.计算卫星在地固系中的直角坐标l
+            # 11
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k = (y_k * m.sin(i))
 
-            # 12.计算卫星在协议地球坐标系中的坐标，考虑级移
-            # [X,Y,Z]=[[1,0,X_P],[0,1,-Y_P],[-X_p,Y_P,1]]*[X_k,Y_k,Z_k]
 
-        if month > 12:  # 恢复历元
+        if month > 12:
             year = year + 1
             month = month - 12
 
@@ -827,12 +719,6 @@ def rinexcal(nfile_lines,obj_time):
                                       "Z_k": '%.12f' % Z_k,
                                       }
 
-        # print("历元:", year, "年", month, "月", day, "日", hour, "时", minute, "分", second, "秒", '\n', "卫星PRN号:", PRN, '\n',
-        #       "平均角速度:", n, '\n',
-        #       "卫星平近点角:", M_k, '\n', "偏近点角:", E, '\n', "真近点角:", V_k, '\n', "升交距角:", u_0, '\n', "摄动改正项:", δu, δr, δi,
-        #       '\n', "经摄动改正后的升交距角、卫星矢径和轨道倾角:", u, r,
-        #       i, '\n', "轨道平面坐标X,Y:", x_k, y_k, '\n', "观测时刻升交点经度:", OMEGA_k, '\n', "地固直角坐标系X:", X_k, '\n', "地固直角坐标系Y:",
-        #       Y_k, '\n', "地固直角坐标系Z:", Z_k)
 
     for row in n_dic_list:
         PRN = str(row["卫星PRN号"])
@@ -866,75 +752,43 @@ def rinexcal(nfile_lines,obj_time):
         L2_code = float(row["L2_code"])
         PS_week_num = float(row["PS_week_num"])
         L2_P_code = float(row["L2_P_code"])
-        # 卫星精度(m)=2
-        # 卫星健康状态=0
-        # print('tgd'+row["TGD"])
         wxjd = float(row["卫星精度(m)"])
         wxjkzt = float(row["卫星健康状态"])
         TGD1 = float(row["TGD1"])
         TGD2 = float(row["TGD2"])
         transT = float(row["信号发射时刻"])
         IODC = float(row["IODC"])
-        # print(TGD)
-        # print(sqrt_A)
         t1 = TOE
         epochtime = datetime.datetime(int("20" + str(year)), month, day, hour, minute, int(second))
-        # print(epochtime.isoformat())
         satellite_info2['in' + str(zz)] = {"PRN": PRN,
                                            "epoch": epochtime.isoformat(),
-                                           # 卫星种差
                                            "a_0": a_0,
-                                           # 卫星钟速
                                            "a_1": a_1,
-                                           # 卫星钟速变率
                                            "a_2": a_2,
-                                           # 星历数据期号
                                            "IODE": IODE,
-                                           # 轨道半径的正弦调和改正项振幅
                                            "C_rs": C_rs,
-                                           # 卫星平均运动速率与计算值之差
                                            "sn": δn,
-                                           # 参考时间的平近点角
                                            "M0": M0,
-                                           # 纬度幅角的余弦调和改正项振幅
                                            "C_uc": C_uc,
-                                           # 偏心率
                                            "e": e,
-                                           # 纬度幅角的正弦调和改正项振幅
                                            "C_us": C_us,
-                                           # 轨道长半轴的平方根
                                            "sqrt_A": sqrt_A,
-                                           # 星历参考时刻
                                            "TOE": TOE,
-                                           # 轨道倾角的余弦调和改正数的振幅
                                            "C_ic": C_ic,
-                                           # 参考时刻的升交点赤经
                                            "OMEGA": OMEGA,
-                                           # 轨道倾角的正弦调和改正数的振幅
                                            "C_is": C_is,
-                                           # 参考时刻的轨道倾角
                                            "I_0": I_0,
-                                           # 轨道向径的余弦调和改正数的振幅
                                            "C_rc": C_rc,
-                                           # 近地点角距
                                            "w": w,
 
                                            "OMEGA_DOT": OMEGA_DOT,
-                                           # 轨道倾角的变化率
                                            "IDOT": IDOT,
-                                           #
                                            "L2_code": L2_code,
-                                           #
                                            "PS_week_num": PS_week_num,
-                                           #
                                            "L2_P_code": L2_P_code,
-                                           # 卫星精度
                                            "wxjd": wxjd,
-                                           # 卫星健康状态
                                            "wxjkzt": wxjkzt,
-                                           #
                                            "TGD1": TGD1,
-                                           # 星钟数据事件
                                            "TGD2": TGD2,
 
                                            "transmission_time": transT,
@@ -962,11 +816,10 @@ def rinexcal2(nfile_lines,obj_time,tstep):
                 start_num = i + 1
         return start_num
 
-    print('起始行' + str(start_num()))
+    print('start line' + str(start_num()))
 
     n_dic_list = []
     n_data_lines_nums = int((len(nfile_lines) - start_num()) / 8)
-    print("一共%d组数据" % (n_data_lines_nums))
     for i in range(63):
         if (i != 0):
             if (i < 10):
@@ -976,13 +829,12 @@ def rinexcal2(nfile_lines,obj_time,tstep):
     def CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
                     sqrt_A,
                     TOE, C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1,sv_accu):
-        # 1.计算卫星运行平均角速度 GM:WGS84下的引力常数 =3.986005e14
+        # 1
         GM = 3.986004418e+14
         n_0 = m.sqrt(GM) / m.pow(sqrt_A, 3)
         n = n_0 + δn
 
-        # 2.计算归化时间t_k 计算t时刻的卫星位置  UT:世界时 此处以小时为单位
-        # 对观测时刻t1进行钟差改正,注意:t1应是由接收机接收到的时间
+        # 2
         if t1 is None:
             t_k = 0
         else:
@@ -990,10 +842,10 @@ def rinexcal2(nfile_lines,obj_time,tstep):
             t = t1 - δt
             t_k = t - TOE-14
 
-        # 3.平近点角计算M_k = M_0+n*t_k
+        # 3
         M_k = M0 + n * t_k
 
-        # 4.偏近点角计算 E_k  (迭代计算) E_k = M_k + e*sin(E_k)
+        # 4
         E = 0;
         E1 = 1;
         count = 0;
@@ -1005,31 +857,31 @@ def rinexcal2(nfile_lines,obj_time,tstep):
                 print("计算偏近点角时未收敛！")
                 break
 
-        # 5.计算卫星的真近点角
+        # 5
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e))
 
-        # 6.计算升交距角 u_0(φ_k), ω:卫星电文给出的近地点角距
+        # 6
         u_0 = V_k + w
 
-        # 7.摄动改正项 δu、δr、δi :升交距角u、卫星矢径r和轨道倾角i的摄动量
+        # 7
         δu = C_uc * m.cos(2 * u_0) + C_us * m.sin(2 * u_0)
         δr = C_rc * m.cos(2 * u_0) + C_rs * m.sin(2 * u_0)
         δi = C_ic * m.cos(2 * u_0) + C_is * m.sin(2 * u_0)
 
-        # 8.计算经过摄动改正的升交距角u_k、卫星矢径r_k和轨道倾角 i_k
+        # 8
         u = u_0 + δu
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E)) + δr
         i = I_0 + δi + IDOT * (t_k);
 
-        # 9.计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为:
+        # 9
         x_k = r * m.cos(u)
         y_k = r * m.sin(u)
         omega_e = 7.2921150e-5
         if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
+            # 10
             OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * TOE;
-            # OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
-            # 11.计算卫星在地固系中的直角坐标l
+
+            # 11
             X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k1 = (y_k * m.sin(i))
@@ -1040,10 +892,10 @@ def rinexcal2(nfile_lines,obj_time,tstep):
             Z_k = -(Y_k1 * m.sin(-(5 * m.pi / 180))) + Z_k1 * m.cos(-(5 * m.pi / 180))
 
         else:
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
+            # 10
             OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
 
-            # 11.计算卫星在地固系中的直角坐标l
+            # 11
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k = (y_k * m.sin(i))
@@ -1068,7 +920,6 @@ def rinexcal2(nfile_lines,obj_time,tstep):
                                       "sv_accu": sv_accu,
                                       "time":epochtime
                                       }
-    # 第j组，第i行
     for j in range(n_data_lines_nums):
         n_dic = {}
         for i in range(8):
@@ -1079,72 +930,56 @@ def rinexcal2(nfile_lines,obj_time,tstep):
                 n_dic['历元'] = data_content.strip('\n')[3:23]
                 n_dic['卫星钟偏差(s)'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(
-                        ' '))  # 利用字符串切片功能来进行字符串的修改
+                        ' '))
                 n_dic['卫星钟漂移(s/s)'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
                 n_dic['卫星钟漂移速度(s/s*s)'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 1:
-                # 星历表数据龄期IODE
                 n_dic['IODE'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 矢径的正弦调和项改正数
                 n_dic['C_rs'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 平均角速度之差
                 n_dic['n'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 平近点角M0
                 n_dic['M0'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 2:
                 n_dic['C_uc'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 轨道偏心率
                 n_dic['e'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
                 n_dic['C_us'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 轨道长半轴的平方根
                 n_dic['sqrt_A'] = float(
                     (data_content.strip('\n')[62:80][0:-4] + 'e' + data_content.strip('\n')[62:80][-3:]).strip(' '))
             if i == 3:
-                # 参考历元
                 n_dic['TEO'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_ic'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 升交点赤经
                 n_dic['OMEGA'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                #
                 n_dic['C_is'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 4:
-                # 轨道倾角
                 n_dic['I_0'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_rc'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 近地点角距
                 n_dic['w'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 升交点赤经变化率
                 n_dic['OMEGA_DOT'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 5:
-                # 轨道倾角变化率
                 n_dic['IDOT'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # l2上的码
                 n_dic['L2_code'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # GPS周数
                 n_dic['PS_week_num'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # L2码数据标记
                 n_dic['L2_P_code'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 6:
@@ -1152,10 +987,8 @@ def rinexcal2(nfile_lines,obj_time,tstep):
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['卫星健康状态'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 电离层延迟改正数
                 n_dic['TGD1'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 星钟数据龄期
                 n_dic['TGD2'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 7:
@@ -1208,20 +1041,16 @@ def rinexcal2(nfile_lines,obj_time,tstep):
 def rinexcal3(nfile_lines,obj_time,tstep):
     satellite_info2 = {}
 
-    def start_num():  # 定义数据记录的起始行
+    def start_num():
         for i in range(len(nfile_lines)):
             if nfile_lines[i].find('END OF HEADER') != -1:
                 start_num = i + 1
         return start_num
 
-    print('起始行' + str(start_num()))
-
+    print('strat line' + str(start_num()))
     n_dic_list = []
-
     n_data_lines_nums = int((len(nfile_lines) - start_num()) / 8)
-    print("一共%d组数据" % (n_data_lines_nums))
 
-    # 第j组，第i行
     for j in range(n_data_lines_nums):
         n_dic = {}
         for i in range(8):
@@ -1234,72 +1063,56 @@ def rinexcal3(nfile_lines,obj_time,tstep):
                 n_dic['历元'] = data_content.strip('\n')[3:23]
                 n_dic['卫星钟偏差(s)'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(
-                        ' '))  # 利用字符串切片功能来进行字符串的修改
+                        ' '))
                 n_dic['卫星钟漂移(s/s)'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
                 n_dic['卫星钟漂移速度(s/s*s)'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 1:
-                # 星历表数据龄期IODE
                 n_dic['IODE'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 矢径的正弦调和项改正数
                 n_dic['C_rs'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 平均角速度之差
                 n_dic['n'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 平近点角M0
                 n_dic['M0'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 2:
                 n_dic['C_uc'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # 轨道偏心率
                 n_dic['e'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
                 n_dic['C_us'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 轨道长半轴的平方根
                 n_dic['sqrt_A'] = float(
                     (data_content.strip('\n')[62:80][0:-4] + 'e' + data_content.strip('\n')[62:80][-3:]).strip(' '))
             if i == 3:
-                # 参考历元
                 n_dic['TEO'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_ic'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 升交点赤经
                 n_dic['OMEGA'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                #
                 n_dic['C_is'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
             if i == 4:
-                # 轨道倾角
                 n_dic['I_0'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['C_rc'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 近地点角距
                 n_dic['w'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 升交点赤经变化率
                 n_dic['OMEGA_DOT'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 5:
-                # 轨道倾角变化率
                 n_dic['IDOT'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
-                # l2上的码
                 n_dic['L2_code'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # GPS周数
                 n_dic['PS_week_num'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # L2码数据标记
                 if (data_content.strip('\n')[61:80]) != '':
                     n_dic['L2_P_code'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
@@ -1310,10 +1123,8 @@ def rinexcal3(nfile_lines,obj_time,tstep):
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['卫星健康状态'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                # 电离层延迟改正数
                 n_dic['TGD1'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                # 星钟数据龄期
                 n_dic['TGD2'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 7:
@@ -1336,13 +1147,12 @@ def rinexcal3(nfile_lines,obj_time,tstep):
     def CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
                     sqrt_A,
                     TOE, C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1):
-        # 1.计算卫星运行平均角速度 GM:WGS84下的引力常数 =3.986005e14
+        # 1
         GM = 3.986004418e+14
-        # GM = 3.9860047e14
         n_0 = m.sqrt(GM) / m.pow(sqrt_A, 3)
         n = n_0 + δn
 
-        # 2.计算归化时间t_k 计算t时刻的卫星位置  UT:世界时 此处以小时为单位
+        # 2
         UT = hour + (minute / 60.0) + (second / 3600);
         if year >= 80:
             if year == 80 and month == 1 and day < 6:
@@ -1353,12 +1163,11 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             year = year + 2000
         if month <= 2:
             year = year - 1
-            month = month + 12  # 1，2月视为前一年13，14月
-        # 需要将当前需计算的时刻先转换到儒略日再转换到GPS时间
+            month = month + 12
+
         JD = (365.25 * year) + int(30.6001 * (month + 1)) + day + UT / 24 + 1720981.5;
-        WN = int((JD - 2444244.5) / 7);  # WN:GPS_week number 目标时刻的GPS周
-        t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;  # t_GPS:目标时刻的GPS秒
-        # 对观测时刻t1进行钟差改正,注意:t1应是由接收机接收到的时间
+        WN = int((JD - 2444244.5) / 7);
+        t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;
         if t1 is None:
             t_k = 0
         else:
@@ -1368,10 +1177,10 @@ def rinexcal3(nfile_lines,obj_time,tstep):
 
             t_k = t - TOE-14
 
-        # 3.平近点角计算M_k = M_0+n*t_k
+        # 3
         M_k = M0 + n * t_k
 
-        # 4.偏近点角计算 E_k  (迭代计算) E_k = M_k + e*sin(E_k)
+        # 4
         E = 0;
         E1 = 1;
         count = 0;
@@ -1380,37 +1189,34 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             E1 = E;
             E = M_k + e * m.sin(E);
             if count > 1e8:
-                print("计算偏近点角时未收敛！")
+                print("Not convergent!")
                 break
 
-        # 5.计算卫星的真近点角
+        # 5
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e))
 
-        # 6.计算升交距角 u_0(φ_k), ω:卫星电文给出的近地点角距
+        # 6
         u_0 = V_k + w
 
-        # 7.摄动改正项 δu、δr、δi :升交距角u、卫星矢径r和轨道倾角i的摄动量
+        # 7
         δu = C_uc * m.cos(2 * u_0) + C_us * m.sin(2 * u_0)
         δr = C_rc * m.cos(2 * u_0) + C_rs * m.sin(2 * u_0)
         δi = C_ic * m.cos(2 * u_0) + C_is * m.sin(2 * u_0)
 
-        # 8.计算经过摄动改正的升交距角u_k、卫星矢径r_k和轨道倾角 i_k
+        # 8
         u = u_0 + δu
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E)) + δr
         i = I_0 + δi + IDOT * (t_k);
 
-        # 9.计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为:
+        # 9
         x_k = r * m.cos(u)
         y_k = r * m.sin(u)
         omega_e = 7.2921150e-5
         if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
-            # omega_e = 7.2921151467e-5  # 地球自转角速度
-
+            # 10
             OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * TOE;
 
-            # OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
-            # 11.计算卫星在地固系中的直角坐标l
+            # 11
             X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k1 = (y_k * m.sin(i))
@@ -1421,21 +1227,17 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             Z_k = -(Y_k1 * m.sin(m.radians(-5))) + Z_k1 * m.cos(-(5 * m.pi / 180))
 
         else:
-            # 10.观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差
-            # omega_e = 7.292115e-5  # 地球自转角速度
-            # omega_e = 7.2921151467e-5
+            # 10
 
             OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
 
-            # 11.计算卫星在地固系中的直角坐标l
+            # 11
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k = (y_k * m.sin(i))
 
-            # 12.计算卫星在协议地球坐标系中的坐标，考虑级移
-            # [X,Y,Z]=[[1,0,X_P],[0,1,-Y_P],[-X_p,Y_P,1]]*[X_k,Y_k,Z_k]
 
-        if month > 12:  # 恢复历元
+        if month > 12:
             year = year + 1
             month = month - 12
 
@@ -1445,8 +1247,7 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             minute = '0' + str(minute)
         if second < 10:
             second = '0' + str(second)
-        # if month < 10:
-        #     month = '0' + str(month)
+
         name = str(year) + str(month) + str(day) + str(hour) + str(minute)
         satellite_info2['ymd'] = str(year) + str(month) + str(day)
         epochtime = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
@@ -1467,12 +1268,6 @@ def rinexcal3(nfile_lines,obj_time,tstep):
                                       "Z_k": '%.12f' % Z_k,
                                       }
 
-        # print("历元:", year, "年", month, "月", day, "日", hour, "时", minute, "分", second, "秒", '\n', "卫星PRN号:", PRN, '\n',
-        #       "平均角速度:", n, '\n',
-        #       "卫星平近点角:", M_k, '\n', "偏近点角:", E, '\n', "真近点角:", V_k, '\n', "升交距角:", u_0, '\n', "摄动改正项:", δu, δr, δi,
-        #       '\n', "经摄动改正后的升交距角、卫星矢径和轨道倾角:", u, r,
-        #       i, '\n', "轨道平面坐标X,Y:", x_k, y_k, '\n', "观测时刻升交点经度:", OMEGA_k, '\n', "地固直角坐标系X:", X_k, '\n', "地固直角坐标系Y:",
-        #       Y_k, '\n', "地固直角坐标系Z:", Z_k)
 
     for row in n_dic_list:
         PRN = str(row["卫星PRN号"])
@@ -1509,75 +1304,45 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             L2_P_code = float(row["L2_P_code"])
         else:
             L2_P_code=''
-        # 卫星精度(m)=2
-        # 卫星健康状态=0
-        # print('tgd'+row["TGD"])
+
         wxjd = float(row["卫星精度(m)"])
         wxjkzt = float(row["卫星健康状态"])
         TGD1 = float(row["TGD1"])
         TGD2 = float(row["TGD2"])
         transT = float(row["信号发射时刻"])
         IODC = float(row["IODC"])
-        # print(TGD)
-        # print(sqrt_A)
         t1 = TOE
         epochtime = datetime.datetime(int("20" + str(year)), month, day, hour, minute, int(second))
-        # print(epochtime.isoformat())
         satellite_info2['in' + str(zz)] = {"PRN": PRN,
                                            "epoch": epochtime.isoformat(),
-                                           # 卫星种差
                                            "a_0": a_0,
-                                           # 卫星钟速
                                            "a_1": a_1,
-                                           # 卫星钟速变率
                                            "a_2": a_2,
-                                           # 星历数据期号
                                            "IODE": IODE,
-                                           # 轨道半径的正弦调和改正项振幅
                                            "C_rs": C_rs,
-                                           # 卫星平均运动速率与计算值之差
                                            "sn": δn,
-                                           # 参考时间的平近点角
                                            "M0": M0,
-                                           # 纬度幅角的余弦调和改正项振幅
                                            "C_uc": C_uc,
-                                           # 偏心率
                                            "e": e,
-                                           # 纬度幅角的正弦调和改正项振幅
                                            "C_us": C_us,
-                                           # 轨道长半轴的平方根
                                            "sqrt_A": sqrt_A,
-                                           # 星历参考时刻
                                            "TOE": TOE,
-                                           # 轨道倾角的余弦调和改正数的振幅
                                            "C_ic": C_ic,
-                                           # 参考时刻的升交点赤经
                                            "OMEGA": OMEGA,
-                                           # 轨道倾角的正弦调和改正数的振幅
                                            "C_is": C_is,
-                                           # 参考时刻的轨道倾角
                                            "I_0": I_0,
-                                           # 轨道向径的余弦调和改正数的振幅
                                            "C_rc": C_rc,
-                                           # 近地点角距
                                            "w": w,
 
                                            "OMEGA_DOT": OMEGA_DOT,
-                                           # 轨道倾角的变化率
                                            "IDOT": IDOT,
-                                           #
                                            "L2_code": L2_code,
-                                           #
                                            "PS_week_num": PS_week_num,
-                                           #
                                            "L2_P_code": L2_P_code,
-                                           # 卫星精度
                                            "wxjd": wxjd,
-                                           # 卫星健康状态
                                            "wxjkzt": wxjkzt,
                                            #
                                            "TGD1": TGD1,
-                                           # 星钟数据事件
                                            "TGD2": TGD2,
 
                                            "transmission_time": transT,
@@ -1599,12 +1364,10 @@ def rinexcal3(nfile_lines,obj_time,tstep):
     return satellite_info2
 def sp3cal(nfile_lines, obj_time):
     satellite_info3 = {}
-    # print(nfile_lines)
     for i in range(len(nfile_lines)):
         if (nfile_lines[i].startswith('*') == True):
             start_num = i
             break
-    # start_num = 32
     print(start_num)
 
     t = []
@@ -1945,7 +1708,6 @@ def tlecal2(content, obj_time):
             name = 'C62'
         line1 = content[j + 1]
         line2 = content[j + 2]
-        # 调用sgp4算法计算星历每个时刻的位置
         satellite = twoline2rv(line1, line2, wgs84)
 
         p_list = []
@@ -1955,7 +1717,6 @@ def tlecal2(content, obj_time):
             next_time_str2 = [int(z) for z in next_time_str2]
             time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map2 = dict(zip(time_key2, next_time_str2))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
             timeid = str(next_time2.year) + str(next_time2.month) + str(next_time2.day) + (next_time2.isoformat())[11:13] + (next_time2.isoformat())[
                                                                                                                             14:16]
 
@@ -1968,7 +1729,6 @@ def tlecal2(content, obj_time):
                 second=time_map2['second']
             )
             x, y, z = pm.eci2ecef(position2[0] * 1000, position2[1] * 1000, position2[2] * 1000, next_time2)
-            # # 热力图
             x = float(x)
             y = float(y)
             z = float(z)
@@ -2055,13 +1815,13 @@ def tlecal2(content, obj_time):
             del stations[z][tid]['az']
             del stations[z][tid]['el']
     stations['objtime'] = obj_time.isoformat()
-    print("基于TLE全球服务性能计算完毕")
+    print("TLE performance success")
     with open('../BDS_Simulation/static/json/stations.json', 'w') as f:
         dump(stations, f)
 
 
 def Kepcal(year, month, day, hour, minute, second, toe, sattype, sqrt_A, M0, e, w, I_0, OMEGA_DOT, OMEGA, week, c_gap, c_v):
-    # 1计算归化时间t_k
+    # 1
     objtime = datetime.datetime(year, month, day, hour, minute, second)
     t_oc = BDS_NYRToweekwis(objtime)[1]
     t = t_oc - (c_gap + c_v * (t_oc - toe))
@@ -2087,7 +1847,7 @@ def Kepcal(year, month, day, hour, minute, second, toe, sattype, sqrt_A, M0, e, 
         E1 = E;
         E = M_k + e * m.sin(E);
         if count > 1e8:
-            print("计算偏近点角时未收敛！")
+            print("Not convergent!")
             break
 
     V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e));
@@ -2097,14 +1857,14 @@ def Kepcal(year, month, day, hour, minute, second, toe, sattype, sqrt_A, M0, e, 
     r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E))
     i = I_0
 
-    # 9计算卫星在轨道平面坐标系的坐标,卫星在轨道平面直角坐标系（X轴指向升交点）中的坐标为：
+    # 9
     x_k = r * m.cos(u_0)
     y_k = r * m.sin(u_0)
-    # 10观测时刻升交点经度Ω_k的计算，升交点经度Ω_k等于观测时刻升交点赤经Ω与格林尼治恒星时GAST之差  Ω_k=Ω_0+(ω_DOT-omega_e)*t_k-omega_e*t_oe
-    omega_e = 7.2921151467e-5  # 地球自转角速度
+    # 10
     omega_e = 7.292115e-5
     OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * toe;
-    # 11计算卫星在地固系中的直角坐标l
+
+    # 11
     if sattype==0:
         OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * toe;
         X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
@@ -2133,9 +1893,9 @@ def orbits():
     print(file)
     with open(file, 'rt') as f:
         if f == 0:
-            print("不能打开文件！")
+            print("can not open file")
         else:
-            print("导航文件打开成功！")
+            print("success")
         content = f.readlines()  #
         f.close()
     j = 0
@@ -2148,7 +1908,6 @@ def orbits():
         "version": "1.0",
         # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
             # "currentTime": begin2,
             "multiplier": 1,
             "range": "LOOP_STOP",
@@ -2163,10 +1922,16 @@ def orbits():
 
         textname = name[-4:-1]
         # print(name.startswith('C'))
-        if textname.startswith('C') == False:
+        # if textname.startswith('C') == False:
+        #     textname = 'C62'
+        #     # break
+        if name=='BEIDOU-3 G4':
             textname = 'C62'
-            # break
-
+        if name=='BEIDOU-3 M25':
+            textname = 'C63'
+            break
+        # if name=='BEIDOU-3 M26':
+        #     textname = 'C64'
         # print(name)
         line1 = content[j + 1]
         line2 = content[j + 2]
@@ -2178,16 +1943,11 @@ def orbits():
         position_list2 = []
         # nums = 500
         for i in range(180):
-            # print(i)
-            # next_time表示每个位置对应的时间点
-            # next_time = now_time + datetime.timedelta(seconds=gap * (i + 1)) - datetime.timedelta(seconds=gap)
             next_time = now_time + datetime.timedelta(minutes=15 * (i))
-            # 表示为字典，方便propagate函数的计算
             next_time_str = next_time.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str = [int(v) for v in next_time_str]
             time_key = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map = dict(zip(time_key, next_time_str))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
             position, velocity = satellite.propagate(
                 year=time_map['year'],
                 month=time_map['month'],
@@ -2201,16 +1961,13 @@ def orbits():
             position_list.append(position[1] * 1000)
             position_list.append(position[2] * 1000)
 
-            # 星下点
             position_list2.append(next_time.isoformat() + '+00:00')
             position_list2.append(XYZ_to_LLA(position[0] * 1000, position[1] * 1000, position[2] * 1000)[1])
             position_list2.append(XYZ_to_LLA(position[0] * 1000, position[1] * 1000, position[2] * 1000)[0])
             position_list2.append(0)
-        # 格式化为ISO时间标准格式
+
         begin = str(now_time.isoformat())
         end = str((next_time).isoformat())
-        # 定义主体
-        # 判断类型
 
         if (
                 textname == 'C06' or textname == 'C07' or textname == 'C08' or textname == 'C09' or textname == 'C10' or textname == 'C13' or textname == 'C16' or textname == 'C31' or textname == 'C38' or textname == 'C39' or textname == 'C40' or textname == 'C56'):
@@ -2227,7 +1984,6 @@ def orbits():
                                '<span style="color:yellow">每天绕地球飞行圈数:</span>' + line2[52:63] + '<br/>',
                 "availability": '{}/{}'.format(begin, end),
                 "label": {
-                    # 使用label显示卫星名字
                     "font": "6pt Lucida Console",
                     "outlineWidth": 2,
                     "outlineColor": {"rgba": [255, 0, 0, 255]},
@@ -2266,14 +2022,11 @@ def orbits():
                     "unitQuaternion": [-0.5, 0.2, 0.1, 0.5]
                 },
                 "billboard": {
-                    # 卫星的图标，使用base64编码表示图片
                     "image": "/static/images/hdigso.png",
                     "scale": 0.37
                 },
                 "position": {
-                    # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                    "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                    # 插值填补轨道
+                    "referenceFrame": 'INERTIAL',
                     "interpolationDegree": 5,
                     "interpolationAlgorithm": "LAGRANGE",
                     "epoch": begin,
@@ -2297,7 +2050,6 @@ def orbits():
                                '<span style="color:yellow">每天绕地球飞行圈数:</span>' + line2[52:63] + '<br/>',
                 "availability": '{}/{}'.format(begin, end),
                 "label": {
-                    # 使用label显示卫星名字
                     "font": "6pt Lucida Console",
                     "outlineWidth": 2,
                     "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -2330,15 +2082,12 @@ def orbits():
                     "resolution": 360
                 },
                 "billboard": {
-                    # 卫星的图标，使用base64编码表示图片
                     "image": "/static/images/hdgeo.png",
                     "scale": 0.37,
 
                 },
                 "position": {
-                    # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                    "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                    # 插值填补轨道
+                    "referenceFrame": "INERTIAL",
                     "interpolationDegree": 5,
                     "interpolationAlgorithm": "LAGRANGE",
                     "epoch": begin,
@@ -2361,7 +2110,6 @@ def orbits():
                                '<span style="color:yellow">每天绕地球飞行圈数:</span>' + line2[52:63] + '<br/>',
                 "availability": '{}/{}'.format(begin, end),
                 "label": {
-                    # 使用label显示卫星名字
                     "font": "6pt Lucida Console",
                     "outlineWidth": 2,
                     "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -2393,14 +2141,11 @@ def orbits():
 
                 },
                 "billboard": {
-                    # 卫星的图标，使用base64编码表示图片
                     "image": "/static/images/hdmeo.png",
                     "scale": 0.37
                 },
                 "position": {
-                    # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                    "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                    # 插值填补轨道
+                    "referenceFrame": "INERTIAL",
                     "interpolationDegree": 5,
                     "interpolationAlgorithm": "LAGRANGE",
                     "epoch": begin,
@@ -2413,8 +2158,7 @@ def orbits():
             "availability": '{}/{}'.format(begin, end),
 
             "position": {
-                "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                # 插值填补轨道
+                "referenceFrame": 'INERTIAL',
                 "interpolationDegree": 5,
                 "interpolationAlgorithm": "LAGRANGE",
                 "epoch": begin,
@@ -2467,10 +2211,10 @@ def orbits_en():
     print(file)
     with open(file, 'rt') as f:
         if f == 0:
-            print("不能打开文件！")
+            print("can not open file")
         else:
-            print("导航文件打开成功！")
-        content = f.readlines()  #
+            print("success")
+        content = f.readlines()
         f.close()
     j = 0
     doc = []
@@ -2482,8 +2226,6 @@ def orbits_en():
         "version": "1.0",
         # 'name': name,
         "clock": {
-            # interval为有效时间，currentTime表示起始点，multiplier表示时钟速度
-            # "currentTime": begin2,
             "multiplier": 1,
             "range": "LOOP_STOP",
             "step": "SYSTEM_CLOCK_MULTIPLIER",
@@ -2497,10 +2239,14 @@ def orbits_en():
 
         textname = name[-4:-1]
         # print(name.startswith('C'))
-        if textname.startswith('C') == False:
+        # if textname.startswith('C') == False:
+        #     textname = 'C62'
+        #     # break
+        if name=='BEIDOU-3 G4':
             textname = 'C62'
-            # break
-
+        if name=='BEIDOU-3 M25':
+            textname = 'C63'
+            break
         # print(name)
         line1 = content[j + 1]
         line2 = content[j + 2]
@@ -2512,16 +2258,11 @@ def orbits_en():
         position_list2 = []
         # nums = 500
         for i in range(180):
-            # print(i)
-            # next_time表示每个位置对应的时间点
-            # next_time = now_time + datetime.timedelta(seconds=gap * (i + 1)) - datetime.timedelta(seconds=gap)
             next_time = now_time + datetime.timedelta(minutes=15 * (i))
-            # 表示为字典，方便propagate函数的计算
             next_time_str = next_time.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str = [int(v) for v in next_time_str]
             time_key = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map = dict(zip(time_key, next_time_str))
-            # 调用sgp4库的propagate函数计算对应时刻的位置
             position, velocity = satellite.propagate(
                 year=time_map['year'],
                 month=time_map['month'],
@@ -2535,16 +2276,14 @@ def orbits_en():
             position_list.append(position[1] * 1000)
             position_list.append(position[2] * 1000)
 
-            # 星下点
             position_list2.append(next_time.isoformat() + '+00:00')
             position_list2.append(XYZ_to_LLA(position[0] * 1000, position[1] * 1000, position[2] * 1000)[1])
             position_list2.append(XYZ_to_LLA(position[0] * 1000, position[1] * 1000, position[2] * 1000)[0])
             position_list2.append(0)
-        # 格式化为ISO时间标准格式
+
         begin = str(now_time.isoformat())
         end = str((next_time).isoformat())
-        # 定义主体
-        # 判断类型
+
 
         if (
                 textname == 'C06' or textname == 'C07' or textname == 'C08' or textname == 'C09' or textname == 'C10' or textname == 'C13' or textname == 'C16' or textname == 'C31' or textname == 'C38' or textname == 'C39' or textname == 'C40' or textname == 'C56'):
@@ -2561,7 +2300,6 @@ def orbits_en():
                                '<span style="color:yellow">Mean motion:</span>' + line2[52:63] + '<br/>',
                 "availability": '{}/{}'.format(begin, end),
                 "label": {
-                    # 使用label显示卫星名字
                     "font": "6pt Lucida Console",
                     "outlineWidth": 2,
                     "outlineColor": {"rgba": [255, 0, 0, 255]},
@@ -2593,14 +2331,12 @@ def orbits_en():
 
                 },
                 "billboard": {
-                    # 卫星的图标，使用base64编码表示图片
+
                     "image": "/static/images/hdigso.png",
                     "scale": 0.37
                 },
                 "position": {
-                    # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                    "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                    # 插值填补轨道
+                    "referenceFrame": 'INERTIAL',
                     "interpolationDegree": 5,
                     "interpolationAlgorithm": "LAGRANGE",
                     "epoch": begin,
@@ -2624,7 +2360,6 @@ def orbits_en():
                                '<span style="color:yellow">Mean motion:</span>' + line2[52:63] + '<br/>',
                 "availability": '{}/{}'.format(begin, end),
                 "label": {
-                    # 使用label显示卫星名字
                     "font": "6pt Lucida Console",
                     "outlineWidth": 2,
                     "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -2657,15 +2392,12 @@ def orbits_en():
                     "resolution": 360
                 },
                 "billboard": {
-                    # 卫星的图标，使用base64编码表示图片
                     "image": "/static/images/hdgeo.png",
                     "scale": 0.37,
 
                 },
                 "position": {
-                    # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                    "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                    # 插值填补轨道
+                    "referenceFrame": "INERTIAL",
                     "interpolationDegree": 5,
                     "interpolationAlgorithm": "LAGRANGE",
                     "epoch": begin,
@@ -2688,7 +2420,6 @@ def orbits_en():
                                '<span style="color:yellow">Mean motion:</span>' + line2[52:63] + '<br/>',
                 "availability": '{}/{}'.format(begin, end),
                 "label": {
-                    # 使用label显示卫星名字
                     "font": "6pt Lucida Console",
                     "outlineWidth": 2,
                     "outlineColor": {"rgba": [0, 0, 0, 255]},
@@ -2720,14 +2451,11 @@ def orbits_en():
 
                 },
                 "billboard": {
-                    # 卫星的图标，使用base64编码表示图片
                     "image": "/static/images/hdmeo.png",
                     "scale": 0.37
                 },
                 "position": {
-                    # cartesian的格式:(time, x, y, z, time, x, y, z...)
-                    "referenceFrame": "INERTIAL",  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                    # 插值填补轨道
+                    "referenceFrame": "INERTIAL",
                     "interpolationDegree": 5,
                     "interpolationAlgorithm": "LAGRANGE",
                     "epoch": begin,
@@ -2740,8 +2468,7 @@ def orbits_en():
             "availability": '{}/{}'.format(begin, end),
 
             "position": {
-                "referenceFrame": 'INERTIAL',  # 可以取FIXED和INERTIAL表示固定和惯性参考系
-                # 插值填补轨道
+                "referenceFrame": 'INERTIAL',
                 "interpolationDegree": 5,
                 "interpolationAlgorithm": "LAGRANGE",
                 "epoch": begin,
@@ -2787,15 +2514,10 @@ def orbits_en():
     print('czmlsuccess')
 def closedata(obj_time,objpath):
     all_dates=[]
-    # 指定要遍历的目录路径
     folder_path = objpath
-    # 获取目录中的所有文件和目录
     all_files = os.listdir(folder_path)
-    # 遍历目录中的所有文件和目录
     for file_name in all_files:
-        # 拼接文件路径
         file_path = os.path.join(folder_path, file_name)
-        # 如果是文件，打印出文件名
         if os.path.isfile(file_path):
             date_str = file_name[6:-4]
             all_dates.append(date_str)
@@ -2813,12 +2535,13 @@ def closedata(obj_time,objpath):
 def rinexget(obj_time):
     NYR=obj_time
     days=(NYR-datetime.datetime(NYR.year,1,1)).days+1
-
-    if days<100:
+    if days<100 and days>=10:
         days='0'+str(days)
+    if days<10:
+        days='00'+str(days)
     urllist=["ftp://pub:tarc@ftp2.csno-tarc.cn/brdc/"+str(NYR.year)+"/hour"+str(days)+"0."+str(NYR.year)[2:4]+"b"]
     target_name=[]
-    target_name.append('../BDS_Simulation/static/Rinex/' + str(NYR.isoformat().strip()[0:10]) + '.rx')
+    target_name.append('./static/Rinex/' + str(NYR.isoformat().strip()[0:10]) + '.rx')
     for file in target_name:
         if os.path.exists(file):
             os.remove(file)
@@ -2827,13 +2550,13 @@ def rinexget(obj_time):
         try:
             opener.open(urllist[i])
             download(urllist[i], out=target_name[i])
-            print(urllist[i] + '没问题')
+            print(urllist[i] + 'success')
 
         except urllib.error.HTTPError:
-            print(urllist[i] + '=访问页面出错')
+            print(urllist[i] + '=error')
             # time.sleep(2)
         except urllib.error.URLError:
-            print(urllist[i] + '=访问页面出错')
+            print(urllist[i] + '=error')
             # time.sleep(2)
 
 def yumaget(obj_time):
@@ -2841,14 +2564,16 @@ def yumaget(obj_time):
     days=(NYR-datetime.datetime(NYR.year,1,1)).days+1
     print(NYR)
     print(days)
-    if days<100:
+    if days<100 and days>=10:
         days='0'+str(days)
+    if days<10:
+        days='00'+str(days)
     urllist=["ftp://pub:tarc@ftp2.csno-tarc.cn/almanac/"+str(NYR.year)+"/conv"+str(days)+"0."+str(NYR.year)[2:4]+"alc"]
     urllist2=["ftp://pub:tarc@ftp2.csno-tarc.cn/almanac/"+str(NYR.year)+"/tarc"+str(days)+"0."+str(NYR.year)[2:4]+"alc"]
     target_name=[]
-    target_name.append('../BDS_Simulation/static/YUMA/' + str(NYR.isoformat().strip()[0:10]) + '-c.alc')
+    target_name.append('./static/YUMA/' + str(NYR.isoformat().strip()[0:10]) + '-c.alc')
     target_name2=[]
-    target_name2.append('../BDS_Simulation/static/YUMA/' + str(NYR.isoformat().strip()[0:10]) + '-t.alc')
+    target_name2.append('./static/YUMA/' + str(NYR.isoformat().strip()[0:10]) + '-t.alc')
     for file in target_name:
         if os.path.exists(file):
             os.remove(file)
@@ -2860,55 +2585,52 @@ def yumaget(obj_time):
         try:
             opener.open(urllist[i])
             download(urllist[i], out=target_name[i])
-            print(urllist[i] + '没问题')
+            print(urllist[i] + 'success')
 
         except urllib.error.HTTPError:
-            print(urllist[i] + '=访问页面出错')
+            print(urllist[i] + '=error')
             # time.sleep(2)
         except urllib.error.URLError:
-            print(urllist[i] + '=访问页面出错')
+            print(urllist[i] + '=error')
             # time.sleep(2)
     for i in range(1):
         try:
             opener.open(urllist2[i])
             download(urllist2[i], out=target_name2[i])
-            print(urllist2[i] + '没问题')
+            print(urllist2[i] + 'success')
 
         except urllib.error.HTTPError:
-            print(urllist2[i] + '=访问页面出错')
+            print(urllist2[i] + '=error')
             # time.sleep(2)
         except urllib.error.URLError:
-            print(urllist2[i] + '=访问页面出错')
+            print(urllist2[i] + '=error')
             # time.sleep(2)
 
 def sp3get2(obj_time):
     target_name = []
 
-    # print("当前GPS周数:", gps_week)
     for i in range(1):
         date=obj_time-datetime.timedelta(days=i)
         gps_week = calculate_gps_week(date)
         doy=date2doy(date)
-        if doy<100:
-            doy='0'+str(doy)
-        # FTP 网站的 URL
-        # ftp_url = "ftp://igs.gnsswhu.cn//pub/gnss/products/mgex/2270/WUM0MGXULT_20231910000_01D_05M_ORB.SP3.gz"
-        # 下载文件
-        #
+        if doy < 100 and doy >= 10:
+            doy = '0' + str(doy)
+        if doy < 10:
+            doy = '00' + str(doy)
         url1 = 'ftp://igs.gnsswhu.cn/pub/gnss/products/mgex/' + str(gps_week) +'/WUM0MGXULT_' + str(date.year) +str(doy)+'0000_01D_05M_ORB' + '.SP3.gz'
         url2 = 'ftp://igs.gnsswhu.cn/pub/gnss/products/mgex/' + str(gps_week) + '/WUM0MGXULT_' + str(date.year) + str(
             doy) + '0100_01D_05M_ORB' + '.SP3.gz'
         try:
-            if os.path.exists('../BDS_Simulation/static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz'):
-                os.remove('../BDS_Simulation/static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz')
-            urllib.request.urlretrieve(url1, r'../BDS_Simulation/static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz',)
-            # my_ftp.download_file(r'../BDS_Simulation/static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz', url1)
-            target_name.append('../BDS_Simulation/static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz')
-            print(url1 + '没问题')
+            if os.path.exists('./static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz'):
+                os.remove('./static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz')
+            urllib.request.urlretrieve(url1, r'./static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz',)
+            # my_ftp.download_file(r'./static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz', url1)
+            target_name.append('./static/sp3/' + str((date).isoformat().strip()[0:10]) + '.gz')
+            print(url1 + 'success')
         except urllib.error.HTTPError:
-            print(url1 + ' http访问页面出错')
+            print(url1 + ' http error')
         except urllib.error.URLError:
-            print(url1 + ' url访问页面出错')
+            print(url1 + ' url error')
     for file in target_name:
         if file.endswith('gz'):
             try:
@@ -2916,4 +2638,4 @@ def sp3get2(obj_time):
                 os.remove(file)
             except FileNotFoundError:
                 continue
-    print('sp3下载完毕')
+    print('sp3 success')
