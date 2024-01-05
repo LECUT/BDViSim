@@ -315,7 +315,7 @@ def yumacal(content, obj_time,chosen):
         xx += 1
         endtime = next_time.isoformat()
 
-    with open('../BDS_Simulation/static/json/satellite_info4.json', 'w') as f:
+    with open('./static/json/satellite_info4.json', 'w') as f:
         dump(sat_data, f)
 def yumacal2(content, obj_time,chosen,tstep):
     rr = int((len(content) - 1) / 15)
@@ -805,7 +805,7 @@ def rinexcal(nfile_lines,obj_time):
         satellite_info2['endtime'] = endtime.isoformat()
 
 
-    with open('../BDS_Simulation/static/json/satellite_info2.json', 'w') as f:
+    with open('./static/json/satellite_info2.json', 'w') as f:
         dump(satellite_info2, f)
 
 def rinexcal2(nfile_lines,obj_time,tstep):
@@ -1406,7 +1406,7 @@ def sp3cal(nfile_lines, obj_time):
             GAP = float(content[47:60])
             satellite_info3[satname][time0] = ['%.12f' % x, '%.12f' % y, '%.12f' % z, GAP, time1]
 
-    with open('../BDS_Simulation/static/json/satellite_info3.json', 'w') as f:
+    with open('./static/json/satellite_info3.json', 'w') as f:
         dump(satellite_info3, f)
 
 def sp3cal2(nfile_lines, obj_time):
@@ -1474,7 +1474,7 @@ def ioncal(nfile_lines, obj_time):
         t+=1
         timeid=str(time.year)+str(time.month)+str(time.day)+str(time.isoformat().strip()[11:13])+'00'
         ion_info[timeid] = tec
-    with open('../BDS_Simulation/static/json/ion_info.json', 'w') as f:
+    with open('./static/json/ion_info.json', 'w') as f:
         dump(ion_info, f)
 def ioncal2(nfile_lines, obj_time):
     ion_info={}
@@ -1577,9 +1577,9 @@ def tlecal(content, obj_time):
 
         j += 3
 
-    with open('../BDS_Simulation/static/json/satellite_info.json', 'w') as f:
+    with open('./static/json/satellite_info.json', 'w') as f:
         dump(satellite_info, f)
-    with open('../BDS_Simulation/static/json/orbit_info.json', 'w') as f:
+    with open('./static/json/orbit_info.json', 'w') as f:
         dump(orbit_info, f)
 
 def tlecal3(content, obj_time,tstep):
@@ -1816,7 +1816,7 @@ def tlecal2(content, obj_time):
             del stations[z][tid]['el']
     stations['objtime'] = obj_time.isoformat()
     print("TLE performance success")
-    with open('../BDS_Simulation/static/json/stations.json', 'w') as f:
+    with open('./static/json/stations.json', 'w') as f:
         dump(stations, f)
 
 
