@@ -3776,8 +3776,13 @@ def satnumsview2():
         name = content[j].strip()
         name = name[-4:-1]
 
-        if name.startswith('C') == False:
+        # if name.startswith('C') == False:
+        #     name = 'C62'
+        if name=='BEIDOU-3 G4':
             name = 'C62'
+        if name=='BEIDOU-3 M25':
+            name = 'C63'
+            break
         if sat_name.find(str(name)) == -1:
             j += 3
             continue

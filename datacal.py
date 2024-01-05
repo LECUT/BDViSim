@@ -2656,7 +2656,7 @@ def ionexget(obj_time):
     my_ftp = ftpdown.MyFTP("gdc.cddis.eosdis.nasa.gov")
     my_ftp.login("anonymous", "cctcasm@163.com")
     for i in range(1):
-        date=obj_time-datetime.timedelta(days=i)+datetime.timedelta(days=2)
+        date=obj_time-datetime.timedelta(days=i)
         doy=date2doy(date)
         if doy<100 and doy>=10:
             doy='0'+str(doy)
