@@ -8,7 +8,7 @@
   <link rel="icon" type="image/x-icon" href="../static/images/icon/app.ico">
   <title>BDViSim</title>
   <script src="../static/libs/Cesium/Cesium.js"></script>
-  <link href="../static/libs/Cesium/Widgets/widgets.css" rel="stylesheet"> <!-- 加样式条属性指定文档关系 -->
+  <link href="../static/libs/Cesium/Widgets/widgets.css" rel="stylesheet"> 
   <script src="../static/libs/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script>
   <script type="text/javascript" src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
@@ -48,7 +48,6 @@
 
 }
 .header {
-  /* position: fixed; */
   font-family: Arial, Helvetica, sans-serif;
   height: 6%;
   top: 0;
@@ -66,7 +65,7 @@
   color: white;
   padding: 0 1rem;
 }
-/* 导航样式 */
+
 .navbar ul{
   display: flex;
   margin: 0;
@@ -92,7 +91,7 @@
 .navbar ul li a:hover{
   color: #41a4da;
 }
-/* 二级菜单样式 */
+
 .navbar ul li ul{
   position: absolute;
   display: none;
@@ -102,7 +101,7 @@
 .navbar ul li ul li{
   background-color: #3F3D56;
 }
-/* 悬浮展开二级菜单 */
+
 .navbar ul li ul li a:hover{
   color: white;
 }
@@ -286,7 +285,6 @@ font-size: 16px;
       </form>
       <div style="position:absolute;left:85px;bottom:10px">
         <button style="margin-right:30px" id="btnupload">import</button>
-        <!-- <button style="margin-right:30px" id="btnupload2">导入2</button> -->
         <button onclick="switchorbits()">cancel</button>
       </div>
 

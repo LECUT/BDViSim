@@ -4583,3 +4583,8 @@ function switchabout() {
     aboutdiv.style.display = 'none'
   }
 }
+let dateInput = document.querySelector('input[type="date"]');
+let dateInput2 = document.querySelector('input[id="site_datepick"]');
+let today = new Date().toISOString().slice(0, 10); 
+dateInput.setAttribute('max', today);
+dateInput2.setAttribute('max', today);
