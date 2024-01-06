@@ -3,7 +3,7 @@ an web application platform for visual simulation of the BeiDou Navigation Satel
 ## Usage
 ### Local Deployment
 Deploying the software requires installing Python(version3x);
-Requisites can be found in [requirements] (requirements.md) file.
+Requisites can be found in requirements.txt file.
 #### Step 1: Download codes
 
 #### Step 2: Run app.py
