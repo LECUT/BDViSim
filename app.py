@@ -221,7 +221,7 @@ def upload():
 
             t = t1 - δt
 
-            t_k = t - TOE
+            t_k = t - TOE-14
         # 3
         M_k = M0 + n * t_k
 
@@ -535,7 +535,12 @@ def upload4():
         t = t_oc - (c_gap + c_v * (t_oc - toe))
         if (BDS_NYRToweekwis(objtime)[0] - week) > 0:
             t += 604800
-        t_k = t - toe
+        t_k = t - toe-14
+
+        if t_k > 302400:
+            t_k -= 604800
+        elif t_k < -302400:
+            t_k += 604800
         # 2
         GM = 398600441800000
         GM = 3.9860047e14
@@ -561,10 +566,11 @@ def upload4():
         u_0 = V_k + w
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E))
         # 7
-        if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61':
-            i = I_0
-        else:
-            i = I_0 + 0.3 * m.pi
+        # if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61':
+        #     i = I_0
+        # else:
+        #     i = I_0 + 0.3 * m.pi
+        i = I_0
 
         # 8
         x_k = r * m.cos(u_0)
@@ -573,9 +579,24 @@ def upload4():
         omega_e = 7.292115e-5
         OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * toe;
         # 9
-        X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
-        Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
-        Z_k = (y_k * m.sin(i))
+        # X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
+        # Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
+        # Z_k = (y_k * m.sin(i))
+        if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
+            OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * toe;
+            X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
+            Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
+            Z_k1 = (y_k * m.sin(i))
+            X_k = X_k1 * m.cos(omega_e * t_k) + Y_k1 * m.sin(omega_e * t_k) * m.cos(-(5 * m.pi / 180)) + Z_k1 * m.sin(
+                    omega_e * t_k) * m.sin(-(5 * m.pi / 180))
+            Y_k = -(X_k1 * m.sin(omega_e * t_k)) + Y_k1 * m.cos(omega_e * t_k) * m.cos(
+                    -(5 * m.pi / 180)) + Z_k1 * m.cos(omega_e * t_k) * m.sin(-(5 * m.pi / 180))
+            Z_k = -(Y_k1 * m.sin(-(5 * m.pi / 180))) + Z_k1 * m.cos(-(5 * m.pi / 180))
+
+        else:
+            X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
+            Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
+            Z_k = (y_k * m.sin(i))
         if (hour < 10):
             hour = "0" + str(hour)
         if (minute < 10):
@@ -668,27 +689,37 @@ def upload5():
         p_list = []
         for k in range(24):
             next_time2 = obj_time + datetime.timedelta(hours=k)
+            next_time3 = obj_time + datetime.timedelta(hours=k) - datetime.timedelta(seconds=18)
             next_time_str2 = next_time2.strftime('%Y %m %d %H %M %S').split(' ')
             next_time_str2 = [int(z) for z in next_time_str2]
             time_key2 = ['year', 'month', 'day', 'hour', 'minute', 'second']
             time_map2 = dict(zip(time_key2, next_time_str2))
+            # 调用sgp4库的propagate函数计算对应时刻的位置
+            timeid = str(next_time2.year) + str(next_time2.month) + str(next_time2.day) + (next_time2.isoformat())[11:13] + (
+                                                                                                                                next_time2.isoformat())[
+                                                                                                                            14:16]
 
-            if time_map2['hour'] < 10:
-                timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + "0" + str(
-                    time_map2['hour']) + "0" + str(time_map2['minute'])
-            else:
-                timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + str(
-                    time_map2['hour']) + "0" + str(time_map2['minute'])
+            next_time_str3 = next_time3.strftime('%Y %m %d %H %M %S').split(' ')
+            next_time_str3 = [int(z) for z in next_time_str3]
+            time_key3 = ['year', 'month', 'day', 'hour', 'minute', 'second']
+            time_map3 = dict(zip(time_key3, next_time_str3))
+
+            # if time_map2['hour'] < 10:
+            #     timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + "0" + str(
+            #         time_map2['hour']) + "0" + str(time_map2['minute'])
+            # else:
+            #     timeid = str(time_map2['year']) + str(time_map2['month']) + str(time_map2['day']) + str(
+            #         time_map2['hour']) + "0" + str(time_map2['minute'])
 
             position2, velocity2 = satellite.propagate(
-                year=time_map2['year'],
-                month=time_map2['month'],
-                day=time_map2['day'],
-                hour=time_map2['hour'],
-                minute=time_map2['minute'],
-                second=time_map2['second']
+                year=time_map3['year'],
+                month=time_map3['month'],
+                day=time_map3['day'],
+                hour=time_map3['hour'],
+                minute=time_map3['minute'],
+                second=time_map3['second']
             )
-            x, y, z = pm.eci2ecef(position2[0] * 1000, position2[1] * 1000, position2[2] * 1000, next_time2)
+            x, y, z = pm.eci2ecef(position2[0] * 1000, position2[1] * 1000, position2[2] * 1000, next_time3)
             orbit_info.update({
                 name: {
                     'norda': line1[2:8],
@@ -2446,13 +2477,10 @@ def paint():
                 station[tid]['Horizontal'] = None
             else:
                 Q = station[tid]['Q']
-                print(Q)
                 Q1 = station[tid]['Q']
                 # Qt = np.transpose(Q)
                 P = np.diag(station[tid]['P'])
-                print(P)
                 Qt = np.transpose(Q)
-                print(Qt)
                 QX = np.dot(Qt, P)
                 QX = np.dot(QX, Q)
                 QX = np.linalg.inv(QX)
@@ -3948,7 +3976,7 @@ def satnumsview2():
                         "scale": 0.37
                     },
                     "position": {
-                        "referenceFrame": 'INERTIAL',  
+                        "referenceFrame": 'INERTIAL',
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begin,
@@ -3993,7 +4021,7 @@ def satnumsview2():
 
                     },
                     "position": {
-                        "referenceFrame": "INERTIAL",  
+                        "referenceFrame": "INERTIAL",
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begin,
@@ -4035,7 +4063,7 @@ def satnumsview2():
                         "scale": 0.37
                     },
                     "position": {
-                        "referenceFrame": "INERTIAL", 
+                        "referenceFrame": "INERTIAL",
                         "interpolationDegree": 5,
                         "interpolationAlgorithm": "LAGRANGE",
                         "epoch": begin,
@@ -4091,14 +4119,14 @@ def calorbit():
     rinexfile = './static/Rinex/' + date + '.rx'
     if os.path.exists(rinexfile):
         with open(rinexfile, 'r') as f:
-            nfile_lines = f.readlines()  
+            nfile_lines = f.readlines()
             f.close()
         rinexdata=datacal.rinexcal3(nfile_lines, obj_time,tstep)
     else:
         datacal.rinexget(obj_time)
         if os.path.exists(rinexfile):
             with open(rinexfile, 'r') as f:
-                nfile_lines = f.readlines()  
+                nfile_lines = f.readlines()
                 f.close()
             rinexdata = datacal.rinexcal3(nfile_lines, obj_time, tstep)
         else:
@@ -4108,14 +4136,14 @@ def calorbit():
     sp3file = './static/sp3/' + date + '.sp3'
     if os.path.exists(sp3file):
         with open(sp3file, 'r') as f:
-            nfile_lines = f.readlines()  
+            nfile_lines = f.readlines()
             f.close()
         sp3data=datacal.sp3cal2(nfile_lines,obj_time)
     else:
         datacal.sp3get2(obj_time)
         if os.path.exists(sp3file):
             with open(sp3file, 'r') as f:
-                nfile_lines = f.readlines()  
+                nfile_lines = f.readlines()
                 f.close()
             sp3data = datacal.sp3cal2(nfile_lines, obj_time)
         else:
@@ -4126,24 +4154,24 @@ def calorbit():
     yumafile2 = './static/YUMA/' + date + '-t.alc'
     if os.path.exists(yumafile1):
         with open(yumafile1, 'r') as f:
-            content = f.readlines() 
+            content = f.readlines()
             f.close()
         yumadate=datacal.yumacal2(content, obj_time,"c",tstep)
     elif os.path.exists(yumafile2):
         with open(yumafile2, 'r') as f:
-            content = f.readlines()  
+            content = f.readlines()
             f.close()
         yumadate=datacal.yumacal2(content, obj_time,'t',tstep)
     else:
         datacal.yumaget(obj_time)
         if os.path.exists(yumafile1):
             with open(yumafile1, 'r') as f:
-                content = f.readlines()  
+                content = f.readlines()
                 f.close()
             yumadate = datacal.yumacal2(content, obj_time, "c", tstep)
         elif os.path.exists(yumafile2):
             with open(yumafile2, 'r') as f:
-                content = f.readlines()  
+                content = f.readlines()
                 f.close()
             yumadate = datacal.yumacal2(content, obj_time, 't', tstep)
         else:

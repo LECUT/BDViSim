@@ -223,6 +223,7 @@ $("#btnupload").on("click", function () {
         alert("Success")
         newset();
         return result3
+        
       }
       if (url == '/SP3') {
         result4 = res
@@ -242,7 +243,7 @@ $("#btnupload").on("click", function () {
 
 
 
-
+      
       alert("Success")
       newset();
     }
@@ -629,6 +630,10 @@ datepick.value=result3['objtime'].substring(0, 10)
 function newset() {
   // objtime.value = result3['objtime'].replace("T", " ");
   // endtime.value = result3['endtime'].replace("T", " ");
+  var datepick = document.getElementById("datepick")
+  objtime.value = result3['objtime'].replace("T", " ");
+  endtime.value = result3['endtime'].replace("T", " ");
+  datepick.value=result3['objtime'].substring(0, 10)
   id = document.getElementById('newselect').value;
   if (!window.result[id]) {
 
