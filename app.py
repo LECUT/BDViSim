@@ -90,10 +90,6 @@ def upload():
 
     for j in range(n_data_lines_nums):
         n_dic = {}
-        if ('C' in nfile_lines[start_num() + 8 * j + 0]):
-            print(nfile_lines[start_num() + 8 * j + 0])
-        else:
-            continue
         for i in range(8):
             data_content = nfile_lines[start_num() + 8 * j + i]
             n_dic['数据组数'] = j + 1
@@ -102,7 +98,7 @@ def upload():
                 n_dic['历元'] = data_content.strip('\n')[3:23]
                 n_dic['卫星钟偏差(s)'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(
-                        ' '))
+                        ' '))  # 利用字符串切片功能来进行字符串的修改
                 n_dic['卫星钟漂移(s/s)'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
                 n_dic['卫星钟漂移速度(s/s*s)'] = float(
@@ -133,7 +129,6 @@ def upload():
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
                 n_dic['OMEGA'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                #
                 n_dic['C_is'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
 
@@ -153,32 +148,26 @@ def upload():
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
                 n_dic['PS_week_num'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                if data_content.strip('\n')[61:80][0:-4]=='':
-                    continue
-                else:
-                    n_dic['L2_P_code'] = float(
-                        (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
+                n_dic['L2_P_code'] = float(
+                    (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
             if i == 6:
                 n_dic['卫星精度(m)'] = float(
                     (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
                 n_dic['卫星健康状态'] = float(
                     (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
-                n_dic['TGD'] = float(
+                n_dic['TGD1'] = float(
                     (data_content.strip('\n')[42:61][0:-4] + 'e' + data_content.strip('\n')[42:61][-3:]).strip(' '))
-                n_dic['IODC'] = float(
+                n_dic['TGD2'] = float(
                     (data_content.strip('\n')[61:80][0:-4] + 'e' + data_content.strip('\n')[61:80][-3:]).strip(' '))
-
+            if i == 7:
+                n_dic['信号发射时刻'] = float(
+                    (data_content.strip('\n')[4:23][0:-4] + 'e' + data_content.strip('\n')[4:23][-3:]).strip(' '))
+                n_dic['IODC'] = float(
+                    (data_content.strip('\n')[23:42][0:-4] + 'e' + data_content.strip('\n')[23:42][-3:]).strip(' '))
+        if n_dic['卫星PRN号'].startswith('C') == False:
+            continue
         n_dic_list.append(n_dic)
 
-    with open('/brdc.csv', 'w', newline='') as f:
-        header = ['数据组数', '卫星PRN号', '历元', '卫星钟偏差(s)', '卫星钟漂移(s/s)', '卫星钟漂移速度(s/s*s)', 'IODE', 'C_rs', 'n', 'M0', 'C_uc',
-                  'e', 'C_us', 'sqrt_A', 'TEO', 'C_ic', 'OMEGA', 'C_is', 'I_0', 'C_rc', 'w', 'OMEGA_DOT', 'IDOT',
-                  'L2_code',
-                  'PS_week_num', 'L2_P_code', '卫星精度(m)', '卫星健康状态', 'TGD', 'IODC']
-        writer = csv.DictWriter(f, fieldnames=header)
-        writer.writeheader()
-        writer.writerows(n_dic_list)
-    f.close()
     outlist = []
     zz = 0
 
@@ -190,11 +179,9 @@ def upload():
 
     def CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
                     sqrt_A,
-                    TOE, C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1, zz):
-
+                    TOE, C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1):
         # 1
         GM = 3.986004418e+14
-        # GM = 3.9860047e14
         n_0 = m.sqrt(GM) / m.pow(sqrt_A, 3)
         n = n_0 + δn
 
@@ -213,15 +200,13 @@ def upload():
         JD = (365.25 * year) + int(30.6001 * (month + 1)) + day + UT / 24 + 1720981.5;
         WN = int((JD - 2444244.5) / 7);
         t_oc = (JD - 2444244.5 - 7.0 * WN) * 24 * 3600.0 - 14;
-
         if t1 is None:
             t_k = 0
         else:
             δt = a_0 + a_1 * (t1 - TOE) + a_2 * (t1 - TOE) * (t1 - TOE)
-
             t = t1 - δt
-
             t_k = t - TOE-14
+
         # 3
         M_k = M0 + n * t_k
 
@@ -234,7 +219,7 @@ def upload():
             E1 = E;
             E = M_k + e * m.sin(E);
             if count > 1e8:
-                print("计算偏近点角时未收敛！")
+                print("Not convergent!")
                 break
 
         # 5
@@ -257,10 +242,10 @@ def upload():
         x_k = r * m.cos(u)
         y_k = r * m.sin(u)
         omega_e = 7.2921150e-5
-        if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61':
+        if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
             # 10
-            orbit_type = "GEO"
             OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * TOE;
+
             # 11
             X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
@@ -272,8 +257,7 @@ def upload():
             Z_k = -(Y_k1 * m.sin(-(5 * m.pi / 180))) + Z_k1 * m.cos(-(5 * m.pi / 180))
 
         else:
-            # 10
-            orbit_type = "GEO"
+
             OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
 
             # 11
@@ -286,125 +270,124 @@ def upload():
             year = year + 1
             month = month - 12
 
-
         if hour < 10:
             hour = '0' + str(hour)
         if minute < 10:
             minute = '0' + str(minute)
         if second < 10:
             second = '0' + str(second)
+        # if month < 10:
+        #     month = '0' + str(month)
         name = str(year) + str(month) + str(day) + str(hour) + str(minute)
         satellite_info2['ymd'] = str(year) + str(month) + str(day)
+        epochtime = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
 
         satellite_info2[PRN][name] = {"PRN": PRN,
-                                      "epoch": str(year) + "-" + str(month) + "-" + str(day) + "-T" + str(
-                                          hour) + ":" + str(minute) + ":" + str(second),
-                                      "n": n,
-                                      "t_k": t_k,
-                                      "M_k": M_k,
-                                      "E": E,
-                                      "V_k": V_k,
-                                      "u_0": u_0,
-                                      "SDGZX": '(' + str(δu) + ',' + str(δr) + ',' + str(δi) + ')',
-                                      "SG": '(' + str(u) + ',' + str(r) + ',' + str(i) + ')',
-                                      "x_ky_k": '(' + str(x_k) + ',' + str(y_k) + ')',
-                                      "OMEGA_k": OMEGA_k,
+                                      "epoch": epochtime.isoformat(),
+                                      # "n": n,
+                                      # "t_k": t_k,
+                                      # "M_k": M_k,
+                                      # "E": E,
+                                      # "V_k": V_k,
+                                      # "u_0": u_0,
+                                      # "SDGZX": '(' + str(δu) + ',' + str(δr) + ',' + str(δi) + ')',
+                                      # "SG": '(' + str(u) + ',' + str(r) + ',' + str(i) + ')',
+                                      # "x_ky_k": '(' + str(x_k) + ',' + str(y_k) + ')',
+                                      # "OMEGA_k": OMEGA_k,
                                       "X_k": '%.12f' % X_k,
                                       "Y_k": '%.12f' % Y_k,
                                       "Z_k": '%.12f' % Z_k,
                                       }
 
 
-    with open('/brdc.csv', 'rt') as csvfile:
-        reader = csv.DictReader(csvfile)
-        count = 0
-        for row in reader:
-            # print(row['数据组数'])
-            PRN = str(row["卫星PRN号"])
-            TIME = row["历元"]
-            year = int(TIME.strip('\n')[3:5])
-            month = int(TIME.strip('\n')[6:8])
-            day = int(TIME.strip('\n')[8:12])
-            hour = int(TIME.strip('\n')[12:15])
-            minute = int(TIME.strip('\n')[16:18])
-            second = float(TIME.strip('\n')[18:20])
-            a_0 = float(row["卫星钟偏差(s)"])
-            a_1 = float(row["卫星钟漂移(s/s)"])
-            a_2 = float(row["卫星钟漂移速度(s/s*s)"])
-            IODE = float(row["IODE"])
-            C_rs = float(row["C_rs"])
-            δn = float(row["n"])
-            M0 = float(row["M0"])
-            C_uc = float(row["C_uc"])
-            e = float(row["e"])
-            C_us = float(row["C_us"])
-            sqrt_A = float(row["sqrt_A"])
-            TOE = float(row["TEO"])
-            C_ic = float(row["C_ic"])
-            OMEGA = float(row["OMEGA"])
-            C_is = float(row["C_is"])
-            I_0 = float(row["I_0"])
-            C_rc = float(row["C_rc"])
-            w = float(row["w"])
-            OMEGA_DOT = float(row["OMEGA_DOT"])
-            IDOT = float(row["IDOT"])
-            L2_code = float(row["L2_code"])
-            PS_week_num = float(row["PS_week_num"])
-            if row["L2_P_code"]=='':
-                L2_P_code=''
-            else:
-                L2_P_code = float(row["L2_P_code"])
-            # print('tgd'+row["TGD"])
-            wxjd = float(row["卫星精度(m)"])
-            wxjkzt = float(row["卫星健康状态"])
-            TGD = float(row["TGD"])
-            IODC = float(row["IODC"])
-            t1 = TOE
-            satellite_info2['in' + str(zz)] = {"PRN": PRN,
-                                               "epoch": "20" + str(year) + "-" + str(month) + "-" + str(
-                                                   day) + "T" + str(
-                                                   hour) + ":" + str(minute) + ":" + str(second),
-                                               "a_0": a_0,
-                                               "a_1": a_1,
-                                               "a_2": a_2,
-                                               "IODE": IODE,
-                                               "C_rs": C_rs,
-                                               "sn": δn,
-                                               "M0": M0,
-                                               "C_uc": C_uc,
-                                               "e": e,
-                                               "C_us": C_us,
-                                               "sqrt_A": sqrt_A,
-                                               "TOE": TOE,
-                                               "C_ic": C_ic,
-                                               "OMEGA": OMEGA,
-                                               "C_is": C_is,
-                                               "I_0": I_0,
-                                               "C_rc": C_rc,
-                                               "w": w,
-                                               "OMEGA_DOT": OMEGA_DOT,
-                                               "IDOT": IDOT,
-                                               "L2_code": L2_code,
-                                               "PS_week_num": PS_week_num,
-                                               "L2_P_code": L2_P_code,
-                                               "wxjd": wxjd,
-                                               "wxjkzt": wxjkzt,
-                                               "TGD": TGD,
-                                               "IODC": IODC,
-                                               }
-            CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
-                        sqrt_A, TOE,
-                        C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1, zz)
+    for row in n_dic_list:
+        PRN = str(row["卫星PRN号"])
+        TIME = row["历元"]
+        year = int(TIME.strip('\n')[3:5])
+        month = int(TIME.strip('\n')[6:8])
+        day = int(TIME.strip('\n')[8:12])
+        hour = int(TIME.strip('\n')[12:15])
+        minute = int(TIME.strip('\n')[16:18])
+        second = float(TIME.strip('\n')[18:20])
+        a_0 = float(row["卫星钟偏差(s)"])
+        a_1 = float(row["卫星钟漂移(s/s)"])
+        a_2 = float(row["卫星钟漂移速度(s/s*s)"])
+        IODE = float(row["IODE"])
+        C_rs = float(row["C_rs"])
+        δn = float(row["n"])
+        M0 = float(row["M0"])
+        C_uc = float(row["C_uc"])
+        e = float(row["e"])
+        C_us = float(row["C_us"])
+        sqrt_A = float(row["sqrt_A"])
+        TOE = float(row["TEO"])
+        C_ic = float(row["C_ic"])
+        OMEGA = float(row["OMEGA"])
+        C_is = float(row["C_is"])
+        I_0 = float(row["I_0"])
+        C_rc = float(row["C_rc"])
+        w = float(row["w"])
+        OMEGA_DOT = float(row["OMEGA_DOT"])
+        IDOT = float(row["IDOT"])
+        L2_code = float(row["L2_code"])
+        PS_week_num = float(row["PS_week_num"])
+        L2_P_code = float(row["L2_P_code"])
+        wxjd = float(row["卫星精度(m)"])
+        wxjkzt = float(row["卫星健康状态"])
+        TGD1 = float(row["TGD1"])
+        TGD2 = float(row["TGD2"])
+        transT = float(row["信号发射时刻"])
+        IODC = float(row["IODC"])
+        t1 = TOE
+        epochtime = datetime.datetime(int("20" + str(year)), month, day, hour, minute, int(second))
+        satellite_info2['in' + str(zz)] = {"PRN": PRN,
+                                           "epoch": epochtime.isoformat(),
+                                           "a_0": a_0,
+                                           "a_1": a_1,
+                                           "a_2": a_2,
+                                           "IODE": IODE,
+                                           "C_rs": C_rs,
+                                           "sn": δn,
+                                           "M0": M0,
+                                           "C_uc": C_uc,
+                                           "e": e,
+                                           "C_us": C_us,
+                                           "sqrt_A": sqrt_A,
+                                           "TOE": TOE,
+                                           "C_ic": C_ic,
+                                           "OMEGA": OMEGA,
+                                           "C_is": C_is,
+                                           "I_0": I_0,
+                                           "C_rc": C_rc,
+                                           "w": w,
 
-            zz = zz + 1
-            if (zz == 1):
-                obj_time = datetime.datetime(int("20" + str(year)), month, day, hour, minute, 00)
-            print(obj_time)
+                                           "OMEGA_DOT": OMEGA_DOT,
+                                           "IDOT": IDOT,
+                                           "L2_code": L2_code,
+                                           "PS_week_num": PS_week_num,
+                                           "L2_P_code": L2_P_code,
+                                           "wxjd": wxjd,
+                                           "wxjkzt": wxjkzt,
+                                           "TGD1": TGD1,
+                                           "TGD2": TGD2,
 
-            endtime = datetime.datetime(int("20" + str(year)), month, day, hour, minute, 00)
-            satellite_info2['objtime'] = obj_time.isoformat()
-            satellite_info2['endtime'] = endtime.isoformat()
-            satellite_info2['num'] = zz
+                                           "transmission_time": transT,
+                                           "IODC": IODC
+
+                                           }
+        CulLocation(PRN, year, month, day, hour, minute, second, a_0, a_1, a_2, IDOT, C_rs, δn, M0, C_uc, e, C_us,
+                    sqrt_A, TOE,
+                    C_ic, OMEGA, C_is, I_0, C_rc, w, OMEGA_DOT, t1)
+
+        zz = zz + 1
+        if (zz == 1):
+            obj_time = datetime.datetime(int("20" + str(year)), month, day, hour, minute, 00)
+        print(obj_time)
+
+        endtime = datetime.datetime(int("20" + str(year)), month, day, hour, minute, 00)
+        satellite_info2['objtime'] = obj_time.isoformat()
+        satellite_info2['endtime'] = endtime.isoformat()
+        satellite_info2['num'] = zz
 
     print("Rinex upload success")
     return jsonify(satellite_info2)
