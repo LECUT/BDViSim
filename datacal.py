@@ -1937,7 +1937,9 @@ def orbits():
         if name=='BEIDOU-3 G4':
             textname = 'C62'
         if name=='BEIDOU-3 M25':
-            textname = 'C63'
+            textname = 'C48'
+        if name == 'BEIDOU-3 M26':
+            textname = 'C50'
             break
         # if name=='BEIDOU-3 M26':
         #     textname = 'C64'
@@ -2254,7 +2256,9 @@ def orbits_en():
         if name=='BEIDOU-3 G4':
             textname = 'C62'
         if name=='BEIDOU-3 M25':
-            textname = 'C63'
+            textname = 'C48'
+        if name == 'BEIDOU-3 M26':
+            textname = 'C50'
             break
         # print(name)
         line1 = content[j + 1]
