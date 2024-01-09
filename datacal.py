@@ -14,6 +14,7 @@ import ftpdown
 import unlzw3
 from pathlib import Path
 import gzip
+import requests
 def dops(az, el, elmin,P):
     """ calculate DOP from az/el """
     nm = az.shape[0]
@@ -1897,6 +1898,7 @@ def Kepcal(year, month, day, hour, minute, second, toe, sattype, sqrt_A, M0, e, 
 
 def orbits():
     date = datetime.datetime.now()
+    gettle()
     closedate = closedata(date, './static/tle')
     file = "./static/tle/BDSTLE" + closedate + ".txt"
     print(file)
@@ -1940,7 +1942,7 @@ def orbits():
             textname = 'C48'
         if name == 'BEIDOU-3 M26':
             textname = 'C50'
-            break
+            # break
         # if name=='BEIDOU-3 M26':
         #     textname = 'C64'
         # print(name)
@@ -2217,6 +2219,7 @@ def orbits():
 
 def orbits_en():
     date = datetime.datetime.now()
+    gettle()
     closedate = closedata(date, './static/tle')
     file = "./static/tle/BDSTLE" + closedate + ".txt"
     print(file)
@@ -2259,7 +2262,7 @@ def orbits_en():
             textname = 'C48'
         if name == 'BEIDOU-3 M26':
             textname = 'C50'
-            break
+            # break
         # print(name)
         line1 = content[j + 1]
         line2 = content[j + 2]
@@ -2686,3 +2689,14 @@ def ionexget(obj_time):
             except FileNotFoundError:
                 continue
     print('ion download success')
+def gettle():
+    url = "http://celestrak.com/NORAD/elements/beidou.txt"
+    header = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36 Edg/102.0.1245.33"}
+    r = requests.get(url, headers=header)
+    date = str((datetime.datetime.now() - datetime.timedelta(hours=24)).isoformat()).strip()[0:10]
+    tlename = "./static/tle/BDSTLE" + date + ".txt"
+    with open(tlename, "wb") as f:
+        f.write(r.content)
+    f.close()
+    print('tle定时爬取成功')
