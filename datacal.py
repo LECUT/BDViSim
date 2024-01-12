@@ -2696,7 +2696,10 @@ def gettle():
     r = requests.get(url, headers=header)
     date = str((datetime.datetime.now() - datetime.timedelta(hours=24)).isoformat()).strip()[0:10]
     tlename = "./static/tle/BDSTLE" + date + ".txt"
-    with open(tlename, "wb") as f:
-        f.write(r.content)
-    f.close()
-    print('tle定时爬取成功')
+    if os.path.exists(tlename):
+        print('已存在TLE')
+    else:
+        with open(tlename, "wb") as f:
+            f.write(r.content)
+        f.close()
+        print('tle定时爬取成功')
