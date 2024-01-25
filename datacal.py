@@ -1374,6 +1374,7 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             satellite_info2['objtime'] = obj_time.isoformat()
             satellite_info2['endtime'] = endtime.isoformat()
 
+
     return satellite_info2
 def sp3cal(nfile_lines, obj_time):
     satellite_info3 = {}
@@ -2553,7 +2554,7 @@ def rinexget(obj_time):
     days=(NYR-datetime.datetime(NYR.year,1,1)).days+1
     if days<100 and days>=10:
         days='0'+str(days)
-    if days<10:
+    elif days<10:
         days='00'+str(days)
     urllist=["ftp://pub:tarc@ftp2.csno-tarc.cn/brdc/"+str(NYR.year)+"/hour"+str(days)+"0."+str(NYR.year)[2:4]+"b"]
     target_name=[]
@@ -2582,7 +2583,7 @@ def yumaget(obj_time):
     print(days)
     if days<100 and days>=10:
         days='0'+str(days)
-    if days<10:
+    elif days<10:
         days='00'+str(days)
     urllist=["ftp://pub:tarc@ftp2.csno-tarc.cn/almanac/"+str(NYR.year)+"/conv"+str(days)+"0."+str(NYR.year)[2:4]+"alc"]
     urllist2=["ftp://pub:tarc@ftp2.csno-tarc.cn/almanac/"+str(NYR.year)+"/tarc"+str(days)+"0."+str(NYR.year)[2:4]+"alc"]
@@ -2631,7 +2632,7 @@ def sp3get2(obj_time):
         doy=date2doy(date)
         if doy < 100 and doy >= 10:
             doy = '0' + str(doy)
-        if doy < 10:
+        elif doy < 10:
             doy = '00' + str(doy)
         url1 = 'ftp://igs.gnsswhu.cn/pub/gnss/products/mgex/' + str(gps_week) +'/WUM0MGXULT_' + str(date.year) +str(doy)+'0000_01D_05M_ORB' + '.SP3.gz'
         url2 = 'ftp://igs.gnsswhu.cn/pub/gnss/products/mgex/' + str(gps_week) + '/WUM0MGXULT_' + str(date.year) + str(
@@ -2664,7 +2665,7 @@ def ionexget(obj_time):
         doy=date2doy(date)
         if doy<100 and doy>=10:
             doy='0'+str(doy)
-        if doy<10:
+        elif doy<10:
             doy='00'+str(doy)
         url1 = '/pub/gnss/products/ionex/' + str(date.year) +'/' + str(doy)  + '/c2pg'+str(doy)+'0.'+ str(date.year)[2:4] + 'i.Z'
         try:

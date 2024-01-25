@@ -4135,11 +4135,13 @@ def calorbit():
     yumafile1 = './static/YUMA/' + date + '-c.alc'
     yumafile2 = './static/YUMA/' + date + '-t.alc'
     if os.path.exists(yumafile1):
+        print('打开C')
         with open(yumafile1, 'r') as f:
             content = f.readlines()
             f.close()
         yumadate=datacal.yumacal2(content, obj_time,"c",tstep)
     elif os.path.exists(yumafile2):
+        print('打开T')
         with open(yumafile2, 'r') as f:
             content = f.readlines()
             f.close()
