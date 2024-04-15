@@ -6,11 +6,7 @@ import socket
 import time
 
 class MyFTP:
-    """
-        ftp自动下载、自动上传脚本，可以递归目录操作
-        作者：欧阳鹏
-        博客地址：http://blog.csdn.net/ouyang_peng/article/details/79271113
-    """
+
 
     def __init__(self, host, port=21):
         """ 初始化 FTP 客户端
