@@ -19,16 +19,25 @@
   <style>
     #btn {
       z-index: 998;
+      /* 指定较高的层叠顺序 */
       position: absolute;
+      /* 绝对定位方式 */
       left: 300px;
+      /* 设置左边缘位置 */
       height: 30px;
+      /* 高度 */
       width: 40px;
       font-size: 1px;
       border: 0;
+      /* 边框为0 */
       border-left: 1px solid rgb(23, 32, 43, 0.2);
+      /* 设置左边框 */
       background: #3b3f42;
+      /* 背景颜色 */
       color: rgb(255, 255, 255);
+      /* 字体颜色 */
       cursor: pointer;
+      /*  */
       margin-left: -300px;
       border-radius: 6px 6px 6px 6px;
     }
@@ -103,6 +112,9 @@
 
     #allpick {
       float: left;
+      /* background-image: url(../static/images/controlbar.png);
+      background-repeat: no-repeat;
+      background-size: 100% 100%; */
       float: right;
       color: #ffffff;
       margin-top: 3px;
@@ -152,7 +164,7 @@
   color: white;
   padding: 0 1rem;
 }
-
+/* 导航样式 */
 .navbar ul{
   display: flex;
   margin: 0;
@@ -179,7 +191,7 @@
 .navbar ul li a:hover{
   color: #41a4da;
 }
-
+/* 二级菜单样式 */
 .navbar ul li ul{
   position: absolute;
   display: none;
@@ -190,7 +202,7 @@
 .navbar ul li ul li{
   background-color: #3F3D56;
 }
-
+/* 悬浮展开二级菜单 */
 .navbar ul li ul li a:hover{
   color: white;
 }
@@ -315,7 +327,7 @@ border-right: 2px solid #02a6b5;
       </a>
     <nav class="navbar" style="font-size: 15px;">
       <ul>
-        <li><a href="/mainviewcn">首页</a></li>
+        <li><a href="/">首页</a></li>
         <li><a href="/kepler">轨道认知</a></li>
         <li ><a href="/orbitcal">轨道计算</a>
             <!-- <ul class="hide">
@@ -361,6 +373,17 @@ border-right: 2px solid #02a6b5;
 
       <div id="panel" style="display: none;">
         <img id="backdiv" src="../static/images/background/box-inline.png">
+        <div style="width: 50%;height:30px;float: left;position: relative;margin-top: 20px;margin-left: 20px;">
+
+
+          <select id="dataselect" onchange="datapick()" style="background-color: #033a4b8a;color: #ffffff;">
+            <option value="TLE">TLE</option>
+            <option value="YUMA">YUMA</option>
+            <option value="rinex">Rinex</option>
+            <option value="SP3">SP3</option>
+            <!-- 可以继续添加更多选项 -->
+          </select>
+        </div>
         <div style="width: 30%;height:30px;float: right;position: relative;margin-top: 20px;margin-right: 20px;">
 
           <a title="收起" onclick="switchbar()" style="width: 25px;height: 25px; float: right; cursor: pointer;">
@@ -811,18 +834,21 @@ border-right: 2px solid #02a6b5;
         <div class="world" style="display: block;">
           <div class="panel num"
             style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+            <button class="download-btn" onclick="downloadChartImage('.num .chart')"></button>
             <h2>可见卫星数</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel GDOP"
             style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+            <button class="download-btn" onclick="downloadChartImage('.GDOP .chart')"></button>
             <h2>GDOP</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel PDOP"
             style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+            <button class="download-btn" onclick="downloadChartImage('.PDOP .chart')"></button>
             <h2>PDOP</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
@@ -830,16 +856,19 @@ border-right: 2px solid #02a6b5;
         </div>
         <div class="onesat" style="display: none;">
           <div class="panel alt">
+            <button class="download-btn" onclick="downloadChartImage('.alt .chart')"></button>
             <h2>卫星高度角</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel nums">
+            <button class="download-btn" onclick="downloadChartImage('.nums .chart')"></button>
             <h2>可见卫星数</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel DOP">
+            <button class="download-btn" onclick="downloadChartImage('.DOP .chart')"></button>
             <h2>DOP值</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
@@ -899,6 +928,7 @@ border-right: 2px solid #02a6b5;
         <div class="world" style="display: block;">
           <div class="panel ionmap"
             style="display: block;width: 670px;background-image: url(../static/images/worldmap2.png);background-size: 570px 156px;background-repeat: no-repeat;background-position: 61px 46px;">
+            <button class="download-btn" onclick="downloadChartImage('.ionmap .chart')"></button>
             <h2>电离层电子含量</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
@@ -906,6 +936,7 @@ border-right: 2px solid #02a6b5;
         </div>
         <div class="onesat" style="display: none;">
           <div class="panel ionosphereInfo" id="onesat_panel" style="width: 670px;display: block;">
+            <button class="download-btn" onclick="downloadChartImage('.ionosphereInfo .chart')"></button>
             <h2>电离层电子含量</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
@@ -917,18 +948,21 @@ border-right: 2px solid #02a6b5;
         <div class="world" style="display: block;">
           <div class="panel HDOP"
             style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+            <button class="download-btn" onclick="downloadChartImage('.HDOP .chart')"></button>
             <h2>HDOP</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel VDOP"
             style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+            <button class="download-btn" onclick="downloadChartImage('.VDOP .chart')"></button>
             <h2>VDOP</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel TDOP"
             style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+            <button class="download-btn" onclick="downloadChartImage('.TDOP .chart')"></button>
             <h2>TDOP</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
@@ -936,16 +970,19 @@ border-right: 2px solid #02a6b5;
         </div>
         <div class="onesat" style="display: none;">
           <div class="panel visibility">
+            <button class="download-btn" onclick="downloadChartImage('.visibility .chart')"></button>
             <h2>卫星可见性</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel Accuracy">
+            <button class="download-btn" onclick="downloadChartImage('.Accuracy .chart')"></button>
             <h2 id="Accuracy_h2"></h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
           </div>
           <div class="panel distribution_map">
+            <button class="download-btn" onclick="downloadChartImage_skyplot('.distribution_map .chart')"></button>
             <h2>卫星天空视图</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>

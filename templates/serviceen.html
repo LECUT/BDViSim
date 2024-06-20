@@ -234,7 +234,7 @@ font-size: 16px;
     </a>
       <nav class="navbar"  style="font-size: 10px;">
         <ul >
-          <li><a href="/">Home</a></li>
+          <li><a href="/mainviewen">Home</a></li>
           <li><a href="/kepleren">Orbit Cognition</a></li>
           <li><a href="/orbitcalen">Orbit Calculation</a>
               <!-- <ul class="hide">
@@ -279,6 +279,17 @@ font-size: 16px;
 
       <div id="panel" style="display: none;">
         <img id="backdiv" src="../static/images/background/box-inline.png">
+        <div style="width: 50%;height:30px;float: left;position: relative;margin-top: 20px;margin-left: 20px;">
+
+
+          <select id="dataselect" onchange="datapick()" style="background-color: #033a4b8a;color: #ffffff;">
+            <option value="TLE">TLE</option>
+            <option value="YUMA">YUMA</option>
+            <option value="rinex">Rinex</option>
+            <option value="SP3">SP3</option>
+            <!-- 可以继续添加更多选项 -->
+          </select>
+        </div>
         <div style="width: 30%;height:30px;float: right;position: relative;margin-top: 20px;margin-right: 20px;">
 
           <a title="Fold" onclick="switchbar()" style="width: 25px;height: 25px; float: right; cursor: pointer;">
@@ -723,154 +734,168 @@ font-size: 16px;
         </div>
       </div>
    
-    <section class="mainbox">
-      <div class="column" style="float: left;">
-        <div class="world" style="display: block;">
-          <div class="panel num"
-            style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
-            <h2>Number of Satellites</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
+      <section class="mainbox">
+        <div class="column" style="float: left;">
+          <div class="world" style="display: block;">
+            <div class="panel num"
+              style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+              <button class="download-btn" onclick="downloadChartImage('.num .chart')"></button>
+              <h2>Number of Satellites</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel GDOP"
+              style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+              <button class="download-btn" onclick="downloadChartImage('.GDOP .chart')"></button>
+              <h2>GDOP</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel PDOP"
+              style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+              <button class="download-btn" onclick="downloadChartImage('.PDOP .chart')"></button>
+              <h2>PDOP</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
           </div>
-          <div class="panel GDOP"
-            style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
-            <h2>GDOP</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel PDOP"
-            style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
-            <h2>PDOP</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
-        <div class="onesat" style="display: none;">
-          <div class="panel alt">
-            <h2>Elevation</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel nums">
-            <h2>Number of Satellites</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel DOP">
-            <h2>DOPs</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="column">
-        <div class="no">
-          <div class="no-hd">
-            <ul class="col ul">
-              <li class="col">
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="pickworld" name="picktype"
-                  value="World" type="radio" onclick="picktypediv()" checked>
-                <label style="color:#13f1c8;font-size: large;">World</label></input>
-
-              </li>
-              <li class="col">
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="pickarea" name="picktype"
-                  value="area" type="radio" onclick="picktypediv()">
-                <label style="color:#13f1c8;font-size: large;">Area</label></input>
-              </li>
-              <li class="col">
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="picksat" name="picktype"
-                  value="onesat" type="radio" onclick="picktypediv()">
-                <label style="color:#13f1c8;font-size: large;">Station</label></input>
-              </li>
-            </ul>
-          </div>
-          <div class="no-bd">
-            <ul>
-              <li>
-                <div id="site_snums" style="display: none;">
-                  <label style="font-size: 18px;color: #ffffff;"> Number of Satellites：</label>
-                  <input type="text" id="snums"
-                    style="width: 50px;font-size: 20px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);border: rgba(0, 0, 0, 0);top:2px">
-
-                </div>
-              </li>
-
-            </ul>
+          <div class="onesat" style="display: none;">
+            <div class="panel alt">
+              <button class="download-btn" onclick="downloadChartImage('.alt .chart')"></button>
+              <h2>Elevation</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel nums">
+              <button class="download-btn" onclick="downloadChartImage('.nums .chart')"></button>
+              <h2>Number of Satellites</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel DOP">
+              <button class="download-btn" onclick="downloadChartImage('.DOP .chart')"></button>
+              <h2>DOPs</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
           </div>
         </div>
-        <div class="map">
-          <!-- <div class="chart">
-
-          </div> -->
-          <div id="cesiumContainer" class="fullSize">
-            <div class="map3d-clear" title="Hide/Display tags" onclick="switchlabel()"></div>
-
+      
+      
+        <div class="column">
+          <div class="no">
+            <div class="no-hd">
+              <ul class="col ul">
+                <li class="col">
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="pickworld" name="picktype"
+                    value="World" type="radio" onclick="picktypediv()" checked>
+                  <label style="color:#13f1c8;font-size: large;">World</label></input>
+      
+                </li>
+                <li class="col">
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="pickarea" name="picktype"
+                    value="area" type="radio" onclick="picktypediv()">
+                  <label style="color:#13f1c8;font-size: large;">Area</label></input>
+                </li>
+                <li class="col">
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="picksat" name="picktype"
+                    value="onesat" type="radio" onclick="picktypediv()">
+                  <label style="color:#13f1c8;font-size: large;">Station</label></input>
+                </li>
+              </ul>
+            </div>
+            <div class="no-bd">
+              <ul>
+                <li>
+                  <div id="site_snums" style="display: none;">
+                    <label style="font-size: 14px;"> Number of Satellites:</label>
+                    <input type="text" id="snums"
+                      style="width: 50px;font-size: 20px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);border: rgba(0, 0, 0, 0);top:2px">
+      
+                  </div>
+                </li>
+      
+              </ul>
+            </div>
           </div>
-          <!-- <div class="map1"></div>
-          <div class="map2"></div>
-          <div class="map3"></div> -->
+          <div class="map">
+            <!-- <div class="chart">
+      
+            </div> -->
+            <div id="cesiumContainer" class="fullSize">
+              <div class="map3d-clear" title="隐藏/显示标签" onclick="switchlabel()"></div>
+      
+            </div>
+            <!-- <div class="map1"></div>
+            <div class="map2"></div>
+            <div class="map3"></div> -->
+          </div>
+          <div class="world" style="display: block;">
+            <div class="panel ionmap"
+              style="display: block;width: 670px;background-image: url(../static/images/worldmap2.png);background-size: 570px 156px;background-repeat: no-repeat;background-position: 61px 46px;">
+              <button class="download-btn" onclick="downloadChartImage('.ionmap .chart')"></button>
+              <h2>Ionospheric Electron Content</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+          </div>
+          <div class="onesat" style="display: none;">
+            <div class="panel ionosphereInfo" id="onesat_panel" style="width: 670px;display: block;">
+              <button class="download-btn" onclick="downloadChartImage('.ionosphereInfo .chart')"></button>
+              <h2>Ionospheric Electron Content</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+          </div>
         </div>
-        <div class="world" style="display: block;">
-          <div class="panel ionmap"
-            style="display: block;width: 670px;background-image: url(../static/images/worldmap2.png);background-size: 570px 156px;background-repeat: no-repeat;background-position: 61px 46px;">
-            <h2>Ionospheric Electron Content</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
+      
+        <div class="column">
+          <div class="world" style="display: block;">
+            <div class="panel HDOP"
+              style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+              <button class="download-btn" onclick="downloadChartImage('.HDOP .chart')"></button>
+              <h2>HDOP</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel VDOP"
+              style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+              <button class="download-btn" onclick="downloadChartImage('.VDOP .chart')"></button>
+              <h2>VDOP</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel TDOP"
+              style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
+              <button class="download-btn" onclick="downloadChartImage('.TDOP .chart')"></button>
+              <h2>TDOP</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+          </div>
+          <div class="onesat" style="display: none;">
+            <div class="panel visibility">
+              <button class="download-btn" onclick="downloadChartImage('.visibility .chart')"></button>
+              <h2>Visibility</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel Accuracy">
+              <button class="download-btn" onclick="downloadChartImage('.Accuracy .chart')"></button>
+              <h2 id="Accuracy_h2"></h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
+            <div class="panel distribution_map">
+              <button class="download-btn" onclick="downloadChartImage_skyplot('.distribution_map .chart')"></button>
+              <h2>Skyplot</h2>
+              <div class="chart"></div>
+              <div class="panel-footer"></div>
+            </div>
           </div>
         </div>
-        <div class="onesat" style="display: none;">
-          <div class="panel ionosphereInfo" id="onesat_panel" style="width: 670px;display: block;">
-            <h2>Ionospheric Electron Content</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="column">
-        <div class="world" style="display: block;">
-          <div class="panel HDOP"
-            style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
-            <h2>HDOP</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel VDOP"
-            style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
-            <h2>VDOP</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel TDOP"
-            style="background-image: url(../static/images/worldmap.png);background-size: 331px 163px;background-repeat: no-repeat;background-position: 49px 45px;">
-            <h2>TDOP</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
-        <div class="onesat" style="display: none;">
-          <div class="panel visibility">
-            <h2>Visibility</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel Accuracy">
-            <h2 id="Accuracy_h2"></h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel distribution_map">
-            <h2>Skyplot</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
-      </div>
-
-    </section>
+      
+      </section>
 
 
 

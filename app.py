@@ -2312,24 +2312,20 @@ def linken():
         dump(doc, f)
     return render_template('linkstaren.html')
 
-@app.route('/paintchart', methods=["POST", "GET"])
-def paint():
+@app.route('/SP3paint', methods=["POST", "GET"])
+def SP3paint():
     alt=float(request.form['alt'])
     lon=float(request.form['lon'])
     lat = float(request.form['lat'])
-
+    height = float(request.form['height'])
     exdate=request.form['date']
     sat_name=request.form['satname']
-    print(sat_name)
-    print(len(sat_name))
+
     obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
     timeid = str(obj_time.year)+str(obj_time.month)+str(obj_time.day)+'0000'
     date = str(exdate)
-    print(date)
     pickp=request.form['pickp']
-    print(pickp)
     file='./static/sp3/'+date+'.sp3'
-    sat2=[]
 
     if os.path.exists(file):
         with open(file, 'r') as f:
@@ -2339,179 +2335,210 @@ def paint():
                 print("success")
             nfile_lines = f.readlines()
             f.close()
-        satellite_info3 = {}
-        station = {}
-        for i in range(len(nfile_lines)):
-            if (nfile_lines[i].startswith('*') == True):
-                start_num = i
-                break
-        t = []
-        time = []
-        lines = len(nfile_lines) - start_num
-        k = 0
-        for i in range(80):
-            if (i != 0):
-                if (i < 10):
-                    i = "0" + str(i)
-                satellite_info3["C" + str(i)] = {}
-
-        start = 0
-        n = 0
-        for i in range(lines):
-            content = nfile_lines[start_num + i]
-            if content.find('*') != -1:
-
-                if (n == 290):
-                    break
-                year = int(content[3:7])
-                month = int(content[8:10])
-                day = int(content[11:13])
-                hour = int(content[14:16])
-                minute = int(content[17:19])
-
-                time = datetime.datetime(year, month, day, hour, minute)
-
-                time0 = str(year) + str(month) + str(day) + (time.isoformat())[11:13] + (time.isoformat())[14:16]
-                # print(time.isoformat(),' ',time0)
-                time1 = time.isoformat()
-                if (time0 == timeid):
-                    start = 1
-                if (start == 1):
-                    n += 1
-                    station[time0] = {}
-                    station[time0]['counts'] = 0
-                    station[time0]['Q'] = []
-                    station[time0]['P'] = []
-                    station[time0]['uereP'] = []
-                    station[time0]['visibility'] = {}
-                    station[time0]['time'] = time.isoformat()
-
-                t.append(k)
-                k = k + 15
-
-
-            elif content.startswith('PC') == True and start == 1 and sat_name.find(str(content[1:4]))!=-1:
-                satname = str(content[1:4])
-                sat2.append(time0)
-                x = float(content[5:19]) * 1000
-                y = float(content[19:33]) * 1000
-                z = float(content[33:47]) * 1000
-                blh = [lat, lon, 0]
-                xyz = datacal.blh2xyz(blh)
-                X_k1 = x - (xyz[0])
-
-                Y_k1 = y - (xyz[1])
-                Z_k1 = z - (xyz[2])
-                altitude = (m.pi / 2 - m.acos((m.cos(lat * m.pi / 180) * (
-                        m.cos(lon * m.pi / 180) * X_k1 + m.sin(
-                    lon * m.pi / 180) * Y_k1) + m.sin(
-                    lat * m.pi / 180) * Z_k1) / m.sqrt(
-                    X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1))) * 180 / m.pi
-
-                azi_angle = m.atan2((-m.sin(lon * m.pi / 180) * X_k1) + m.cos(lon * m.pi / 180) * Y_k1,
-                                    (-m.sin(lat * m.pi / 180)) * (m.cos(lon * m.pi / 180) * X_k1 + m.sin(lon * m.pi / 180) * Y_k1) + m.cos(
-                                        lat * m.pi / 180) * Z_k1) * 180 / m.pi
-                if (altitude > alt):
-                    cosa = X_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
-                    cosb = Y_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
-                    cosr = Z_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
-                    station[time0]['counts'] += 1
-                    station[time0]['Q'].append([cosa, cosb, cosr, 1])
-                    if (
-                            satname == 'C01' or satname == 'C02' or satname == 'C03' or satname == 'C04' or satname == 'C05' or satname == 'C06' or satname == 'C07' or satname == 'C08' or satname == 'C09' or satname == 'C10' or satname == 'C11' or satname == 'C12' or satname == 'C13' or satname == 'C14' or satname == 'C16'):
-                        station[time0]['uereP'].append(1 / ((1.04) * (1.04)))
-
-                    else:
-                        station[time0]['uereP'].append(1 / ((0.4) * (0.4)))
-
-                    if (pickp == 'unit'):
-                        var = 1
-                        station[time0]['P'].append(1 / (var * var))
-                    if (pickp == 's_el'):
-                        a = 0.3
-                        b = 0.5
-                        s_el = np.sin(m.radians(altitude))
-                        var = a + b / (s_el ** 2)
-                        station[time0]['P'].append((1 / ((1.04) * (1.04))) * (1 / (var)))
-                    if (pickp == 'c_el'):
-                        a = 1.5
-                        b = 1
-                        var = a + b * m.cos(m.radians(altitude))
-                        station[time0]['P'].append((1 / (var)) * (1 / ((1.04) * (1.04))))
-                    if (pickp == 'exp'):
-                        a = 0.04
-                        b = 0.23
-                        a = 1.3
-                        b = 5.3
-                        var = (a + b * m.exp(-m.radians(altitude) / np.deg2rad(33.1))) ** 2
-                        station[time0]['P'].append((1 / (var)) * (1 / ((1.04) * (1.04))))
-                    station[time0]['visibility'][satname] = altitude, azi_angle
-
-        for tid in station:
-            if (station[tid]['counts'] < 4):
-                station[tid]['GDOP'] = None
-                station[tid]['PDOP'] = None
-                station[tid]['HDOP'] = None
-                station[tid]['VDOP'] = None
-                station[tid]['TDOP'] = None
-                station[tid]['Position'] = None
-                station[tid]['Vertical'] = None
-                station[tid]['Horizontal'] = None
-            else:
-                Q = station[tid]['Q']
-                Q1 = station[tid]['Q']
-                # Qt = np.transpose(Q)
-                P = np.diag(station[tid]['P'])
-                Qt = np.transpose(Q)
-                QX = np.dot(Qt, P)
-                QX = np.dot(QX, Q)
-                QX = np.linalg.inv(QX)
-                tr = QX.diagonal()
-                # error=UERE*DOP
-                uereP = np.diag(station[tid]['uereP'])
-                QX2 = np.dot(Qt, uereP)
-                QX2 = np.dot(QX2, Q)
-                QX2 = np.linalg.inv(QX2)
-                tr2 = QX2.diagonal()
-                if ((tr[0] + tr[1] + tr[2] + tr[3]) < 0):
-                    GDOP = 0
-                else:
-                    GDOP = m.sqrt(tr[0] + tr[1] + tr[2] + tr[3])
-                if ((tr[0] + tr[1] + tr[2]) < 0):
-                    PDOP = 0
-                else:
-                    PDOP = m.sqrt(tr[0] + tr[1] + tr[2])
-                    Position = m.sqrt(tr[0] + tr[1] + tr[2])
-                if ((tr[0] + tr[1]) < 0):
-                    HDOP = 0
-                else:
-                    HDOP = m.sqrt(tr[0] + tr[1])
-                    Horizontal = m.sqrt(tr[0] + tr[1])
-                if ((tr[2]) < 0):
-                    VDOP = 0
-                else:
-                    VDOP = m.sqrt(tr[2])
-                    Vertical = m.sqrt(tr[2])
-                if ((tr[3]) < 0):
-                    TDOP = 0
-                else:
-                    TDOP = m.sqrt(tr[3])
-                station[tid]['GDOP'] = GDOP
-                station[tid]['PDOP'] = PDOP
-                station[tid]['HDOP'] = HDOP
-                station[tid]['VDOP'] = VDOP
-                station[tid]['TDOP'] = TDOP
-                station[tid]['Vertical'] = Vertical
-                station[tid]['Horizontal'] = Horizontal
-                station[tid]['Position'] = Position
-
-
-        print("success")
-        # print(sat2)
-        return jsonify(station)
     else:
-        print(file)
-        return 'false'
+        datacal.sp3get2(obj_time)
+        if os.path.exists(file):
+            with open(file, 'r') as f:
+                nfile_lines = f.readlines()
+                f.close()
+        else:
+            print(file)
+            return 'false'
+
+    satellite_info3 = {}
+    station = {}
+    for i in range(len(nfile_lines)):
+        if (nfile_lines[i].startswith('*') == True):
+            start_num = i
+            break
+    t = []
+    time = []
+    lines = len(nfile_lines) - start_num
+    k = 0
+    for i in range(80):
+        if (i != 0):
+            if (i < 10):
+                i = "0" + str(i)
+            satellite_info3["C" + str(i)] = {}
+
+    start = 0
+    n = 0
+    for i in range(lines):
+        content = nfile_lines[start_num + i]
+        if content.find('*') != -1 and int(content[17:19]) in [0,15,30,45]:
+
+            if (n == 290):
+                break
+
+            year = int(content[3:7])
+            month = int(content[8:10])
+            day = int(content[11:13])
+            hour = int(content[14:16])
+            minute = int(content[17:19])
+
+            time = datetime.datetime(year, month, day, hour, minute)
+
+            time0 = str(year) + str(month) + str(day) + (time.isoformat())[11:13] + (time.isoformat())[14:16]
+            # print(time.isoformat(),' ',time0)
+            time1 = time.isoformat()
+            if (time0 == timeid):
+                start = 1
+            if (start == 1):
+                n += 1
+                station[time0] = {}
+                station[time0]['counts'] = 0
+                station[time0]['Q'] = []
+                station[time0]['P'] = []
+                station[time0]['uereP'] = []
+                station[time0]['visibility'] = {}
+                station[time0]['time'] = time.isoformat()
+                station[time0]['az'] = []
+                station[time0]['el'] = []
+
+            t.append(k)
+            k = k + 15
+
+
+        elif content.startswith('PC') == True and start == 1 and sat_name.find(str(content[1:4])) != -1:
+            satname = str(content[1:4])
+            x = float(content[5:19]) * 1000
+            y = float(content[19:33]) * 1000
+            z = float(content[33:47]) * 1000
+            blh = [lat, lon, height]
+            xyz = pm.geodetic2ecef(blh[0],blh[1],blh[2])
+            X_k1 = x - (xyz[0])
+
+            Y_k1 = y - (xyz[1])
+            Z_k1 = z - (xyz[2])
+            altitude = (m.pi / 2 - m.acos((m.cos(lat * m.pi / 180) * (
+                    m.cos(lon * m.pi / 180) * X_k1 + m.sin(
+                lon * m.pi / 180) * Y_k1) + m.sin(
+                lat * m.pi / 180) * Z_k1) / m.sqrt(
+                X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1))) * 180 / m.pi
+
+            azi_angle = m.atan2((-m.sin(lon * m.pi / 180) * X_k1) + m.cos(lon * m.pi / 180) * Y_k1,
+                                (-m.sin(lat * m.pi / 180)) * (m.cos(lon * m.pi / 180) * X_k1 + m.sin(lon * m.pi / 180) * Y_k1) + m.cos(
+                                    lat * m.pi / 180) * Z_k1) * 180 / m.pi
+            if (altitude > alt):
+                cosa = X_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                cosb = Y_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                cosr = Z_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                station[time0]['counts'] += 1
+                station[time0]['Q'].append([cosa, cosb, cosr, 1])
+                station[time0]['az'].append(m.radians(azi_angle))
+                station[time0]['el'].append(m.radians(altitude))
+                if (
+                        satname == 'C01' or satname == 'C02' or satname == 'C03' or satname == 'C04' or satname == 'C05' or satname == 'C06' or satname == 'C07' or satname == 'C08' or satname == 'C09' or satname == 'C10' or satname == 'C11' or satname == 'C12' or satname == 'C13' or satname == 'C14' or satname == 'C16'):
+                    uerep=1.04
+
+
+                elif satname == 'C31' or satname == 'C56' or satname == 'C57' or satname == 'C58':
+                    uerep = 0.73
+                else:
+                    # station[timeid]['uereP'].append(1/((0.4) * (0.4)))
+                    uerep = 0.4
+                uerep = 4
+                if (pickp == 'unit'):
+                    var = 1
+                    station[time0]['P'].append(1 /(var*var))
+                    station[time0]['uereP'].append(1 /(uerep*uerep))
+                if (pickp == 's_el'):
+                    a = 0.3
+                    b = 0.5
+                    s_el = np.sin(m.radians(altitude))
+                    var = a + b / (s_el**2)
+                    station[time0]['P'].append((1 /(var)))
+                    station[time0]['uereP'].append((1/((uerep) * (uerep)))*(1 /(var)))
+                station[time0]['visibility'][satname] = altitude, azi_angle
+                station[time0]['visibility'][satname] = round(altitude, 2), round(azi_angle, 2)
+
+    for tid in station:
+        if (station[tid]['counts'] < 4):
+            station[tid]['GDOP'] = None
+            station[tid]['PDOP'] = None
+            station[tid]['HDOP'] = None
+            station[tid]['VDOP'] = None
+            station[tid]['TDOP'] = None
+            station[tid]['Position'] = None
+            station[tid]['Vertical'] = None
+            station[tid]['Horizontal'] = None
+        else:
+            Q = station[tid]['Q']
+            Qt = np.transpose(Q)
+            #权阵计算
+            P = np.diag(station[tid]['P'])
+            # print(P)
+
+            QX=np.dot(Qt, P)
+            QX=np.dot(QX, Q)
+            QX = np.linalg.inv(QX)
+            tr = QX.diagonal()
+
+            # QXX = np.delete(QX, 3, axis=0)
+            # QXX = np.delete(QXX, 3, axis=1)
+            # QQ=np.dot(H, QXX)
+            # QQ=np.dot(QQ, Ht)
+            # tr3=QQ.diagonal()
+            # error=UERE*DOP
+            uereP = np.diag(station[tid]['uereP'])
+            QX2 = np.dot(Qt, uereP)
+            QX2 = np.dot(QX2, Q)
+            QX2 = np.linalg.inv(QX2)
+            tr2 = QX2.diagonal()
+
+            if ((tr[0] + tr[1] + tr[2] + tr[3]) < 0):
+                GDOP = 0
+            else:
+                GDOP = m.sqrt(tr[0] + tr[1] + tr[2] + tr[3])
+            if ((tr[0] + tr[1] + tr[2]) < 0):
+                PDOP = 0
+            else:
+                PDOP = m.sqrt(tr[0] + tr[1] + tr[2])
+                Position = m.sqrt(tr2[0] + tr2[1] + tr2[2])
+            if ((tr[0] + tr[1]) < 0):
+                HDOP = 0
+            else:
+                HDOP = m.sqrt(tr[0] + tr[1])
+                Horizontal = m.sqrt(tr2[0] + tr2[1])
+            if ((tr[2]) < 0):
+                VDOP = 0
+            else:
+                VDOP = m.sqrt(tr[2])
+                Vertical = m.sqrt(tr2[2])
+            if ((tr[3]) < 0):
+                TDOP = 0
+            else:
+                TDOP = m.sqrt(tr[3])
+            # station[tid]['GDOP'] = GDOP
+            # station[tid]['PDOP'] = PDOP
+            # station[tid]['HDOP'] = HDOP
+            # station[tid]['VDOP'] = VDOP
+            # station[tid]['TDOP'] = TDOP
+            # station[tid]['Vertical'] = Vertical
+            # station[tid]['Horizontal'] = Horizontal
+            # station[tid]['Position'] = Position
+
+            az=np.array(station[tid]['az'])
+            el=np.array(station[tid]['el'])
+
+            dops = datacal.dops(az, el, m.radians(alt), P)
+            dops_accuracy = datacal.dops_accuracy(az, el, m.radians(alt), uereP)
+            del station[tid]['Q']
+            del station[tid]['P']
+            del station[tid]['uereP']
+            station[tid]['GDOP'] = round(dops[0], 2)
+            station[tid]['PDOP'] = round(dops[1], 2)
+            station[tid]['HDOP'] = round(dops[2], 2)
+            station[tid]['VDOP'] = round(dops[3], 2)
+            station[tid]['TDOP'] = round(TDOP, 2)
+            station[tid]['Vertical'] = round(dops_accuracy[3], 2)
+            station[tid]['Horizontal'] = round(dops_accuracy[2], 2)
+            station[tid]['Position'] = round(dops_accuracy[1], 2)
+
+    print(station)
+    print("success")
+    # print(sat2)
+    return jsonify(station)
 
 @app.route('/TLEpaint', methods=["POST", "GET"])
 def TLEpaint():
@@ -2519,6 +2546,7 @@ def TLEpaint():
     alt=float(request.form['alt'])
     lon=float(request.form['lon'])
     lat = float(request.form['lat'])
+    height = float(request.form['height'])
     print(lat,lon)
     exdate=request.form['date']
     sat_name=request.form['satname']
@@ -2608,7 +2636,7 @@ def TLEpaint():
             x = float(x)
             y = float(y)
             z = float(z)
-            blh = [lat, lon, 0]
+            blh = [lat, lon, height]
             xyz = datacal.blh2xyz(blh)
             xyz2=pm.geodetic2ecef(blh[0],blh[1],blh[2])
 
@@ -2652,6 +2680,7 @@ def TLEpaint():
                 else:
                     # station[timeid]['uereP'].append(1/((0.4) * (0.4)))
                     uerep = 0.4
+                uerep=4
                 if(pickp=='unit'):
                     var = 1
                     station[timeid]['P'].append(1 /(var*var))
@@ -2674,6 +2703,7 @@ def TLEpaint():
                 #     var = (a + b * m.exp(-m.radians(altitude) / np.deg2rad(33.1))) ** 2
                 #     station[timeid]['P'].append((1/(var))*(1/((uerep) * (uerep))))
                 station[timeid]['visibility'][name] = altitude, azi_angle
+                station[timeid]['visibility'][name] = round(altitude, 2), round(azi_angle, 2)
         j += 3
 
     for tid in station:
@@ -2751,19 +2781,227 @@ def TLEpaint():
 
             dops = datacal.dops(az, el, m.radians(alt), P)
             dops_accuracy = datacal.dops_accuracy(az, el, m.radians(alt), uereP)
-
-            station[tid]['GDOP'] = dops[0]
-            station[tid]['PDOP'] = dops[1]
-            station[tid]['HDOP'] = dops[2]
-            station[tid]['VDOP'] = dops[3]
-            station[tid]['TDOP'] = TDOP
-            station[tid]['Vertical'] = dops_accuracy[3]
-            station[tid]['Horizontal'] = dops_accuracy[2]
-            station[tid]['Position'] = dops_accuracy[1]
+            del station[tid]['Q']
+            del station[tid]['P']
+            del station[tid]['uereP']
+            station[tid]['GDOP'] = round(dops[0], 2)
+            station[tid]['PDOP'] = round(dops[1], 2)
+            station[tid]['HDOP'] = round(dops[2], 2)
+            station[tid]['VDOP'] = round(dops[3], 2)
+            station[tid]['TDOP'] = round(TDOP, 2)
+            station[tid]['Vertical'] = round(dops_accuracy[3], 2)
+            station[tid]['Horizontal'] = round(dops_accuracy[2], 2)
+            station[tid]['Position'] = round(dops_accuracy[1], 2)
     print("计算完毕")
     # print(station)
     return jsonify(station)
+@app.route('/YUMApaint', methods=["POST", "GET"])
+def YUMApaint():
 
+    alt=float(request.form['alt'])
+    lon=float(request.form['lon'])
+    lat = float(request.form['lat'])
+    height = float(request.form['height'])
+    print(lat,lon)
+    exdate=request.form['date']
+    sat_name=request.form['satname']
+    obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
+    timeid = str(obj_time.year)+str(obj_time.month)+str(obj_time.day)+'0000'
+    date = str(exdate)
+    pickp=request.form['pickp']
+
+    yumafile1 = './static/YUMA/' + date + '-c.alc'
+    yumafile2 = './static/YUMA/' + date + '-t.alc'
+    if os.path.exists(yumafile1):
+        print('打开C')
+        with open(yumafile1, 'r') as f:
+            content = f.readlines()
+            satinfo = datacal.yumacal2(content, obj_time,'c', 15)
+            f.close()
+    elif os.path.exists(yumafile2):
+        print('打开T')
+        with open(yumafile2, 'r') as f:
+            content = f.readlines()
+            satinfo = datacal.yumacal2(content, obj_time,'t', 15)
+            f.close()
+    else:
+        datacal.yumaget(obj_time)
+        if os.path.exists(yumafile1):
+            with open(yumafile1, 'r') as f:
+                content = f.readlines()
+                satinfo = datacal.yumacal2(content, obj_time,'c', 15)
+                f.close()
+        elif os.path.exists(yumafile2):
+            with open(yumafile2, 'r') as f:
+                content = f.readlines()
+                satinfo = datacal.yumacal2(content, obj_time,'t', 15)
+                f.close()
+        else:
+
+            closedate = datacal.closedata2(obj_time, './static/YUMA')
+            yumafile = "./static/YUMA/" + closedate + "-t.alc"
+            print(yumafile)
+            with open(yumafile, 'r') as f:
+                content = f.readlines()
+                satinfo = datacal.yumacal2(content, obj_time,'t', 15)
+                f.close()
+
+
+
+    station = {}
+    for t in range(96):
+        time = obj_time + datetime.timedelta(minutes=t * 15)
+
+        time0 = str(time.year) + str(time.month) + str(time.day) + (time.isoformat())[11:13] + (time.isoformat())[14:16]
+        station[time0] = {}
+        station[time0]['counts'] = 0
+        station[time0]['Q'] = []
+        station[time0]['P'] = []
+        station[time0]['uereP'] = []
+        station[time0]['visibility'] = {}
+        station[time0]['time'] = time.isoformat()
+        station[time0]['az'] = []
+        station[time0]['el'] = []
+
+    for name in satinfo:
+        if sat_name.find(str(name)) == -1:
+            continue
+        for timeid in satinfo[name]:
+
+            x = float(satinfo[name][timeid]['X_k'])
+            y = float(satinfo[name][timeid]['Y_k'])
+            z = float(satinfo[name][timeid]['Z_k'])
+            blh = [lat, lon, height]
+            blh2 = [np.radians(lat), np.radians(lon), height]
+            xyz2 = pm.geodetic2ecef(blh[0], blh[1], blh[2])
+            X_k1 = x - (xyz2[0])
+            Y_k1 = y - (xyz2[1])
+            Z_k1 = z - (xyz2[2])
+
+            altitude = (m.pi / 2 - m.acos((m.cos(m.radians(lat)) * (
+                    m.cos(m.radians(lon)) * X_k1 + m.sin(
+                m.radians(lon)) * Y_k1) + m.sin(
+                m.radians(lat)) * Z_k1) / m.sqrt(
+                X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)))
+            altitude = np.rad2deg(altitude)
+
+            azi_angle = m.atan2((-m.sin(m.radians(lon)) * X_k1) + m.cos(m.radians(lon)) * Y_k1,
+                                (-m.sin(m.radians(lat))) * (m.cos(m.radians(lon)) * X_k1 + m.sin(m.radians(lon)) * Y_k1) + m.cos(
+                                    m.radians(lat)) * Z_k1)
+            azi_angle = np.rad2deg(azi_angle)
+            if (altitude > alt):
+                cosa = X_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                cosb = Y_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                cosr = Z_k1 / m.sqrt(X_k1 * X_k1 + Y_k1 * Y_k1 + Z_k1 * Z_k1)
+                # sv_accu = satinfo[name][timeid]['sv_accu']
+                # eptime = satinfo[name][timeid]['time']
+                # eptime = [eptime.year, eptime.month, eptime.day, eptime.hour, eptime.minute, eptime.second]
+                # gtime = UEREcal.epoch2time(eptime)
+                # az = np.radians(azi_angle)
+                # el = np.radians(altitude)
+                # uerep = UEREcal.get_UERE(gtime, blh2, az, el, None, sv_accu)
+                if (
+                        name == 'C01' or name == 'C02' or name == 'C03' or name == 'C04' or name == 'C05' or name == 'C06' or name == 'C07' or name == 'C08' or name == 'C09' or name == 'C10' or name == 'C11' or name == 'C12' or name == 'C13' or name == 'C14' or name == 'C16'):
+                    # station[timeid]['uereP'].append(1/((1.04) * (1.04)))
+                    uerep=1.04
+                elif name=='C31'or name == 'C56'or name == 'C57'or name == 'C58':
+                    uerep = 0.73
+                else:
+                    # station[timeid]['uereP'].append(1/((0.4) * (0.4)))
+                    uerep = 0.4
+                uerep=4
+                # print(uerep)
+                # print(name,eptime,uerep,az,el,blh2)
+                station[timeid]['counts'] += 1
+                station[timeid]['Q'].append([cosa, cosb, cosr, 1])
+                station[timeid]['az'].append(round(m.radians(azi_angle), 2))
+                station[timeid]['el'].append(round(m.radians(altitude), 2))
+
+                # ****
+                # EL.append(altitude)
+                # AZ.append(azi_angle)
+                # timear.append(eptime)
+                # *****
+
+                if (pickp == 'unit'):
+                    var = 1
+                    station[timeid]['P'].append(1 / (var * var))
+                    station[timeid]['uereP'].append(1 / (uerep * uerep))
+                if (pickp == 's_el'):
+                    a = 0.003
+                    b = 0.09
+                    s_el = np.sin(m.radians(altitude))
+                    var = a + b / (s_el ** 2)
+                    station[timeid]['P'].append((1 / (var)))
+                    station[timeid]['uereP'].append((1 / ((uerep) * (uerep))) * (1 / (var)))
+                station[timeid]['visibility'][name] = round(altitude, 2), round(azi_angle, 2)
+
+    for tid in station:
+        if (station[tid]['counts'] < 4):
+            station[tid]['GDOP'] = None
+            station[tid]['PDOP'] = None
+            station[tid]['HDOP'] = None
+            station[tid]['VDOP'] = None
+            station[tid]['TDOP'] = None
+            station[tid]['Position'] = None
+            station[tid]['Vertical'] = None
+            station[tid]['Horizontal'] = None
+        else:
+            Q = station[tid]['Q']
+            Qt = np.transpose(Q)
+            P = np.diag(station[tid]['P'])
+            QX = np.dot(Qt, P)
+            QX = np.dot(QX, Q)
+            QX = np.linalg.inv(QX)
+            tr = QX.diagonal()
+
+            uereP = np.diag(station[tid]['uereP'])
+            QX2 = np.dot(Qt, uereP)
+            QX2 = np.dot(QX2, Q)
+            QX2 = np.linalg.inv(QX2)
+            tr2 = QX2.diagonal()
+
+            if ((tr[3]) < 0):
+                TDOP = 0
+            else:
+                TDOP = m.sqrt(tr[3])
+            az = np.array(station[tid]['az'])
+            el = np.array(station[tid]['el'])
+            dops = datacal.dops(az, el, m.radians(alt), P)
+            dops_accuracy = datacal.dops_accuracy(az, el, m.radians(alt), uereP)
+            del station[tid]['Q']
+            del station[tid]['P']
+            del station[tid]['uereP']
+            station[tid]['GDOP'] = round(dops[0], 2)
+            station[tid]['PDOP'] = round(dops[1], 2)
+            station[tid]['HDOP'] = round(dops[2], 2)
+            station[tid]['VDOP'] = round(dops[3], 2)
+            station[tid]['TDOP'] = round(TDOP, 2)
+            station[tid]['Vertical'] = round(dops_accuracy[3], 2)
+            station[tid]['Horizontal'] = round(dops_accuracy[2], 2)
+            station[tid]['Position'] = round(dops_accuracy[1], 2)
+
+            # *****
+            # GDOP.append(round(dops[0], 2))
+            # PDOP.append(round(dops[1], 2))
+            # HDOP.append(round(dops[2], 2))
+            # VDOP.append(round(dops[3], 2))
+            # TDOP1.append(round(TDOP,2))
+            # VER.append(round(dops_accuracy[3],2))
+            # HOR.append(round(dops_accuracy[2],2))
+            # POS.append(round(dops_accuracy[1],2))
+    # *******
+    # CNT=[]
+    # for tid in station:
+    #     CNT.append(station[tid]['counts'])
+    # data = { 'GDOP': GDOP, 'HDOP': HDOP,'PDOP':PDOP,'VDOP': VDOP,'TDOP': TDOP1,'VER': VER,'HOR': HOR,'POS': POS,'COUNTS':CNT}
+    # df = pd.DataFrame(data)
+    # df.to_csv('data.csv', index=False)
+
+    # ****
+    print("success")
+
+    return jsonify(station)
 @app.route('/rinexpaint', methods=["POST", "GET"])
 def rinexpaint():
     # ****
@@ -2852,6 +3090,7 @@ def rinexpaint():
                     az=np.radians(azi_angle)
                     el=np.radians(altitude)
                     uerep=UEREcal.get_UERE(gtime,blh2,az,el,None,sv_accu)
+                    print(uerep)
                     # print(name,eptime,uerep,az,el,blh2)
                     station[timeid]['counts'] += 1
                     station[timeid]['Q'].append([cosa, cosb, cosr, 1])
@@ -3098,7 +3337,6 @@ def rinexpaint():
             return jsonify(station)
         else:
             return 'false'
-
 @app.route('/ion', methods=["POST", "GET"])
 def ioncal():
     ion_info={}
@@ -3112,47 +3350,67 @@ def ioncal():
     timeid = str(obj_time.year)+str(obj_time.month)+str(obj_time.day)+'0000'
     date = str(exdate)
     filename = './static/ion/' + date + '.' + str(obj_time.year)[2:4] + 'i'
-    if os.path.exists(filename):
-        with open(filename) as file:
-            inx = ionex.reader(file)
-            x = []
-            y = []
-            t = 0
 
-            for ionex_map in inx:
-                x.append(t)
-                y.append(ionex_map.tec[p])
-                t += 4
-                ion_info['height']=str(ionex_map.height).strip('\n')[12:15]
-            a = interp1d(x, y, kind='cubic')
-            for i in range(97):
-                tec.append(float(a(i)))
-            ion_info['tec']=tec
-            file.close()
-        return jsonify(ion_info)
+    x = []
+    y = []
+    t = 0
+    # 提取日期部分
+    date = str(obj_time.date())
+    nfile_lines=[]
+    rinexfile = './static/Rinex/' + date + '.rx'
+    if os.path.exists(rinexfile):
+        with open(rinexfile, 'r') as f:
+            nfile_lines = f.readlines()
+            f.close()
     else:
-        datacal.ionexget(obj_time)
-        if os.path.exists(filename):
-            with open(filename) as file:
-                inx = ionex.reader(file)
-                x = []
-                y = []
-                t = 0
-
-                for ionex_map in inx:
-                    x.append(t)
-                    y.append(ionex_map.tec[p])
-                    t += 4
-                    ion_info['height'] = str(ionex_map.height).strip('\n')[12:15]
-                a = interp1d(x, y, kind='cubic')
-                for i in range(97):
-                    tec.append(float(a(i)))
-                ion_info['tec'] = tec
-                file.close()
-            return jsonify(ion_info)
+        datacal.rinexget(obj_time)
+        if os.path.exists(rinexfile):
+            with open(rinexfile, 'r') as f:
+                nfile_lines = f.readlines()
+                f.close()
         else:
-            return 'false'
+            rinexdata = 'false'
+    for i in range(97):
+        caltime=obj_time+datetime.timedelta(minutes=15*i)
+        # print(caltime)
+        import BDGIM
+        # 定义非广播电离层参数
+        nonBrdData = BDGIM.NonBrdIonData()
+        # 定义广播电离层参数
+        brdData = BDGIM.BrdIonData()
 
+        # 定义时间参数
+        year = caltime.year
+        month = caltime.month
+        day = caltime.day
+        hour =caltime.hour
+        minute = caltime.minute
+        second = 0
+
+        # 转换时间为MJD
+        mjd = BDGIM.UTC2MJD(year, month, day, hour, minute, second)[0]
+        # 定义站点和卫星的坐标
+        staxyz = pm.geodetic2ecef(lat, lon, 0)
+        sta_xyz = [staxyz[0], staxyz[1], staxyz[2]]
+        upxyz = pm.geodetic2ecef(lat, lon, 20000)
+        sat_xyz = [upxyz[0], upxyz[1], upxyz[2]]
+        # 定义广播电离层参数****
+        # 解析数据
+        brdPara, svid_list = BDGIM.parse_rinex(nfile_lines, caltime)
+        # print('定义广播电离层参数:',brdPara)
+        # 定义广播电离层参数****
+
+
+        # 调用IonBdsBrdModel函数计算电离层延迟
+        ion_delay, vtec = BDGIM.IonBdsBrdModel(nonBrdData, brdData, mjd, sta_xyz, sat_xyz, brdPara)
+
+        # 打印结果
+        # print("B1C频率下的电离层延迟：", ion_delay, "米")
+        # print('垂直电子含量：', vtec)
+        tec.append(vtec)
+    ion_info['tec'] = tec
+    # print(ion_info)
+    return jsonify(ion_info)
 
 
 @app.route('/keplercal', methods=["POST", "GET"])
