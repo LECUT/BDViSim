@@ -857,6 +857,20 @@ for (var prn in result5) {
 }
 newset();
 // }
+function fix(num, length) {
+  return ('' + num).length < length ? ((new Array(length + 1)).join(' ') + num).slice(-length) : '' + num;
+}
+function downresult() {
+  savecontent = [];
+  savecontent.push(text1.value)
+  alert(savecontent);
+  var file = new File(
+    savecontent,
+    "轨道坐标.txt",
+    { type: "text/plain;charset=utf-8" }
+  );
+  saveAs(file);
+}
 function neworbitcal() {
 
   var c1 = document.getElementById("check1");
@@ -880,8 +894,11 @@ function neworbitcal() {
   data_z2 = [];
   data_z3 = [];
   data_z4 = [];
+  timegap_rinex=[]
+  timegap_sp3=[]
 
   text1.value = "";
+  cb_textarea.value=''
   ii = 26;
   jj = 0
 
@@ -908,18 +925,21 @@ function neworbitcal() {
 
     if (i == 0) {
       text1.value = fix("Time", 12);
+      cb_textarea.value=fix("Time",12)+'\t\t'
       if (c1.checked == true) {
         text1.value = text1.value + fix("X(TLE)", 22)  + fix("Y(TLE)", 16)  + fix("Z(TLE)", 16) ;
         if (c4.checked == true) {
           text1.value = text1.value + fix("X(YUMA)", 17)  + fix("Y(YUMA)", 16)  + fix("Z(YUMA)", 16) ;
         }
         if (c2.checked == true) {
+          cb_textarea.value=cb_textarea.value+fix("Clock bias(Rinex)[us]",18)
           text1.value = text1.value + fix("X(Rinex)", 17)  + fix("Y(Rinex)", 16)  + fix("Z(Rinex)", 16) ;
         }
         if (c3.checked == true) {
+          cb_textarea.value=cb_textarea.value+fix("Clock bias(SP3)[us]",22)
           text1.value = text1.value + fix("X(SP3)", 15)  + fix("Y(SP3)", 16)  + fix("Z(SP3)", 16) ;
         }
-  
+
       }
       else{
         if (c4.checked == true) {
@@ -933,13 +953,16 @@ function neworbitcal() {
         }
         else{
           if (c2.checked == true) {
+            cb_textarea.value=cb_textarea.value+fix("Clock bias(Rinex)",18)
             text1.value = text1.value + fix("X(Rinex)", 22)  + fix("Y(Rinex)", 16)  + fix("Z(Rinex)", 16) ;
             if (c3.checked == true) {
+              cb_textarea.value=cb_textarea.value+fix("Clock bias(SP3)",22)
               text1.value = text1.value + fix("X(SP3)", 15)  + fix("Y(SP3)", 16)  + fix("Z(SP3)", 16) ;
             }
           }
           else{
             if (c3.checked == true) {
+              cb_textarea.value=cb_textarea.value+fix("Clock bias(SP3)",22)
               text1.value = text1.value + fix("X(SP3)", 22)  + fix("Y(SP3)", 16)  + fix("Z(SP3)", 16) ;
             }
           }
@@ -960,6 +983,7 @@ function neworbitcal() {
 
           timelist.push(result3[id][timeid]["epoch"].slice(11, 16));
           text1.value = text1.value + fix(result3[id][timeid]["epoch"].replace("T", " "), 20) + "\t";
+          cb_textarea.value=cb_textarea.value+fix(result3[id][timeid]["epoch"].replace("T", " "), 20) + "\t";
           if (c1.checked == true) {
             if (!window.result2[id][timeid]) {
 
@@ -990,10 +1014,12 @@ function neworbitcal() {
               fix(parseFloat(result5[id][timeid].Y_k).toFixed(3), 12) + "\t" +
               fix(parseFloat(result5[id][timeid].Z_k).toFixed(3), 12)+ "\t";
           }
-          
+
           data_x2.push(result3[id][timeid]['X_k']);
           data_y2.push(result3[id][timeid]['Y_k']);
           data_z2.push(result3[id][timeid]['Z_k']);
+          timegap_rinex.push(result3[id][timeid]['ct'])
+          cb_textarea.value=cb_textarea.value+fix((parseFloat(result3[id][timeid]['ct'])*1000000).toFixed(3), 12) + '\t\t'
           text1.value = text1.value +
             fix(parseFloat(result3[id][timeid]['X_k']).toFixed(3), 12) + '\t' +
             fix(parseFloat(result3[id][timeid]['Y_k']).toFixed(3), 12) + '\t' +
@@ -1002,7 +1028,7 @@ function neworbitcal() {
             if (!window.result4[id]||!window.result4[id][timeid]) {
               modal.innerHTML = 'SP3无匹配数据';
 
-              document.body.style.pointerEvents = 'auto';     
+              document.body.style.pointerEvents = 'auto';
               confirmBtn.textContent = '确认';
               confirmBtn.addEventListener('click', onConfirm);
               modal.appendChild(confirmBtn);
@@ -1011,9 +1037,11 @@ function neworbitcal() {
             data_x3.push(result4[id][timeid][0]);
             data_y3.push(result4[id][timeid][1]);
             data_z3.push(result4[id][timeid][2]);
+            timegap_sp3.push(result4[id][timeid][3])
+            cb_textarea.value=cb_textarea.value+fix(parseFloat(result4[id][timeid][3]).toFixed(3), 12) + '\t'
             text1.value = text1.value + fix(parseFloat(result4[id][timeid][0]).toFixed(3), 12) + '\t' +
               fix(parseFloat(result4[id][timeid][1]).toFixed(3), 12) + '\t' +
-              fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12) 
+              fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12)
 
 
           }
@@ -1088,9 +1116,11 @@ function neworbitcal() {
           data_x3.push(result4[id][timeid][0]);
           data_y3.push(result4[id][timeid][1]);
           data_z3.push(result4[id][timeid][2]);
+          timegap_sp3.push(result4[id][timeid][3])
+          cb_textarea.value=cb_textarea.value+fix(parseFloat(result4[id][timeid][3]).toFixed(3), 12) + '\t'
           text1.value = text1.value + fix(parseFloat(result4[id][timeid][0]).toFixed(3), 12) + '\t' +
             fix(parseFloat(result4[id][timeid][1]).toFixed(3), 12) + '\t' +
-            fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12) 
+            fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12)
 
         }
 
@@ -1099,6 +1129,7 @@ function neworbitcal() {
 
 
     text1.value = text1.value + '\n';
+    cb_textarea.value=cb_textarea.value+'\n'
   }
 
   gap_x1 = [];
@@ -1111,12 +1142,15 @@ function neworbitcal() {
   gap_z2 = [];
   gap_z3 = [];
 
-  
+  timegap_dif=[]
+  console.log(timegap_rinex)
+  console.log(timegap_sp3)
+
   for (var z = 0; z < data_x1.length; z++) {
     gap_x1[z] = ((data_x1[z] - data_x3[z]) / 1000).toFixed(2);
     gap_y1[z] = ((data_y1[z] - data_y3[z]) / 1000).toFixed(2);
     gap_z1[z] =( (data_z1[z] - data_z3[z]) / 1000).toFixed(2);
-
+    timegap_dif[z]=timegap_sp3[z]*1000-timegap_rinex[z]*1000000000
   }
   for (var z = 0; z < data_x2.length; z++) {
     gap_x2[z] = (data_x2[z] - data_x3[z]).toFixed(2);
@@ -1137,24 +1171,17 @@ function neworbitcal() {
   x3_rms=calculateRMS(gap_x3).toFixed(2);
   y3_rms=calculateRMS(gap_y3).toFixed(2);
   z3_rms=calculateRMS(gap_z3).toFixed(2);
-
+  console.log(timegap_dif)
+  //
+  // 计算数组元素的总和
+  let sum = timegap_dif.reduce((acc, num) => acc + num, 0);
+  for(var z in timegap_dif){
+    timegap_dif[z]=timegap_dif[z]-sum/timegap_dif.length
+  }
+  console.log(timegap_dif,calculateRMS(timegap_dif))
   paintchart();
+  paintClockBiasChart();
 }
-function fix(num, length) {
-  return ('' + num).length < length ? ((new Array(length + 1)).join(' ') + num).slice(-length) : '' + num;
-}
-function downresult() {
-  savecontent = [];
-  savecontent.push(text1.value)
-  alert(savecontent);
-  var file = new File(
-    savecontent,
-    "轨道坐标.txt",
-    { type: "text/plain;charset=utf-8" }
-  );
-  saveAs(file);
-}
-
 
 function paintchart() {
   var tstep = $('#tstep').val();
@@ -1162,8 +1189,6 @@ function paintchart() {
   var myChart5 = echarts.init(document.getElementById('gap_chart2'));
   var myChart6 = echarts.init(document.getElementById('gap_chart3'));
 
-  console.log(timelist)
-  console.log(gap_x2)
   objecttime = document.getElementById('objtime').value
   year = objecttime.slice(0, 4)
   month = objecttime.slice(5, 7)
@@ -1207,25 +1232,25 @@ function paintchart() {
         fontSize: 18,
       },
     },
-    tooltip: {  
+    tooltip: {
       trigger: 'axis'
   },
     legend: {
-      orient: 'vertical', 
+      orient: 'vertical',
       align: 'left',
       right:'70px',
       y: '10px'      ,
       backgroundColor: 'rgba(0,0,0,0)',
-      borderColor: '#ccc',       
-      borderWidth: 0,            
-      padding: 0,               
-      
-      itemGap: 2,              
-      
-      itemWidth: 20,             
-      itemHeight: 10,            
+      borderColor: '#ccc',
+      borderWidth: 0,
+      padding: 0,
+
+      itemGap: 2,
+
+      itemWidth: 20,
+      itemHeight: 10,
       textStyle: {
-        color: 'black'          
+        color: 'black'
       },
       formatter: function (legendName) {
         if(legendName=='X方向'){
@@ -1237,10 +1262,10 @@ function paintchart() {
         if(legendName=='Z方向'){
           var objectname='RMS_Z='+z2_rms
         }
-        
 
-        
-        return objectname 
+
+
+        return objectname
       },
     },
     xAxis: {
@@ -1259,7 +1284,7 @@ function paintchart() {
       axisLine: {
 
         lineStyle: {
-          color: 'black',  
+          color: 'black',
         },
       },
       data: timelist
@@ -1281,7 +1306,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black',  
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1332,11 +1357,11 @@ function paintchart() {
         fontSize: 18
       },
     },
-    tooltip: {      
+    tooltip: {
       trigger: 'axis'
     },
     legend: {
-      orient: 'vertical', 
+      orient: 'vertical',
       align: 'left',
       // 'horizontal' ¦ 'vertical'
 
@@ -1348,16 +1373,16 @@ function paintchart() {
       // 'top' ¦ 'bottom' ¦ 'center'
 
       backgroundColor: 'rgba(0,0,0,0)',
-      borderColor: '#ccc',       
-      borderWidth: 0,            
-      padding: 0,               
-      
-      itemGap: 2,              
-      
-      itemWidth: 20,             
-      itemHeight: 10,            
+      borderColor: '#ccc',
+      borderWidth: 0,
+      padding: 0,
+
+      itemGap: 2,
+
+      itemWidth: 20,
+      itemHeight: 10,
       textStyle: {
-        color: 'black'          
+        color: 'black'
       },
       formatter: function (legendName) {
 
@@ -1371,11 +1396,11 @@ function paintchart() {
         if(legendName=='Z方向'){
           var objectname='RMS_Z='+z3_rms
         }
-        
+
         // var annotation = option4.series[dataIndex].annotation;
         // console.log(annotation)
-        
-        return objectname 
+
+        return objectname
       },
     },
     xAxis: {
@@ -1389,7 +1414,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black',  
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1414,7 +1439,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black',  
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1467,7 +1492,7 @@ function paintchart() {
       trigger: 'axis'
     },
     legend: {
-      orient: 'vertical', 
+      orient: 'vertical',
       align: 'left',
       // 'horizontal' ¦ 'vertical'
 
@@ -1479,16 +1504,16 @@ function paintchart() {
       // 'top' ¦ 'bottom' ¦ 'center'
 
       backgroundColor: 'rgba(0,0,0,0)',
-      borderColor: '#ccc',       
-      borderWidth: 0,            
-      padding: 0,               
-      
-      itemGap: 2,              
-      
-      itemWidth: 20,             
-      itemHeight: 10,            
+      borderColor: '#ccc',
+      borderWidth: 0,
+      padding: 0,
+
+      itemGap: 2,
+
+      itemWidth: 20,
+      itemHeight: 10,
       textStyle: {
-        color: 'black'          
+        color: 'black'
       },
       formatter: function (legendName) {
 
@@ -1502,8 +1527,8 @@ function paintchart() {
         if(legendName=='Z方向'){
           var objectname='RMS_Z='+z1_rms
         }
-        
-        return objectname 
+
+        return objectname
       },
     },
     xAxis: {
@@ -1517,7 +1542,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black',  
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1543,7 +1568,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black',  
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1576,14 +1601,224 @@ function paintchart() {
 
 
 
-  
+
 
   myChart4.setOption(option4);
   myChart5.setOption(option5);
   myChart6.setOption(option6);
 
 }
+function paintClockBiasChart() {
 
+  var biasList = timegap_dif;  // Extract the bias values
+  var chart = echarts.init(document.getElementById('clock_bias_chart'));
+  objecttime = document.getElementById('objtime').value
+  year = objecttime.slice(0, 4)
+  month = objecttime.slice(5, 7)
+  day = objecttime.slice(8, 10)
+
+  paintime = year + "-" + month + "-" + day
+  var option = {
+    title: {
+      text: paintime,
+      x: 'center',
+      y: 'top',
+      top: 20,
+      textStyle: {
+        color: 'black',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 18,
+      },
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      orient: 'vertical',
+      align: 'left',
+      right:'70px',
+      y: '10px'      ,
+      backgroundColor: 'rgba(0,0,0,0)',
+      borderColor: '#ccc',
+      borderWidth: 0,
+      padding: 0,
+
+      itemGap: 2,
+
+      itemWidth: 20,
+      itemHeight: 10,
+      textStyle: {
+        color: 'black'
+      },
+      formatter: function (legendName) {
+
+          var objectname='RMS='+calculateRMS(timegap_dif).toFixed(2)
+
+
+        return objectname
+      },
+    },
+    xAxis: {
+      name: '时间',
+      nameLocation: "center",
+      nameTextStyle: {
+        fontSize: 16,
+        padding: 10,
+        color: 'black'
+      },
+      axisLabel: {
+        color: 'black'
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'black'
+        }
+      },
+      data: timelist
+    },
+    yAxis: {
+      name: '钟差偏差[ns]',
+      nameLocation: "center",
+      nameTextStyle: {
+        fontSize: 16,
+        padding: 10,
+        color: 'black'
+      },
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: 'dashed'
+        }
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'black'
+        }
+      },
+      axisLabel: {
+        color: 'black'
+      }
+    },
+    series: [{
+      showSymbol: false,
+      name: '钟差偏差',
+      type: 'line',
+      color: "blue",
+      data: biasList
+    }]
+  };
+
+  chart.setOption(option);
+}
+
+function showPanel(panelId) {
+  document.getElementById('text1').style.display = 'none';
+  document.getElementById('chart2').style.display = 'none';
+  document.getElementById('clock_bias').style.display = 'none';
+  dt=document.getElementById('downtext')
+  dc=document.getElementById('btndownchart')
+  document.getElementById(panelId).style.display = 'block';
+  if (panelId == 'text1') {
+    dt.style.display = 'block';
+    dc.style.display = 'none';
+  }
+  if (panelId == 'chart2') {
+    dc.style.display = 'block';
+    dt.style.display = 'none';
+  }
+}
+function showPanel(panelId) {
+  document.getElementById('text1').style.display = 'none';
+  document.getElementById('chart2').style.display = 'none';
+  document.getElementById('clock_bias').style.display = 'none';
+  document.getElementById(panelId).style.display = 'block';
+  dt=document.getElementById('downtext')
+  if (panelId === 'chart2') {
+    document.getElementById('btndownchart').style.display = 'block';
+  } else {
+    document.getElementById('btndownchart').style.display = 'none';
+  }
+  if (panelId === 'text1') {
+    dt.style.display = 'block';
+  } else {
+    dt.style.display = 'none';
+  }
+  if (panelId === 'clock_bias') {
+    var cbTextAreaVisible = document.getElementById('cb_textarea').style.display !== 'none';
+    document.getElementById('downclocktext').style.display = cbTextAreaVisible ? 'block' : 'none';
+    document.getElementById('downclockchart').style.display = cbTextAreaVisible ? 'none' : 'block';
+
+  } else {
+    document.getElementById('downclocktext').style.display = 'none';
+    document.getElementById('downclockchart').style.display = 'none';
+  }
+}
+function showClockBiasPanel(panelId) {
+  document.getElementById('cb_textarea').style.display = 'none';
+  document.getElementById('clock_bias_chart').style.display = 'none';
+
+  document.getElementById(panelId).style.display = 'block';
+  if (panelId === 'cb_textarea') {
+    document.getElementById('downclocktext').style.display = 'block';
+    document.getElementById('downclockchart').style.display = 'none';
+  } else {
+    document.getElementById('downclocktext').style.display = 'none';
+    document.getElementById('downclockchart').style.display = 'block';
+  }
+}
+function downClockText() {
+  savecontent = [];
+  savecontent.push(cb_textarea.value)
+  alert(savecontent);
+  var file = new File(
+    savecontent,
+    "钟差.txt",
+    { type: "text/plain;charset=utf-8" }
+  );
+  saveAs(file);
+}
+function downClockChart() {
+  if (document.getElementById('clock_bias_chart').style.display == 'block') {
+    var obj = '#clock_bias_chart'
+  }
+  else {
+    alert('no pictrue')
+  }
+
+  html2canvas($(obj), {
+    backgroundColor: '#ffffff',
+    height: ($("#contbox").outerHeight()) * 10,
+    width: ($("#contbox").outerWidth()) * 10,
+    scale: 10,
+    logging: true,
+    foreignObjectRendering: true,
+    useCORS: true,
+    onrendered: function (canvas) {
+      var img = convertCanvasToImage(canvas);
+      download(img.src)
+    }
+  });
+
+}
+function show3() {
+  id = $("input[name='c']:checked").val();
+  if (id == 'gap_chart1') {
+    gap_chart1.style.display = 'block';
+    gap_chart2.style.display = 'none';
+    gap_chart3.style.display = 'none';
+  }
+  if (id == 'gap_chart2') {
+    gap_chart2.style.display = 'block';
+    gap_chart1.style.display = 'none';
+    gap_chart3.style.display = 'none';
+  }
+  if (id == 'gap_chart3') {
+    gap_chart3.style.display = 'block';
+    gap_chart1.style.display = 'none';
+    gap_chart2.style.display = 'none';
+  }
+}
 function show2() {
   id = $("input[name='b']:checked").val();
   if (id == 'chart_x') {
@@ -1627,25 +1862,6 @@ function show1() {
   }
 
 
-}
-
-function show3() {
-  id = $("input[name='c']:checked").val();
-  if (id == 'gap_chart1') {
-    gap_chart1.style.display = 'block';
-    gap_chart2.style.display = 'none';
-    gap_chart3.style.display = 'none';
-  }
-  if (id == 'gap_chart2') {
-    gap_chart2.style.display = 'block';
-    gap_chart1.style.display = 'none';
-    gap_chart3.style.display = 'none';
-  }
-  if (id == 'gap_chart3') {
-    gap_chart3.style.display = 'block';
-    gap_chart1.style.display = 'none';
-    gap_chart2.style.display = 'none';
-  }
 }
 function jiequ() {
   if (document.getElementById('gap_chart1').style.display == 'block') {

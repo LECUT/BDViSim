@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d
 import datacal
 import os
 import UEREcal
-
+from scipy.interpolate import RegularGridInterpolator
 app = Flask(__name__)
 
 
@@ -1103,46 +1103,135 @@ def reset():
 
 
 #
-@app.route('/ion2', methods=["POST", "GET"])
-def ioncal2():
-    exdate=request.form['date']
-    # sat_name=request.form['satname']
-    obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
+@app.route('/worldion_igsgim', methods=["POST", "GET"])
+def wioncal_IGS():
+    exdate = request.form['date']
+    resolution = float(request.form['resolution'])  # 获取并转换分辨率参数
+    obj_time = datetime.datetime(int(exdate.strip()[0:4]), int(exdate.strip()[5:7]), int(exdate.strip()[8:10]), 0, 0)
     date = str(exdate)
-    file='./static/ion/'+date+'.'+str(obj_time.year)[2:4]+'i'
-    print(file)
-    if os.path.exists(file):
-        with open(file, 'r') as f:
-            if f == 0:
-                print("can not open file")
-            else:
-                print("success")
-            ion_info = {}
-            inx = ionex.reader(f)
-            t = 0
-            for ionex_map in inx:
-                tec = []
-                time = obj_time + datetime.timedelta(hours=t)
-                k = 0
-                kk = 1
-                for p in range(2482):
-                    tec.append(ionex_map.tec[k + kk * 73])
-                    while k == 73:
-                        k = 0
-                        kk += 2
-                    k += 1
-                t += 1
-                timeid = str(time.year) + str(time.month) + str(time.day) + str(time.isoformat().strip()[11:13]) + '00'
-                ion_info[timeid] = tec
-            print("ion calculate success")
-            return jsonify(ion_info)
-            f.close()
+    file_path = f'./static/ion/{date}.{str(obj_time.year)[2:4]}i'
+    print(file_path)
 
-        # with open('./static/json/ion_info.json', 'w') as f:
-        #     dump(ion_info, f)
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            ion_info = {}
+            try:
+                inx = ionex.reader(f)
+                t = 0
+                for ionex_map in inx:
+                    tec = []
+                    time = obj_time + datetime.timedelta(hours=t)
+
+                    # 获取原始网格的纬度和经度
+                    original_lats = np.linspace(-87.5, 87.5, 71)  # 假设原始数据的纬度步长为2.5°
+                    original_lons = np.linspace(-180, 180, 73)  # 假设原始数据的经度步长为5°
+
+                    # 创建插值函数
+                    interpolator = RegularGridInterpolator(
+                        (original_lats, original_lons),
+                        np.array(ionex_map.tec).reshape((71, 73)),  # 假设ionex_map.tec可以被重新形成为71x73的二维数组
+                        bounds_error=False,
+                        fill_value=None
+                    )
+
+                    # 定义新的全球网格，使用 numpy 生成符合 resolution 的网格点
+                    lons = np.arange(-180, 180.1, resolution)
+                    lats = np.arange(-90, 90.1, resolution)
+
+                    # 遍历网格点，提取电子含量
+                    for lat in lats:
+                        for lon in lons:
+                            tec_value = interpolator((lat, lon))
+                            tec.append(float(tec_value))  # 转换为 float 类型
+
+                    t += 1
+                    timeid = f"{time.year}{time.month}{time.day}{time.hour:02d}00"
+                    ion_info[timeid] = tec
+
+                print("IONEX calculation success")
+                # 将 ndarray 转换为列表
+                if isinstance(ion_info, np.ndarray):
+                    ion_info = ion_info.tolist()
+                # print(ion_info)
+                return jsonify(ion_info)
+            except Exception as e:
+                print(f"Error processing IONEX file: {e}")
+                return 'Error processing IONEX file', 500
     else:
-        print(file+'open error')
-        return 'false'
+        print(f"{file_path} open error")
+        return 'File not found', 404
+import BDGIM
+@app.route('/worldion_bdgim', methods=["POST", "GET"])
+def global_ioncal():
+    # 获取请求中的参数
+    exdate = request.form['date']
+    resolution = float(request.form['resolution'])  # 空间分辨率，例如：2.5表示2.5度
+    obj_time = datetime.datetime(int(exdate.strip()[0:4]), int(exdate.strip()[5:7]), int(exdate.strip()[8:10]), 0, 0)
+    date = str(exdate)
+
+    # 检查并读取RINEX文件
+    date_str = str(obj_time.date())
+    rinexfile = f'./static/Rinex/{date_str}.rx'
+    if os.path.exists(rinexfile):
+        with open(rinexfile, 'r') as f:
+            nfile_lines = f.readlines()
+    else:
+        # 如果文件不存在，调用函数下载并再次尝试读取
+        datacal.rinexget(obj_time)
+        if os.path.exists(rinexfile):
+            with open(rinexfile, 'r') as f:
+                nfile_lines = f.readlines()
+        else:
+            return 'RINEX file not found', 404
+
+    # 初始化结果数据结构
+    ion_info = {}
+
+    # 定义全球网格，使用 numpy 生成符合 resolution 的网格点
+    lons = np.arange(-180, 180.1, resolution)
+    lats = np.arange(-90, 90.1, resolution)
+    print(lons,lats)
+    for i in range(97):  # 计算一天内每15分钟的数据，共97个时间点
+        caltime = obj_time + datetime.timedelta(minutes=15 * i)
+        # 定义非广播电离层参数
+        nonBrdData = BDGIM.NonBrdIonData()
+        # 定义广播电离层参数
+        brdData = BDGIM.BrdIonData()
+        # 定义时间参数
+        year = caltime.year
+        month = caltime.month
+        day = caltime.day
+        hour = caltime.hour
+        minute = caltime.minute
+        second = 0
+
+        # 转换时间为MJD
+        mjd = BDGIM.UTC2MJD(year, month, day, hour, minute, second)[0]
+
+        # 解析RINEX数据
+        brdPara, svid_list = BDGIM.parse_rinex(nfile_lines, caltime)
+
+        # 使用与原始代码相同的格式生成 timeid
+        timeid = f"{caltime.year}{caltime.month}{caltime.day}{caltime.hour:02}00"
+        ion_info[timeid] = {}
+        tec = []
+        for lat in lats:
+            for lon in lons:
+
+                # 定义站点和卫星的坐标
+                staxyz = pm.geodetic2ecef(lat, lon, 0)
+                sta_xyz = [staxyz[0], staxyz[1], staxyz[2]]
+                upxyz = pm.geodetic2ecef(lat, lon, 20000)
+                sat_xyz = [upxyz[0], upxyz[1], upxyz[2]]
+
+                # 调用IonBdsBrdModel函数计算电离层延迟
+                ion_delay, vtec = BDGIM.IonBdsBrdModel(nonBrdData, brdData, mjd, sta_xyz, sat_xyz, brdPara)
+
+                # 存储结果
+                tec.append(vtec)
+                # print('lon:', str(lon), 'lat:', str(lat),'tec:',str(vtec))
+        ion_info[timeid] = tec
+    return jsonify(ion_info)
 
 @app.route('/linkstar', methods=["POST", "GET"])
 def link():
@@ -3337,8 +3426,68 @@ def rinexpaint():
             return jsonify(station)
         else:
             return 'false'
-@app.route('/ion', methods=["POST", "GET"])
-def ioncal():
+# IGS VTEC
+@app.route('/siteion_igsgim', methods=["POST", "GET"])
+def ioncal_igsgim():
+    ion_info={}
+    tec=[]
+    lon=float(request.form['lon'])
+    lat = float(request.form['lat'])
+    # print('lon',lon,int((lon + 180) / 5) )
+    # print('lat',lat,int(((87.5 - lat) / 2.5)) )
+    p = int(int((lon + 180) / 5) + int(((87.5 - lat) / 2.5)) * 73)
+    # print('p',p)
+    exdate=request.form['date']
+    obj_time=datetime.datetime(int(exdate.strip()[0:4]),int(exdate.strip()[5:7]),int(exdate.strip()[8:10]),0,0)
+    timeid = str(obj_time.year)+str(obj_time.month)+str(obj_time.day)+'0000'
+    date = str(exdate)
+    filename = './static/ion/' + date + '.' + str(obj_time.year)[2:4] + 'i'
+    if os.path.exists(filename):
+        with open(filename) as file:
+            inx = ionex.reader(file)
+            x = []
+            y = []
+            t = 0
+
+            for ionex_map in inx:
+                x.append(t)
+                y.append(ionex_map.tec[p])
+                # print(ionex_map.tec[p-1],ionex_map.tec[p],ionex_map.tec[p+1])
+                t += 4
+                ion_info['height']=str(ionex_map.height).strip('\n')[12:15]
+            a = interp1d(x, y, kind='cubic')
+            for i in range(97):
+                tec.append(float(a(i)))
+            ion_info['tec']=tec
+            file.close()
+        print(ion_info)
+        return jsonify(ion_info)
+    else:
+        datacal.ionexget(obj_time)
+        if os.path.exists(filename):
+            with open(filename) as file:
+                inx = ionex.reader(file)
+                x = []
+                y = []
+                t = 0
+
+                for ionex_map in inx:
+                    x.append(t)
+                    y.append(ionex_map.tec[p])
+                    t += 4
+                    ion_info['height'] = str(ionex_map.height).strip('\n')[12:15]
+                a = interp1d(x, y, kind='cubic')
+                for i in range(97):
+                    tec.append(float(a(i)))
+                ion_info['tec'] = tec
+                file.close()
+            print(ion_info)
+            return jsonify(ion_info)
+        else:
+            return 'false'
+
+@app.route('/siteion_bdgim', methods=["POST", "GET"])
+def ioncal_bdgim():
     ion_info={}
     tec=[]
     lon=float(request.form['lon'])
@@ -3409,7 +3558,7 @@ def ioncal():
         # print('垂直电子含量：', vtec)
         tec.append(vtec)
     ion_info['tec'] = tec
-    # print(ion_info)
+    print(ion_info)
     return jsonify(ion_info)
 
 

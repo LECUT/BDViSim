@@ -134,7 +134,59 @@ viewer.scene.camera.flyTo(CameraView);
     tileMatrixSetID: "GoogleMapsCompatible"
   }));
 
+  const timer = {
+    counter: 0,
+    timeoutId: null,
+    isRunning: false,
+    maxCount: 23,
+    interval: 1000,
 
+    start: function() {
+      viewer.clock.shouldAnimate = true;
+      if (!this.isRunning) {
+        this.isRunning = true;
+        this.count();
+      }
+    },
+
+    stop: function() {
+      viewer.clock.shouldAnimate = false;
+      clearTimeout(this.timeoutId);
+      this.isRunning = false;
+    },
+
+    count: function() {
+      document.getElementById("timenum").value = this.counter;
+      paintmap();
+      this.counter = (this.counter + 1) % (this.maxCount + 1);
+      document.getElementById("timerange").value = this.counter; // 更新滑动条值
+      this.timeoutId = setTimeout(this.count.bind(this), this.interval);
+    },
+
+    updateTime: function(newTime) {
+      this.counter = newTime;
+      document.getElementById("timenum").value = newTime;
+      paintmap();
+    }
+  };
+
+  // 页面加载完毕后自动开始计时器
+  document.addEventListener('DOMContentLoaded', function() {
+    timer.start();
+  });
+
+  // 监听滑动条的input事件，手动改变时间
+  document.getElementById('timerange').addEventListener('input', function() {
+    timer.updateTime(parseInt(this.value));
+  });
+
+  function startrun() {
+    timer.start();
+  }
+
+  function stoprun() {
+    timer.stop();
+  }
 
 
 station_info = ''
@@ -144,7 +196,7 @@ function openwindow() {
   f = $.ajax({
     url: "../static/json/stations.json",
     type: "GET",
-    dataType: "json", 
+    dataType: "json",
     async: false,
     success: function (data) {
 
@@ -174,7 +226,7 @@ function closewindow(obj) {
 f = $.ajax({
   url: "../static/json/stations.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
   }
@@ -182,7 +234,7 @@ f = $.ajax({
 h = $.ajax({
   url: "../static/json/ion_info.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
 
@@ -228,80 +280,84 @@ paintmap();
 startrun();
 
 
-var wion_info = ''
+let wion_info = '';
 let isDone1 = false;
 const calcBtn1 = document.getElementById('setaltbtn');
 const modal1 = document.getElementById('modal');
 let confirmBtn = document.createElement('button');
+
 calcBtn1.addEventListener('click', () => {
-  isDone1 = false;
-  modal.innerHTML = 'Calculating...';
-  modal.showModal();
-  document.body.style.pointerEvents = 'none';
+    isDone1 = false;
+    modal1.innerHTML = 'Calculating...';
+    modal1.showModal();
+    document.body.style.pointerEvents = 'none';
 
-  var alt = $('#setalt').val();
-  var density = $('#density').val();
-  var date = $('#datepick').val();
-  var satname = satpick()
-  // console.log(satname)
-  stoprun()
-  if (alt < 0 || alt >= 90) {
-    // alert('Error ! Input range 0-90 °')
-    isDone1 = true;
-    modal.innerHTML = 'Error ! Input range 0-90 °';
-    document.body.style.pointerEvents = 'auto';
-    
-    confirmBtn.textContent = 'Confirm';
-    confirmBtn.addEventListener('click', onConfirm);
-    modal.appendChild(confirmBtn);
-  }
-  else {
+    const alt = $('#setalt').val();
+    const density = $('#density').val();
+    const date = $('#datepick').val();
+    const satname = satpick();
+    const ionModel = $('#ionModel_world').val();
+    stoprun();
 
-    // var url = '/resetalt'
-    var url = '/reset'
+    if (alt < 0 || alt >= 90) {
+        showErrorModal('Error! Input range 0-90 °');
+    } else {
+        const url = '/reset';
+        const ionurl = ionModel === 'bdgim' ? '/worldion_bdgim' : '/worldion_igsgim';
 
-    $.post(url, { 'alt': alt, 'density': density, 'date': date, 'satname': JSON.stringify(satname) }, function (res) {
-      console.log(res)
+        // 发出第一个请求
+        $.post(url, { 'alt': alt, 'density': density, 'date': date, 'satname': JSON.stringify(satname) })
+            .done((res) => {
+                console.log(res);
+                station_info = res;
 
-      station_info = res;
-      $.post('/ion2', { 'date': date }, function (res) {
-        if (res == "false") {
+            })
+            .fail((err) => {
+                console.error(err);
+                showErrorModal('Request failed, please try again');
+            });
 
-          startrun()
-          isDone1 = true;
-          modal.innerHTML = date + 'lack ION file';
-          document.body.style.pointerEvents = 'auto';
-
-          
-          confirmBtn.textContent = 'Confirm';
-          confirmBtn.addEventListener('click', onConfirm);
-          modal.appendChild(confirmBtn);
-        }
-        else {
-
-          console.log(res)
-          world_ion = res
-          startrun()
-          isDone1 = true;
-          modal.innerHTML = 'Success';
-          document.body.style.pointerEvents = 'auto';
-
-          
-          confirmBtn.textContent = 'Confirm';
-
-          confirmBtn.addEventListener('click', onConfirm);
-          modal.appendChild(confirmBtn);
-        }
-
-      })
-
-
-    })
-
-
-  }
-
+        // 发出第二个请求
+        $.post(ionurl, { 'date': date, 'resolution': density })
+            .done((res) => {
+                handleIonResponse(res);
+            })
+            .fail((err) => {
+                console.error(err);
+                showErrorModal('Request failed, please try again');
+            });
+    }
 });
+
+
+
+function handleIonResponse(res) {
+    if (res === "false") {
+        showErrorModal(`${date} ION file missing`);
+    } else {
+        console.log(res);
+        world_ion = res;
+        showSuccessModal('Calculation success');
+    }
+    startrun();
+    isDone1 = true;
+}
+
+function showErrorModal(message) {
+    modal1.innerHTML = message;
+    document.body.style.pointerEvents = 'auto';
+    confirmBtn.textContent = 'Confirm';
+    $(confirmBtn).one('click', onConfirm);
+    modal1.appendChild(confirmBtn);
+}
+
+function showSuccessModal(message) {
+    modal1.innerHTML = message;
+    document.body.style.pointerEvents = 'auto';
+    confirmBtn.textContent = 'Confirm';
+    $(confirmBtn).one('click', onConfirm);
+    modal1.appendChild(confirmBtn);
+}
 
 
 
@@ -469,8 +525,8 @@ function paintTDOP() {
       },
       tooltip: {
         position: 'top',
-        formatter: (value) => { 
-          var obj = value 
+        formatter: (value) => {
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -525,7 +581,7 @@ function paintTDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false  
+          show: false
         },
 
         axisLabel: {
@@ -534,7 +590,7 @@ function paintTDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { 
+          formatter: (value) => {
             var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
@@ -567,7 +623,7 @@ function paintTDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -575,7 +631,7 @@ function paintTDOP() {
           textStyle: {
             fontSize: 9
           },
-          formatter: (value) => { 
+          formatter: (value) => {
 
             var listData = value
             if (listData < 0) {
@@ -601,7 +657,7 @@ function paintTDOP() {
       },
       visualMap: {
 
-        itemWidth: 10,   
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -739,7 +795,7 @@ function paintVDOP() {
       tooltip: {
         position: 'top',
         formatter: (value) => {
-          var obj = value 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -796,7 +852,7 @@ function paintVDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false 
+          show: false
         },
 
         axisLabel: {
@@ -806,7 +862,7 @@ function paintVDOP() {
             fontSize: 9
           },
           formatter: (value) => {
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -822,7 +878,7 @@ function paintVDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         },
       },
@@ -838,7 +894,7 @@ function paintVDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -848,7 +904,7 @@ function paintVDOP() {
           },
           formatter: (value) => {
 
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -865,14 +921,14 @@ function paintVDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10, 
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1015,7 +1071,7 @@ function paintHDOP() {
       tooltip: {
         position: 'top',
         formatter: (value) => {
-          var obj = value 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1072,7 +1128,7 @@ function paintHDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false 
+          show: false
         },
 
         axisLabel: {
@@ -1082,7 +1138,7 @@ function paintHDOP() {
             fontSize: 9
           },
           formatter: (value) => {
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -1098,7 +1154,7 @@ function paintHDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         },
       },
@@ -1114,7 +1170,7 @@ function paintHDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -1124,7 +1180,7 @@ function paintHDOP() {
           },
           formatter: (value) => {
 
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1141,14 +1197,14 @@ function paintHDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10, 
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1292,7 +1348,7 @@ function paintPDOP() {
       tooltip: {
         position: 'top',
         formatter: (value) => {
-          var obj = value 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1349,7 +1405,7 @@ function paintPDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false 
+          show: false
         },
 
         axisLabel: {
@@ -1359,7 +1415,7 @@ function paintPDOP() {
             fontSize: 9
           },
           formatter: (value) => {
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -1375,7 +1431,7 @@ function paintPDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         },
       },
@@ -1391,7 +1447,7 @@ function paintPDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -1401,7 +1457,7 @@ function paintPDOP() {
           },
           formatter: (value) => {
 
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1418,14 +1474,14 @@ function paintPDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10, 
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1568,7 +1624,7 @@ function paintGDOP() {
       tooltip: {
         position: 'top',
         formatter: (value) => {
-          var obj = value 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1625,7 +1681,7 @@ function paintGDOP() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false 
+          show: false
         },
 
         axisLabel: {
@@ -1635,7 +1691,7 @@ function paintGDOP() {
             fontSize: 9
           },
           formatter: (value) => {
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°W'
             }
@@ -1651,7 +1707,7 @@ function paintGDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         },
       },
@@ -1667,7 +1723,7 @@ function paintGDOP() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -1677,7 +1733,7 @@ function paintGDOP() {
           },
           formatter: (value) => {
 
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1694,14 +1750,14 @@ function paintGDOP() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10, 
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -1845,7 +1901,7 @@ function paintnums() {
       tooltip: {
         position: 'top',
         formatter: (value) => {
-          var obj = value 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
           y = 90 - y * density
@@ -1905,7 +1961,7 @@ function paintnums() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false 
+          show: false
         },
 
         axisLabel: {
@@ -1916,7 +1972,7 @@ function paintnums() {
             fontSize: 9
           },
           formatter: (value) => {
-            var listData = value 
+            var listData = value
 
 
             if (value == -180) {
@@ -1947,7 +2003,7 @@ function paintnums() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         },
       },
@@ -1963,7 +2019,7 @@ function paintnums() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -1973,7 +2029,7 @@ function paintnums() {
           },
           formatter: (value) => {
 
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -1990,14 +2046,14 @@ function paintnums() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10, 
+        itemWidth: 10,
         itemHeight: 60,
         min: vmin,
         max: vmax,
@@ -2035,8 +2091,8 @@ function paintnums() {
 function painionmap() {
   var vmin = 10;
   var vmax = 2;
-  // var density=$('#density').val();
-  // density=Math.floor(density)
+  var density=$('#density').val();
+  density=Math.floor(density)
   var bd = 180 / density + 1
   var ld = 360 / density + 1
   var heatmap1 = echarts.init(document.querySelector(".ionmap .chart"));
@@ -2063,46 +2119,41 @@ function painionmap() {
 
   //  }
 
-  var data1 = []
-  var k = 0
-  var z = 36
-  var jj = 90
-  for (var i = 0; i < 37; i++) {
-    var zz = -180
-    for (var j = 0; j < 73; j++) {
-      if (i == 0) {
-        data1.push([j, z, NaN])
+  var data1 = [];
+  var k = 0;
+  var z = bd - 1;
+  var jj = 90;
+  for (var i = 0; i < bd; i++) {
+      var zz = -180;
+      for (var j = 0; j < ld; j++) {
+          if (i == 0) {
+              data1.push([j, z, NaN]);
+          } else {
+              if (!window.world_ion[timeid][k] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
+                  data1.push([j, z, NaN]);
+              } else {
+                  data1.push([j, z, parseFloat(world_ion[timeid][k]).toFixed(2)]);
+              }
+              k += 1;
+          }
+          zz = zz + density;
       }
-      else {
-        if (!window.world_ion[timeid][k] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
-          data1.push([j, z, NaN])
-        }
-        else {
-          data1.push([j, z, parseFloat(world_ion[timeid][k]).toFixed(2)])
-        }
-        k += 1
-      }
-
-      zz = zz + 5
-      // console.log(k,timeid,str1)
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
-
-    }
-    // console.log(k)
-    z = z - 1
-    jj -= 5
+      z = z - 1;
+      jj -= density;
   }
-  var lon = []
-  d = -180
-  for (var i = 0; i < 73; i++) {
-    lon.push(d)
-    d = d + 5
+
+  var lon = [];
+  var d = -180;
+  for (var i = 0; i < ld; i++) {
+      lon.push(d);
+      d = d + density;
   }
-  var lat = []
-  d = 90
-  for (var i = 0; i < 37; i++) {
-    lat.push(d)
-    d = d - 5
+
+  var lat = [];
+  d = 90;
+  for (var i = 0; i < bd; i++) {
+      lat.push(d);
+      d = d - density;
   }
 
   // console.log(Math.floor((lon.length-1)/2-2)/2)
@@ -2149,10 +2200,10 @@ function painionmap() {
       tooltip: {
         position: 'top',
         formatter: (value) => {
-          var obj = value 
+          var obj = value
           var name = obj.seriesName
           var y = obj.value[1]
-          y = 90 - y * 5
+          y = 90 - y * density
 
           if (y < 0) {
             y = Math.abs(y) + '°N'
@@ -2164,7 +2215,7 @@ function painionmap() {
             y = Math.abs(y) + '°S'
           }
           var x = obj.value[0]
-          x = -180 + x * 5
+          x = -180 + x * density
           if (x < 0) {
             x = Math.abs(x) + '°W'
           }
@@ -2208,7 +2259,7 @@ function painionmap() {
         nameLocation: 'center',
         data: lon,
         axisTick: {
-          show: false 
+          show: false
         },
 
         axisLabel: {
@@ -2219,7 +2270,7 @@ function painionmap() {
             fontSize: 9
           },
           formatter: (value) => {
-            var listData = value 
+            var listData = value
 
             if (value == -180) {
               listData = '180°W'
@@ -2249,7 +2300,7 @@ function painionmap() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         },
       },
@@ -2265,7 +2316,7 @@ function painionmap() {
         left: 0,
         data: lat,
         axisTick: {
-          show: false 
+          show: false
         },
         axisLabel: {
           color: "white",
@@ -2275,7 +2326,7 @@ function painionmap() {
           },
           formatter: (value) => {
 
-            var listData = value 
+            var listData = value
             if (listData < 0) {
               listData = Math.abs(listData) + '°N'
             }
@@ -2292,14 +2343,14 @@ function painionmap() {
         axisLine: {
 
           lineStyle: {
-            color: 'white', 
+            color: 'white',
           },
         }
 
       },
       visualMap: {
 
-        itemWidth: 10, 
+        itemWidth: 10,
         itemHeight: 60,
         min: 0,
         max: vmax,
@@ -2404,7 +2455,7 @@ function picktypediv() {
   id = $("input[name='picktype']:checked").val();
 
   if (id == 'World') {
-    
+
     stoprun2()
     viewer.dataSources.removeAll()
     document.getElementsByClassName("world")[0].style.display = 'block';
@@ -2428,11 +2479,11 @@ function picktypediv() {
     startrun();
     if (rectangleEntity) {
       viewer.entities.remove(rectangleEntity);
-      
+
     }
   }
   if (id == 'area') {
-    
+
     stoprun2()
     viewer.dataSources.removeAll()
     document.getElementsByClassName("world")[0].style.display = 'block';
@@ -2507,19 +2558,18 @@ calcBtn.addEventListener('click', () => {
   var siteheight = $('#site_h').val();
   var date = $('#site_datepick').val();
   var pickp = $('#pickp').val();
-  // var url = $('#urlpick').val();
-  // alert(url)
-  // var url = '/paintchart'
+  var ionModel = $('#ionModel_site').val();
+
   var satname = satpick()
-  // console.log(pickp)
+
   var name = document.getElementById("site_name").value
 
   if (alt < 0 || alt > 90 || alt == '') {
-    // alert('Error ! Input range 0-90 °')
+
     isDone = true;
     modal.innerHTML = 'Error ! Input range 0-90 °';
     document.body.style.pointerEvents = 'auto';
-    
+
     confirmBtn.textContent = 'Confirm';
 
     confirmBtn.addEventListener('click', onConfirm);
@@ -2532,11 +2582,11 @@ calcBtn.addEventListener('click', () => {
 
     $.post(url, { 'alt': alt, 'height': siteheight, 'lon': lon, 'lat': lat, 'date': date, 'satname': JSON.stringify(satname), 'pickp': pickp }, function (res) {
       if (res == "false") {
-    
+
         isDone = true;
         modal.innerHTML = date + 'lack ephemeris file';
         document.body.style.pointerEvents = 'auto';
-        
+
         confirmBtn.textContent = 'Confirm认';
 
         confirmBtn.addEventListener('click', onConfirm);
@@ -2547,8 +2597,8 @@ calcBtn.addEventListener('click', () => {
         var infochart = echarts.init(document.querySelector(".distribution_map .chart"));
         infochart.clear();
         paintmap2();
-        var url2 = '/ion'
-        $.post(url2, { 'lon': lon, 'lat': lat, 'date': date }, function (res) {
+        var ionurl = ionModel === 'bdgim' ? '/siteion_bdgim' : '/siteion_igsgim';
+        $.post(ionurl, { 'lon': lon, 'lat': lat, 'date': date }, function (res) {
           // console.log(res)
           if (res == "false") {
             alert(date + 'lack ION file')
@@ -2577,7 +2627,7 @@ calcBtn.addEventListener('click', () => {
         isDone = true;
         modal.innerHTML = 'Success';
         document.body.style.pointerEvents = 'auto';
-        
+
         confirmBtn.textContent = 'Confirm';
 
         confirmBtn.addEventListener('click', onConfirm);
@@ -2739,7 +2789,7 @@ function painalt(sat, xdata) {
 
   var tooltipdata = {
     formatter: (value) => {
-      var obj = value 
+      var obj = value
       var time = obj.name
       var title = year + '/' + month + '/' + day + '/' + time
       var name = obj.seriesName
@@ -2766,7 +2816,7 @@ function painalt(sat, xdata) {
     },
     axisLine: {
       lineStyle: {
-        color: 'white', 
+        color: 'white',
       },
     },
     axisLabel: {
@@ -2816,7 +2866,7 @@ function painalt(sat, xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
     },
@@ -2870,7 +2920,7 @@ function painnums(xdata) {
   seriesdata.push(s)
   var tooltipdata = {
     formatter: (value) => {
-      var obj = value[0] 
+      var obj = value[0]
       var time = obj.name
       var title = year + '/' + month + '/' + day + '/' + time
       console.log(title)
@@ -2898,7 +2948,7 @@ function painnums(xdata) {
     },
     axisLine: {
       lineStyle: {
-        color: 'white', 
+        color: 'white',
       },
     },
     axisLabel: {
@@ -2959,7 +3009,7 @@ function painnums(xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
     },
@@ -3112,7 +3162,7 @@ function painDOP(xdata) {
     },
     axisLine: {
       lineStyle: {
-        color: 'white', 
+        color: 'white',
       },
     },
     axisLabel: {
@@ -3177,7 +3227,7 @@ function painDOP(xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
     },
@@ -3346,7 +3396,7 @@ function painvisibility(sat, xdata) {
     },
     axisLine: {
       lineStyle: {
-        color: 'white', 
+        color: 'white',
       },
     }
 
@@ -3407,7 +3457,7 @@ function painvisibility(sat, xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
     },
@@ -3526,7 +3576,7 @@ function painAccuracy(xdata) {
     },
     axisLine: {
       lineStyle: {
-        color: 'white', 
+        color: 'white',
       },
     },
     axisLabel: {
@@ -3589,7 +3639,7 @@ function painAccuracy(xdata) {
       axisLine: {
 
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
     },
@@ -3674,7 +3724,7 @@ function painionosphereInfo(ion_info) {
     },
     tooltip: {
       formatter: (value) => {
-        var obj = value[0] 
+        var obj = value[0]
         var time = obj.name
         var title = year + '/' + month + '/' + day + '/' + time
 
@@ -3710,7 +3760,7 @@ function painionosphereInfo(ion_info) {
       axisLine: {
 
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
     },
@@ -3738,7 +3788,7 @@ function painionosphereInfo(ion_info) {
       },
       axisLine: {
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       }
     },
@@ -3988,7 +4038,7 @@ function paindistribution_map() {
       axisLine: {
         // show: false
         lineStyle: {
-          color: 'white', 
+          color: 'white',
         },
       },
       axisLabel: {
@@ -4018,59 +4068,74 @@ function paindistribution_map() {
 }
 
 var c2 = 0;
-var t2;
-var timer_is_on2 = 0;
+var timer2 = null;
+var timerIsOn2 = false;
+var isDragging2 = false;
+
 function timedCount2() {
-  document.getElementById("timerange2").value = c2;
-  paindistribution_map();
-  // console.log(station)
-  var j = 0
-  var snums = []
-  for (var i in station) {
-    snums[j] = station[i]['counts']
-    j += 1
-  }
-  document.getElementById("snums").value = snums[c2];
-  c2 = c2 + 1;
-  t2 = setTimeout(function () { timedCount2() }, 1000);
-  if (c2 > 96) { c2 = 0 }
+    if (!isDragging2) {
+        document.getElementById("timerange2").value = c2;
+    }
+    paindistribution_map();
+
+    var j = 0;
+    var snums = [];
+    for (var i in station) {
+        snums[j] = station[i]['counts'];
+        j += 1;
+    }
+    document.getElementById("snums").value = snums[c2];
+    c2 = (c2 + 1) % 97; // Wrap around 96 to 0
+
+    timer2 = setTimeout(timedCount2, 1000);
 }
+
 function startrun2() {
-  viewer.clock.shouldAnimate = true;
-  if (!timer_is_on2) {
-    timer_is_on2 = 1;
-    timedCount2();
-  }
+    viewer.clock.shouldAnimate = true;
+    if (!timerIsOn2) {
+        timerIsOn2 = true;
+        timedCount2();
+    }
 }
+
 function stoprun2() {
-  viewer.clock.shouldAnimate = false;
-  clearTimeout(t2);
-  timer_is_on2 = 0;
+    viewer.clock.shouldAnimate = false;
+    clearTimeout(timer2);
+    timerIsOn2 = false;
 }
 
+document.getElementById('timerange2').addEventListener('mousedown', function() {
+    isDragging2 = true;
+});
 
-var c = 0;
-var t;
-var timer_is_on = 0;
-function timedCount() {
-  document.getElementById("timerange").value = c;
-  paintmap();
-  c = c + 1;
-  t = setTimeout(function () { timedCount() }, 1000);
-  if (c > 23) { c = 0 }
-}
-function startrun() {
-  viewer.clock.shouldAnimate = true;
-  if (!timer_is_on) {
-    timer_is_on = 1;
-    timedCount();
-  }
-}
-function stoprun() {
-  viewer.clock.shouldAnimate = false;
-  clearTimeout(t);
-  timer_is_on = 0;
-}
+document.getElementById('timerange2').addEventListener('mouseup', function() {
+    isDragging2 = false;
+    c2 = parseInt(document.getElementById('timerange2').value);
+    paindistribution_map();
+    var j = 0;
+    var snums = [];
+    for (var i in station) {
+        snums[j] = station[i]['counts'];
+        j += 1;
+    }
+    document.getElementById("snums").value = snums[c2];
+});
+
+document.getElementById('timerange2').addEventListener('input', function() {
+    if (isDragging2) {
+        c2 = parseInt(this.value);
+        paindistribution_map();
+        var j = 0;
+        var snums = [];
+        for (var i in station) {
+            snums[j] = station[i]['counts'];
+            j += 1;
+        }
+        document.getElementById("snums").value = snums[c2];
+    }
+});
+
+
 
 
 
@@ -4723,7 +4788,10 @@ function downloadChartImage(chartSelector) {
     });
 
     // 恢复原始配置
-    chartInstance.setOption(originalOption);
+    if (parentClass.includes('onesat')){
+      chartInstance.setOption(originalOption);
+    }
+    // chartInstance.setOption(originalOption);
 
     var link = document.createElement('a');
     link.href = url;

@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/x-icon" href="../static/images/icon/app.ico">
   <title>BDViSim</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-
+  <script src="../static/libs/Cesium/Cesium.js"></script>
+  <link href="../static/libs/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <script src="../static/libs/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script>
   <script type="text/javascript" src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -100,7 +100,7 @@ border-bottom: 2px solid #02a6b5;
 border-right: 2px solid #02a6b5;
 }
 .element {
-  transform: translateZ(0); 
+  transform: translateZ(0);
   will-change: transform;
 }
   </style>
@@ -173,7 +173,7 @@ border-right: 2px solid #02a6b5;
               <ul class="hide">
                   <li><a href="#">中文</a></li>
                   <li><a href="/orbitcalen">English</a></li>
-  
+
               </ul>
           </li>
         </ul>
@@ -551,7 +551,7 @@ border-right: 2px solid #02a6b5;
               <input type="date" id="datepick" name="trip-start" value=""   onchange="timeset()"
               style=" font-size: 15px; font-family: electronicFont;background-color: rgba(46, 100, 131, 0.388);top:2px;">
               <label style="color:rgb(255, 255, 255);display: none;">开始时间:</label>
-              <input id="objtime" value="" style="width:130px;margin-right: 10px;display: none;" disabled="disabled">    
+              <input id="objtime" value="" style="width:130px;margin-right: 10px;display: none;" disabled="disabled">
               <label style="color:rgb(255, 255, 255);display: none;">结束时间:</label>
               <input id="endtime" value="" style="width:130px;margin-right: 10px;display: none;" disabled="disabled">
 
@@ -593,14 +593,14 @@ border-right: 2px solid #02a6b5;
           <div class="chart" style="height: 100%;">
             <div id="div5" style="padding:1px;margin-left: 10px; height:460px;">
               <span style="width:400px;margin:0px; ">
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r1" name="a" value="text1"
-                  type="radio" checked="true" onclick="show1()">
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r1" name="a" value="text1" type="radio" checked="true" onclick="showPanel('text1')">
                 <label id="cl1" style="color:#ffffff;">轨道坐标</label></input>
 
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r3" name="a"
-                  value="chart2" type="radio" onclick="show1()">
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r3" name="a" value="chart2" type="radio" onclick="showPanel('chart2')">
                 <label id="cl3" style="color:#ffffff;">误差序列</label></input>
-                
+
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r4" name="a" value="clock_bias" type="radio" onclick="showPanel('clock_bias')">
+                <label id="cl4" style="color:#ffffff;">钟差</label></input>
               </span>
 
               <textarea id="text1" class="stext"
@@ -632,8 +632,26 @@ border-right: 2px solid #02a6b5;
                 <div id="gap_chart3" style="display:block; width:650px; height: 380px;">
                 </div>
               </div>
-              <button id="downtext" style="cursor: pointer; color: #ffffff;float: right;align-items: center;margin-right: 25px;margin-top: 5px;background-color: #575f6460;" onclick="downresult()">导出文本</button>
+              <div id="clock_bias" style="display:none;width:650px; height: 400px; background-color: rgba(168, 166, 166, 0.5); color: #ffffff;">
+                <div style="color: #020202;font-size: 13px;position: absolute;z-index: 999;width:650px;margin-bottom: 10px;">
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;"  name="cb" value="cb_textarea" type="radio" checked="true" onclick="showClockBiasPanel('cb_textarea')">
+                  <label for="cb_text" style="color:#ffffff;">钟差</label></input>
+
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;"  name="cb" value="clock_bias_chart" type="radio" onclick="showClockBiasPanel('clock_bias_chart')">
+                  <label for="clock_bias_chart" style="color:#ffffff;">钟差误差</label></input>
+                </div>
+                <br/>
+
+                  <textarea id="cb_textarea" class="stext" style="border: none;width:650px; height: 380px; overflow:scroll; background-color: rgba(141, 151, 180, 0.21); color: #ffffff;" wrap="off"></textarea>
+
+                  <div id="clock_bias_chart" style="display:none; width:650px; height: 350px;">
+                    <!-- <div style="width: 100%; height: 100%;" id="clock_bias_chart"></div> -->
+                  </div>
+              </div>
+              <button id="downtext" style="cursor: pointer; color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;" onclick="downresult()">导出文本</button>
               <button id="btndownchart" style="cursor: pointer;color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;" onclick="jiequ()">导出图片</button>
+              <button id="downclocktext" style="cursor: pointer; color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;" onclick="downClockText()">导出文本</button>
+              <button id="downclockchart" style="cursor: pointer;color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;" onclick="downClockChart()">导出图片</button>
             </div>
           </div>
           <div class="panel-footer"></div>
@@ -720,8 +738,8 @@ border-right: 2px solid #02a6b5;
         </div>
         <div class="panel SP3">
           <h2 style="font-size: 14px;">精密星历参数</h2>
-          <div class="chart" style="transform: translateZ(0);">            
-            <div style="padding-left: 3px;transform: translateZ(0);">      
+          <div class="chart" style="transform: translateZ(0);">
+            <div style="padding-left: 3px;transform: translateZ(0);">
               <table style="color: #ffffff;font-size: 10px;transform: translateZ(0);">
                 <tr>
                   <td id="td_t1" style=" text-align: center;">时间</td>
@@ -738,7 +756,7 @@ border-right: 2px solid #02a6b5;
                   <td id="td_g" style="font-family: electronicFont; text-align: center;width: 30px;"></td>
                 </tr>
               </table>
-            </div>            
+            </div>
           </div>
           <div class="panel-footer"></div>
         </div>
@@ -747,7 +765,7 @@ border-right: 2px solid #02a6b5;
     </section>
 
 
-  
+
 
   </div>
 
@@ -756,7 +774,7 @@ border-right: 2px solid #02a6b5;
 
   </div>
   <dialog id="modal">
-    <p>计算中...</p> 
+    <p>计算中...</p>
     <div class="panel-footer"></div>
   </dialog>
 </head>

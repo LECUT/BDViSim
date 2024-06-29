@@ -15,6 +15,35 @@ import unlzw3
 from pathlib import Path
 import gzip
 import requests
+import pandas as pd
+import re
+import BDGIM
+def parse_tle(lines0,lines1,lines2):
+    inclination = float(lines2[8:16])
+    mean_motion = float(lines2[52:63])
+    eccentricity = float("0." + lines2[26:33])  # 离心率
+    return inclination, mean_motion, eccentricity
+
+def calculate_orbit_height(mean_motion):
+    mu = 398600  # 地球的标准引力参数，单位 km^3/s^2
+    T = 1440 / mean_motion  # 轨道周期，单位分钟
+    a = ((T * 60) ** 2 * mu / (4 * m.pi ** 2)) ** (1 / 3)  # 轨道半长轴，单位 km
+    h = a - 6371  # 轨道高度，单位 km
+    return h
+
+def determine_orbit_type(inclination, orbit_height, eccentricity):
+    if orbit_height < 3000:
+        orbit_type = "Low Earth Orbit (LEO)"
+    elif 3000 <= orbit_height < 35786:
+        orbit_type = "Medium Earth Orbit (MEO)"
+    elif orbit_height >= 35786 * 0.95 and orbit_height <= 35786 * 1.05:
+        if inclination < 5:
+            orbit_type = "Geosynchronous Orbit (GEO)"
+        else:
+            orbit_type = "Inclined Geosynchronous Orbit (IGSO)"
+    else:
+        orbit_type = "Highly Elliptical Orbit (HEO)"
+    return orbit_type
 def dops(az, el, elmin,P):
     """ calculate DOP from az/el """
     nm = az.shape[0]
@@ -730,6 +759,7 @@ def rinexcal(nfile_lines,obj_time):
                                       "X_k": '%.12f' % X_k,
                                       "Y_k": '%.12f' % Y_k,
                                       "Z_k": '%.12f' % Z_k,
+                                      'ct': δt
                                       }
 
 
@@ -931,7 +961,8 @@ def rinexcal2(nfile_lines,obj_time,tstep):
                                       "Y_k": '%.12f' % Y_k,
                                       "Z_k": '%.12f' % Z_k,
                                       "sv_accu": sv_accu,
-                                      "time":epochtime
+                                      "time":epochtime,
+                                        'ct': δt
                                       }
     for j in range(n_data_lines_nums):
         n_dic = {}
@@ -1185,6 +1216,7 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             t_k = 0
         else:
             δt = a_0 + a_1 * (t1 - TOE) + a_2 * (t1 - TOE) * (t1 - TOE)
+            # print(δt)
 
             t = t1 - δt
 
@@ -1204,13 +1236,16 @@ def rinexcal3(nfile_lines,obj_time,tstep):
             if count > 1e8:
                 print("Not convergent!")
                 break
-
+        # 偏近点角变率
+        dE=n/(1-e*m.cos(E))
         # 5
         V_k = m.atan2((m.sqrt(1 - (e * e)) * m.sin(E)), (m.cos(E) - e))
 
-        # 6
+        # 6 phi k
         u_0 = V_k + w
-
+        # u_0变率
+        du_0=(m.sqrt(1+e)/m.sqrt(1-e))*(m.cos(V_k/2)**2/m.cos(E/2)**2)*dE
+        du_0=(m.sqrt(1-e*e)*dE)/(1-e*m.cos(E))
         # 7
         δu = C_uc * m.cos(2 * u_0) + C_us * m.sin(2 * u_0)
         δr = C_rc * m.cos(2 * u_0) + C_rs * m.sin(2 * u_0)
@@ -1218,38 +1253,68 @@ def rinexcal3(nfile_lines,obj_time,tstep):
 
         # 8
         u = u_0 + δu
+        # u变率
+        du=(1+2*C_us*m.cos(2*u_0)-2*C_uc*m.sin(2*u_0))*du_0
         r = m.pow(sqrt_A, 2) * (1 - e * m.cos(E)) + δr
+        # r变率
+        dr=dE*m.pow(sqrt_A, 2)*e*m.sin(E)+2*(C_rs*m.cos(2*u_0)-C_rc*m.sin(2*u_0))*du_0
         i = I_0 + δi + IDOT * (t_k);
+        # i变率
+        di=2*(C_is*m.cos(2*u_0)*C_ic*m.sin(2*u_0))*du_0+i
 
-        # 9
+        # 9轨道面坐标
         x_k = r * m.cos(u)
         y_k = r * m.sin(u)
+        # 轨道面速度
+        dx_k=dr*m.cos(u)-du*r*m.sin(u)
+        dy_k=dr*m.sin(u)+du*r*m.cos(u)
         omega_e = 7.2921150e-5
         if PRN == 'C01' or PRN == 'C02' or PRN == 'C03' or PRN == 'C04' or PRN == 'C05' or PRN == 'C59' or PRN == 'C60' or PRN == 'C61' or PRN == 'C62':
             # 10
             OMEGA_k = OMEGA + OMEGA_DOT * t_k - omega_e * TOE;
-
+            # dOMEGA_k
+            dOMEGA_k=OMEGA_DOT
             # 11
             X_k1 = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k1 = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k1 = (y_k * m.sin(i))
+            # 速度1
+            dX_k1=dx_k*m.cos(OMEGA_k)-dy_k*m.sin(OMEGA_k)*m.cos(i)+di*y_k*m.sin(OMEGA_k)*m.sin(i)-(x_k*m.sin(OMEGA_k)+y_k*m.cos(OMEGA_k)*m.cos(i))*dOMEGA_k
+            dY_k1=dx_k*m.sin(OMEGA_k)+dy_k*m.cos(OMEGA_k)*m.cos(i)-di*y_k*m.cos(OMEGA_k)*m.sin(i)+(x_k*m.cos(OMEGA_k)-y_k*m.sin(OMEGA_k)*m.cos(i))+dOMEGA_k
+            dZ_k1=dy_k*m.sin(i)+di*y_k*m.cos(i)
+
             X_k = X_k1 * m.cos(omega_e * t_k) + Y_k1 * m.sin(omega_e * t_k) * m.cos(m.radians(-5)) + Z_k1 * m.sin(
                 omega_e * t_k) * m.sin(m.radians(-5))
             Y_k = -(X_k1 * m.sin(omega_e * t_k)) + Y_k1 * m.cos(omega_e * t_k) * m.cos(
                 m.radians(-5)) + Z_k1 * m.cos(omega_e * t_k) * m.sin(m.radians(-5))
             Z_k = -(Y_k1 * m.sin(m.radians(-5))) + Z_k1 * m.cos(-(5 * m.pi / 180))
-
+            # 最终速度
+            Rx=[[1,0,0],
+                [0,m.cos(m.radians(-5)),m.sin(m.radians(-5))],
+                [0,-m.sin(m.radians(-5)),m.cos(m.radians(-5))]]
+            Rz=[[m.cos(m.radians(-5)),m.sin(m.radians(-5)),0],
+                [-m.sin(m.radians(-5)),m.cos(m.radians(-5)),0],
+                [0,0,1]]
+            dRz=[[-m.sin(omega_e * t_k)*omega_e,m.cos(omega_e * t_k)*omega_e,0],
+                 [-m.cos(omega_e * t_k)*omega_e,-m.sin(omega_e * t_k)*omega_e,0],
+                 [0,0,1]]
+            velocity=np.dot(np.dot(dRz, Rx), [[X_k1],[Y_k1],[Z_k1]])+np.dot(np.dot(Rz, Rx),[[dX_k1],[dY_k1],[dZ_k1]])
         else:
             # 10
 
             OMEGA_k = OMEGA + (OMEGA_DOT - omega_e) * t_k - omega_e * TOE;
-
+            dOMEGA_k=OMEGA_DOT-omega_e
             # 11
             X_k = (x_k * m.cos(OMEGA_k) - y_k * m.cos(i) * m.sin(OMEGA_k))
             Y_k = (x_k * m.sin(OMEGA_k) + y_k * m.cos(i) * m.cos(OMEGA_k))
             Z_k = (y_k * m.sin(i))
-
-
+            dX_k = dx_k * m.cos(OMEGA_k) - dy_k * m.sin(OMEGA_k) * m.cos(i) + di * y_k * m.sin(OMEGA_k) * m.sin(i) - (
+                        x_k * m.sin(OMEGA_k) + y_k * m.cos(OMEGA_k) * m.cos(i)) * dOMEGA_k
+            dY_k = dx_k * m.sin(OMEGA_k) + dy_k * m.cos(OMEGA_k) * m.cos(i) - di * y_k * m.cos(OMEGA_k) * m.sin(i) + (
+                        x_k * m.cos(OMEGA_k) - y_k * m.sin(OMEGA_k) * m.cos(i)) + dOMEGA_k
+            dZ_k = dy_k * m.sin(i) + di * y_k * m.cos(i)
+            velocity=[[dX_k],[dY_k],[dZ_k]]
+        # print(velocity)
         if month > 12:
             year = year + 1
             month = month - 12
@@ -1279,6 +1344,10 @@ def rinexcal3(nfile_lines,obj_time,tstep):
                                       "X_k": '%.12f' % X_k,
                                       "Y_k": '%.12f' % Y_k,
                                       "Z_k": '%.12f' % Z_k,
+                                      'vx':float(velocity[0][0]),
+                                      'vy':float(velocity[1][0]),
+                                      'vz':float(velocity[2][0]),
+                                      'ct':δt
                                       }
 
 
@@ -1426,6 +1495,13 @@ def sp3cal(nfile_lines, obj_time):
 def sp3cal2(nfile_lines, obj_time):
     satellite_info3 = {}
     # print(nfile_lines)
+    #*** PCO repair
+    dfsat = pd.read_excel('BDSPCO.xlsx')
+    sat_data={}
+    for i in range(43):
+        # print(dfsat.iloc[i])
+        sat_data[dfsat.iloc[i]['PRN']]=[dfsat.iloc[i]['PCO B3 X'],dfsat.iloc[i]['PCO B3 Y'],dfsat.iloc[i]['PCO B3 Z']]
+    #*** PCO repair
     for i in range(len(nfile_lines)):
         if (nfile_lines[i].startswith('*') == True):
             start_num = i
@@ -1466,28 +1542,85 @@ def sp3cal2(nfile_lines, obj_time):
             x = float(content[5:19]) * 1000
             y = float(content[19:33]) * 1000
             z = float(content[33:47]) * 1000
+            # PCO repair
+            if satname in sat_data:
+                x+=sat_data[satname][0]
+                y += sat_data[satname][1]
+                z += sat_data[satname][2]
             GAP = float(content[47:60])
             satellite_info3[satname][time0] = ['%.12f' % x, '%.12f' % y, '%.12f' % z, GAP, time1]
 
     return satellite_info3
 def ioncal(nfile_lines, obj_time):
-    ion_info={}
-    inx = ionex.reader(nfile_lines)
-    t = 0
-    for ionex_map in inx:
+    # 获取请求中的参数
+    # exdate = request.form['date']
+    resolution = 5  # 空间分辨率，例如：2.5表示2.5度
+    # obj_time = datetime.datetime(int(exdate.strip()[0:4]), int(exdate.strip()[5:7]), int(exdate.strip()[8:10]), 0, 0)
+    # date = str(exdate)
+
+    # 检查并读取RINEX文件
+    date_str = str(obj_time.date())
+    rinexfile = f'./static/Rinex/{date_str}.rx'
+    if os.path.exists(rinexfile):
+        with open(rinexfile, 'r') as f:
+            nfile_lines = f.readlines()
+    else:
+        # 如果文件不存在，调用函数下载并再次尝试读取
+        rinexget(obj_time)
+        if os.path.exists(rinexfile):
+            with open(rinexfile, 'r') as f:
+                nfile_lines = f.readlines()
+        else:
+            return 'RINEX file not found', 404
+
+    # 初始化结果数据结构
+    ion_info = {}
+
+    # 定义全球网格，使用 numpy 生成符合 resolution 的网格点
+    lons = np.arange(-180, 180.1, resolution)
+    lats = np.arange(-90, 90.1, resolution)
+    print(lons,lats)
+    for i in range(97):  # 计算一天内每15分钟的数据，共97个时间点
+        caltime = obj_time + datetime.timedelta(minutes=15 * i)
+        # 定义非广播电离层参数
+        nonBrdData = BDGIM.NonBrdIonData()
+        # 定义广播电离层参数
+        brdData = BDGIM.BrdIonData()
+        # 定义时间参数
+        year = caltime.year
+        month = caltime.month
+        day = caltime.day
+        hour = caltime.hour
+        minute = caltime.minute
+        second = 0
+
+        # 转换时间为MJD
+        mjd = BDGIM.UTC2MJD(year, month, day, hour, minute, second)[0]
+
+        # 解析RINEX数据
+        brdPara, svid_list = BDGIM.parse_rinex(nfile_lines, caltime)
+
+        # 使用与原始代码相同的格式生成 timeid
+        timeid = f"{caltime.year}{caltime.month}{caltime.day}{caltime.hour:02}00"
+        ion_info[timeid] = {}
         tec = []
-        time=obj_time+datetime.timedelta(hours=t)
-        k=0
-        kk=1
-        for p in range(2482):
-            tec.append(ionex_map.tec[k+kk*73])
-            while k==73:
-                k=0
-                kk+=2
-            k+=1
-        t+=1
-        timeid=str(time.year)+str(time.month)+str(time.day)+str(time.isoformat().strip()[11:13])+'00'
+        for lat in lats:
+            for lon in lons:
+
+                # 定义站点和卫星的坐标
+                staxyz = pm.geodetic2ecef(lat, lon, 0)
+                sta_xyz = [staxyz[0], staxyz[1], staxyz[2]]
+                upxyz = pm.geodetic2ecef(lat, lon, 20000)
+                sat_xyz = [upxyz[0], upxyz[1], upxyz[2]]
+
+                # 调用IonBdsBrdModel函数计算电离层延迟
+                ion_delay, vtec = BDGIM.IonBdsBrdModel(nonBrdData, brdData, mjd, sta_xyz, sat_xyz, brdPara)
+
+                # 存储结果
+                tec.append(vtec)
+                # print('lon:', str(lon), 'lat:', str(lat),'tec:',str(vtec))
         ion_info[timeid] = tec
+    # return jsonify(ion_info)
     with open('./static/json/ion_info.json', 'w') as f:
         dump(ion_info, f)
 def ioncal2(nfile_lines, obj_time):
@@ -1643,7 +1776,8 @@ def tlecal3(content, obj_time,tstep):
                     second=time_map3['second']
                 )
                 x, y, z = pm.eci2ecef(position2[0] * 1000, position2[1] * 1000, position2[2] * 1000, next_time3)
-
+                # print(velocity2)
+                vx,vy,vz=pm.eci2ecef(velocity2[0] * 1000,velocity2[1] * 1000,velocity2[2] * 1000, next_time3)
                 orbit_info.update({
                     name: {
                         'norda': line1[2:7],
@@ -1670,6 +1804,9 @@ def tlecal3(content, obj_time,tstep):
                                                     "x": '%.12f' % float(x),
                                                     "y": '%.12f' % float(y),
                                                     "z": '%.12f' % float(z),
+                                                    'vx':float(vx),
+                                                    'vy': float(vy),
+                                                    'vz': float(vz)
                                                     }
                 next_time2 = next_time2 + datetime.timedelta(minutes=tstep)
                 next_time3 = next_time3 + datetime.timedelta(minutes=tstep)
@@ -2549,6 +2686,27 @@ def closedata(obj_time,objpath):
 
     print(f"Closest available date is {closest_date}")
     return closest_date
+# for yuma
+def closedata2(obj_time,objpath):
+    all_dates=[]
+    folder_path = objpath
+    all_files = os.listdir(folder_path)
+    for file_name in all_files:
+        file_path = os.path.join(folder_path, file_name)
+        if os.path.isfile(file_path):
+            date_str = file_name[:-6]
+            all_dates.append(date_str)
+    closest_date = None
+    closest_delta = None
+
+    for date in all_dates:
+        current_delta = abs(obj_time - datetime.datetime.strptime(date, '%Y-%m-%d'))
+        if closest_delta is None or current_delta < closest_delta:
+            closest_date = date
+            closest_delta = current_delta
+
+    print(f"Closest available date is {closest_date}")
+    return closest_date
 def rinexget(obj_time):
     NYR=obj_time
     days=(NYR-datetime.datetime(NYR.year,1,1)).days+1
@@ -2704,3 +2862,230 @@ def gettle():
             f.write(r.content)
         f.close()
         print('tle定时爬取成功')
+
+def generalorbits(SatType,filepath):
+    date = datetime.datetime.now()
+    # gettle()
+    # closedate = closedata(date, './static/tle')
+    file = filepath
+    print(file)
+    with open(file, 'rt') as f:
+        if f == 0:
+            print("can not open file")
+        else:
+            print("success")
+        content = f.readlines()  #
+        f.close()
+    j = 0
+    doc = []
+    # define header
+    begin2 = str((datetime.datetime.now()).isoformat())
+    end2 = str((datetime.datetime.now() + datetime.timedelta(hours=24)).isoformat())
+    header = {
+        'id': "document",
+        "version": "1.0",
+        # 'name': name,
+        "clock": {
+            # "currentTime": begin2,
+            "multiplier": 1,
+            "range": "LOOP_STOP",
+            "step": "SYSTEM_CLOCK_MULTIPLIER",
+            "interval": '{}/{}'.format(begin2, end2),
+
+        }
+    }
+    doc.append(header)
+    # 轨道颜色
+    colorRGB={}
+    colorRGB['IGSO']=[255, 0, 255, 255]
+    colorRGB['GEO'] = [255, 69, 0, 255]
+    colorRGB['MEO'] = [0, 255, 255, 255]
+    colorRGB['LEO'] = [250,0, 200, 128]
+
+    while (j < len(content) - 1):
+        name = content[j].strip()
+
+        # textname = name[-4:-1]
+        textname = name
+        # print(textname)
+        line1 = content[j + 1]
+        line2 = content[j + 2]
+        # 解析TLE数据
+        inclination, mean_motion, eccentricity = parse_tle(name,line1,line2)
+        # 计算轨道高度
+        orbit_height = calculate_orbit_height(mean_motion)
+        # 判断轨道类型
+        orbit_type = determine_orbit_type(inclination, orbit_height, eccentricity)
+        # print(line1)
+        # gap = 1. / float(line2[52:63]) * 24 * 60 * 60 / 360
+
+        satellite = twoline2rv(line1, line2, wgs84)
+        # 计算轨道周期
+        mean_motion = satellite.no_kozai  # 单位为弧度/分钟
+        orbital_period = 86400 / (mean_motion * (1440 / (2 * 3.141592653589793)))
+        now_time = datetime.datetime.now() - datetime.timedelta(hours=8)
+        # now_time = datetime.datetime.now()
+        next_time = datetime.datetime.now()
+        position_list = []
+        position_list2 = []
+        # nums = 500
+        for i in range(361):
+            next_time = now_time + datetime.timedelta(seconds=orbital_period * (i / 360))
+            next_time_str = next_time.strftime('%Y %m %d %H %M %S').split(' ')
+            next_time_str = [int(v) for v in next_time_str]
+            time_key = ['year', 'month', 'day', 'hour', 'minute', 'second']
+            time_map = dict(zip(time_key, next_time_str))
+            position, velocity = satellite.propagate(
+                year=time_map['year'],
+                month=time_map['month'],
+                day=time_map['day'],
+                hour=time_map['hour'],
+                minute=time_map['minute'],
+                second=time_map['second']
+            )
+
+            position_list.append(next_time.isoformat()+ '+00:00')
+            position_list.append(position[0] * 1000)
+            position_list.append(position[1] * 1000)
+            position_list.append(position[2] * 1000)
+
+
+            position_list2.append(next_time.isoformat() + '+00:00')
+            position_list2.append(XYZ_to_LLA(position[0] * 1000, position[1] * 1000, position[2] * 1000)[1])
+            position_list2.append(XYZ_to_LLA(position[0] * 1000, position[1] * 1000, position[2] * 1000)[0])
+            position_list2.append(0)
+
+
+        begin = str(now_time.isoformat())
+        end = str((next_time).isoformat())
+        if int(line1[9:11])>30:
+            launchyear=str(19)
+        else:
+            launchyear = str(20)
+
+        pattern = r'\(([^)]+)\)'
+        match = re.search(pattern, orbit_type)
+        orbitcolor=colorRGB[match.group(1)]
+        body = {
+            "id": "{}".format(textname),
+            "description": '<span style="color:yellow">发射日期:</span>' +launchyear+ line1[9:11] + '年<br/>' +
+                           '<span style="color:yellow">轨道类型:</span>'+orbit_type + '<br/>' +
+                           '<span style="color:yellow">NORAD卫星编号:</span>' + line2[2:7] + '<br/>' +
+                           '<span style="color:yellow">卫星高度:</span>' + str(orbit_height) + '千米' + '<br/>' +
+                           '<span style="color:yellow">卫星轨道倾角:</span>' + line2[8:16] + '度' + '<br/>' +
+                           '<span style="color:yellow">升交点赤经:</span>' + line2[17:25] + '度' + '<br/>' +
+                           '<span style="color:yellow">轨道偏心率:</span>' + line2[26:33] + '<br/>' +
+                           '<span style="color:yellow">近地点幅角:</span>' + line2[34:42] + '度' + '<br/>' +
+                           '<span style="color:yellow">平近点角:</span>' + line2[43:51] + '度' + '<br/>' +
+                           '<span style="color:yellow">每天绕地球飞行圈数:</span>' + line2[52:63] + '<br/>',
+            "availability": '{}/{}'.format(begin+ 'Z', end+ 'Z'),
+            "label": {
+                "font": "6pt Lucida Console",
+                "outlineWidth": 2,
+                "outlineColor": {"rgba": [0, 0, 0, 255]},
+                "horizontalOrigin": "LEFT",
+                "pixelOffset": {"cartesian2": [20, 12]},
+                "fillColor": {"rgba": [213, 255, 0, 255]},
+                "text": textname
+            },
+            "path": {
+                "material": {
+                    "polylineOutline": {
+                        "color": {
+                            "rgba": orbitcolor
+                        },
+                        # "outlineColor": {
+                        #     "rgba": [0, 0, 0, 255]
+                        # },
+                        "outlineWidth": 0.5
+                    }
+                },
+                "width": 2,
+                "resolution": 360
+            },
+            "model": {
+                "gltf": "/static/models/satellite.glb",
+                "scale": 8,
+                "minimumPixelSize": 0,
+                'maxmumPixelSize': 100,
+
+            },
+            # "orientation": {
+            #     "unitQuaternion": [
+            #         0, 0, 0, 1
+            #     ]
+            # },
+            "billboard": {
+                "image": "/static/images/"+str(match.group(1))+".png",
+                "scale": 0.37
+            },
+            "position": {
+                "referenceFrame": "INERTIAL",
+                "interpolationDegree": 5,
+                "interpolationAlgorithm": "LAGRANGE",
+                "epoch": begin+ 'Z',
+                "cartesian": position_list
+            }
+        }
+        doc.append(body)
+        body2 = {
+            "id": "{}points".format(textname),
+            "availability": '{}/{}'.format(begin+ 'Z', end+ 'Z'),
+
+            "position": {
+                "referenceFrame": 'INERTIAL',
+                "interpolationDegree": 5,
+                "interpolationAlgorithm": "LAGRANGE",
+                "epoch": begin+ 'Z',
+                "cartographicDegrees": position_list2,
+
+            },
+            "point": {
+                "color": {
+                    "rgba": [255, 255, 255, 128]
+                },
+                "outlineColor": {
+                    "rgba": [255, 0, 0, 128]
+                },
+                "outlineWidth": 3,
+                'show': 'false',
+                "pixelSize": 4,
+                'show': 'false',
+            },
+            "polyline": {
+                "width": 1,
+                'show': 'false',
+                "material": {
+                    "polylineDash": {
+                        "color": {
+                            "rgba": [255, 255, 255, 128]
+                        }
+                    }
+                },
+                "arcType": "NONE",
+                "positions": {
+                    "references": [
+                        "{}".format(textname) + "#position", "{}points".format(textname) + "#position"
+                    ]
+                }
+            }
+
+        }
+        doc.append(body2)
+
+        j = j + 3
+    with open("./static/czml/"+SatType+".czml", 'w') as f:
+        dump(doc, f)
+    print('czmlsuccess')
+# generalorbits('globalstar','./static/tle/globalstar.txt')
+# generalorbits('Iridium','./static/tle/Iridium.txt')
+# generalorbits('BDS','./static/tle/BDSTLE2024-05-05.txt')
+# generalorbits('GPS','./static/tle/GPS.txt')
+# generalorbits('GLONASS','./static/tle/GLONASS.txt')
+# generalorbits('Galileo','./static/tle/Galileo.txt')
+
+
+
+
+
+

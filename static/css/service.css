@@ -325,11 +325,32 @@ li::marker {
   border-radius: 10px;
 }
 
+#sitebox::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+
+}
+
+#sitebox::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+#sitebox:hover::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: rgba(238, 238, 238, 1);
+  border-radius: 6px;
+}
+
+#sitebox:hover::-webkit-scrollbar-thumb {
+  background: #9bcaff;
+  border-radius: 10px;
+}
 * {
-  
+
   box-sizing: border-box;
   text-decoration: none;
-  
+
 
 }
 .header {
@@ -356,7 +377,7 @@ li::marker {
   display: flex;
   margin: 0;
   padding: 0;
- 
+
   outline: none;
   border: none;
 }
@@ -438,11 +459,11 @@ dialog button {
     background-position: 0 0;
   }
   100% {
-    background-position: 400% 0; 
+    background-position: 400% 0;
   }
 }
 .element {
-  transform: translateZ(0); 
+  transform: translateZ(0);
   will-change: transform;
 }
 .logo {
@@ -466,3 +487,34 @@ dialog button {
   border: 1px solid #ccc; /* Add a subtle border on hover */
 }
 
+.timer-label {
+  color: rgb(255, 255, 255);
+  right: 2px;
+  line-height: 10px;
+  font-size: 15px;
+  float: right;
+}
+
+.timer-label-text {
+  color: #ffeb7b;
+  font-size: 15px;
+  top: 2px;
+}
+
+.timer-input {
+  width: 150px;
+  font-size: 16px;
+  color: #ffeb7b;
+  font-family: electronicFont;
+  background-color: rgba(0, 0, 0, 0);
+  border: rgba(0, 0, 0, 0);
+  top: 2px;
+}
+
+.timer-button {
+  cursor: pointer;
+}
+
+.timer-range {
+  cursor: pointer;
+}

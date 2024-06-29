@@ -204,6 +204,59 @@ function replace2Chinese() {
 
 }
 replace2Chinese()
+const timer = {
+  counter: 0,
+  timeoutId: null,
+  isRunning: false,
+  maxCount: 23,
+  interval: 1000,
+
+  start: function() {
+    viewer.clock.shouldAnimate = true;
+    if (!this.isRunning) {
+      this.isRunning = true;
+      this.count();
+    }
+  },
+
+  stop: function() {
+    viewer.clock.shouldAnimate = false;
+    clearTimeout(this.timeoutId);
+    this.isRunning = false;
+  },
+
+  count: function() {
+    document.getElementById("timenum").value = this.counter;
+    paintmap();
+    this.counter = (this.counter + 1) % (this.maxCount + 1);
+    document.getElementById("timerange").value = this.counter; // 更新滑动条值
+    this.timeoutId = setTimeout(this.count.bind(this), this.interval);
+  },
+
+  updateTime: function(newTime) {
+    this.counter = newTime;
+    document.getElementById("timenum").value = newTime;
+    paintmap();
+  }
+};
+
+// 页面加载完毕后自动开始计时器
+document.addEventListener('DOMContentLoaded', function() {
+  timer.start();
+});
+
+// 监听滑动条的input事件，手动改变时间
+document.getElementById('timerange').addEventListener('input', function() {
+  timer.updateTime(parseInt(this.value));
+});
+
+function startrun() {
+  timer.start();
+}
+
+function stoprun() {
+  timer.stop();
+}
 
 station_info = ''
 world_ion = ''
@@ -299,84 +352,85 @@ paintmap();
 startrun();
 // 高度角设置
 
-var wion_info = ''
+let wion_info = '';
 let isDone1 = false;
 const calcBtn1 = document.getElementById('setaltbtn');
 const modal1 = document.getElementById('modal');
 let confirmBtn = document.createElement('button');
+
 calcBtn1.addEventListener('click', () => {
-  isDone1 = false;
-  modal.innerHTML = '计算中...';
-  modal.showModal();
-  document.body.style.pointerEvents = 'none';
+    isDone1 = false;
+    modal1.innerHTML = '计算中...';
+    modal1.showModal();
+    document.body.style.pointerEvents = 'none';
 
-  var alt = $('#setalt').val();
-  var density = $('#density').val();
-  var date = $('#datepick').val();
-  var satname = satpick()
-  // console.log(satname)
-  stoprun()
-  if (alt < 0 || alt >= 90) {
-    // alert('Error ! Input range 0-90 °')
-    isDone = true;
-    modal.innerHTML = 'Error ! Input range 0-90 °';
-    document.body.style.pointerEvents = 'auto';
-    // 动态创建确认按钮 
+    const alt = $('#setalt').val();
+    const density = $('#density').val();
+    const date = $('#datepick').val();
+    const satname = satpick();
+    const ionModel = $('#ionModel_world').val();
+    stoprun();
 
-    confirmBtn.textContent = '确认';
-    confirmBtn.addEventListener('click', onConfirm);
-    modal.appendChild(confirmBtn);
-  }
-  else {
+    if (alt < 0 || alt >= 90) {
+        showErrorModal('Error! Input range 0-90 °');
+    } else {
+        const url = '/reset';
+        const ionurl = ionModel === 'bdgim' ? '/worldion_bdgim' : '/worldion_igsgim';
 
-    // var url = '/resetalt'
-    var url = '/reset'
+        // 发出第一个请求
+        $.post(url, { 'alt': alt, 'density': density, 'date': date, 'satname': JSON.stringify(satname) })
+            .done((res) => {
+                console.log(res);
+                station_info = res;
 
-    $.post(url, { 'alt': alt, 'density': density, 'date': date, 'satname': JSON.stringify(satname) }, function (res) {
-      console.log(res)
+            })
+            .fail((err) => {
+                console.error(err);
+                showErrorModal('请求失败，请重试');
+            });
 
-      station_info = res;
-
-      $.post('/ion2', { 'date': date }, function (res) {
-        if (res == "false") {
-
-          startrun()
-          isDone = true;
-          modal.innerHTML = date + '缺少ION文件';
-          document.body.style.pointerEvents = 'auto';
-
-
-          confirmBtn.textContent = '确认';
-          confirmBtn.addEventListener('click', onConfirm);
-          modal.appendChild(confirmBtn);
-        }
-        else {
-
-          console.log(res)
-          world_ion = res
-          // alert('完成')
-          startrun()
-          isDone = true;
-          modal.innerHTML = '计算完成';
-          document.body.style.pointerEvents = 'auto';
-
-
-          confirmBtn.textContent = '确认';
-
-          confirmBtn.addEventListener('click', onConfirm);
-          modal.appendChild(confirmBtn);
-
-        }
-
-      })
-
-
-    })
-
-
-  }
-
+        // 发出第二个请求
+        $.post(ionurl, { 'date': date, 'resolution': density })
+            .done((res) => {
+                handleIonResponse(res);
+            })
+            .fail((err) => {
+                console.error(err);
+                showErrorModal('请求失败，请重试');
+            });
+    }
 });
+
+
+
+function handleIonResponse(res) {
+    if (res === "false") {
+        showErrorModal(`${date} 缺少 ION 文件`);
+    } else {
+        console.log(res);
+        world_ion = res;
+        showSuccessModal('计算完成');
+    }
+    startrun();
+    isDone1 = true;
+}
+
+function showErrorModal(message) {
+    modal1.innerHTML = message;
+    document.body.style.pointerEvents = 'auto';
+    confirmBtn.textContent = '确认';
+    $(confirmBtn).one('click', onConfirm);
+    modal1.appendChild(confirmBtn);
+}
+
+function showSuccessModal(message) {
+    modal1.innerHTML = message;
+    document.body.style.pointerEvents = 'auto';
+    confirmBtn.textContent = '确认';
+    $(confirmBtn).one('click', onConfirm);
+    modal1.appendChild(confirmBtn);
+}
+
 
 var lon1 = document.getElementById('leftp').value.split(',')[0].replace('°', '')
 var lon2 = document.getElementById('rightp').value.split(',')[0].replace('°', '')
@@ -1845,7 +1899,6 @@ function paintnums() {
       }
     }
   }
-
   var data1 = []
   var k = 0
   var z = bd - 1
@@ -1854,7 +1907,6 @@ function paintnums() {
     var zz = -180
 
     for (var j = 0; j < ld; j++) {
-
       if (!window.station_info[k][timeid][str1] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
 
         data1.push([j, z, NaN])
@@ -2122,304 +2174,241 @@ function paintnums() {
 function painionmap() {
   var vmin = 10;
   var vmax = 2;
-  // var density=$('#density').val();
-  // density=Math.floor(density)
-  var bd = 180 / density + 1
-  var ld = 360 / density + 1
+  var density = $('#density').val();
+  density = Math.floor(density);
+  var bd = 180 / density + 1;
+  var ld = 360 / density + 1;
   var heatmap1 = echarts.init(document.querySelector(".ionmap .chart"));
 
-  // var str1 = 'counts'
-  var textname = '电离层电子含量'
-  var zz = 0
-  // for (var c in world_ion) {
+  var textname = '电离层电子含量';
+
   for (var k in world_ion[timeid]) {
-    if (!window.world_ion[timeid][k]) {
-      // console.log(c)
-      break
-    }
-    var i = world_ion[timeid][k]
-    if (vmax < i) {
-      if (i - vmax > 10) { continue }
-      vmax = Math.ceil(i)
-    }
-    if (vmin > i) {
-      vmin = Math.floor(i)
-    }
-  }
-
-
-  //  }
-
-  var data1 = []
-  var k = 0
-  var z = 36
-  var jj = 90
-  for (var i = 0; i < 37; i++) {
-    var zz = -180
-    for (var j = 0; j < 73; j++) {
-      if (i == 0) {
-        data1.push([j, z, NaN])
+      var i = world_ion[timeid][k];
+      if (vmax < i) {
+          if (i - vmax > 10) { continue; }
+          vmax = Math.ceil(i);
       }
-      else {
-        if (!window.world_ion[timeid][k] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
-          data1.push([j, z, NaN])
-        }
-        else {
-          data1.push([j, z, parseFloat(world_ion[timeid][k]).toFixed(2)])
-        }
-        k += 1
+      if (vmin > i) {
+          vmin = Math.floor(i);
       }
-
-      zz = zz + 5
-      // console.log(k,timeid,str1)
-      // data1.push([j, z, station_info[k][timeid][str1].toFixed(2)])
-
-    }
-    // console.log(k)
-    z = z - 1
-    jj -= 5
-  }
-  var lon = []
-  d = -180
-  for (var i = 0; i < 73; i++) {
-    lon.push(d)
-    d = d + 5
-  }
-  var lat = []
-  d = 90
-  for (var i = 0; i < 37; i++) {
-    lat.push(d)
-    d = d - 5
   }
 
-  // console.log(Math.floor((lon.length-1)/2-2)/2)
-  // var alt = $('#setalt').val();
+  var data1 = [];
+  var k = 0;
+  var z = bd - 1;
+  var jj = 90;
+  for (var i = 0; i < bd; i++) {
+      var zz = -180;
+      for (var j = 0; j < ld; j++) {
+          if (i == 0) {
+              data1.push([j, z, NaN]);
+          } else {
+              if (!window.world_ion[timeid][k] || zz < lon1 || zz > lon2 || jj < lat2 || jj > lat1) {
+                  data1.push([j, z, NaN]);
+              } else {
+                  data1.push([j, z, parseFloat(world_ion[timeid][k]).toFixed(2)]);
+              }
+              k += 1;
+          }
+          zz = zz + density;
+      }
+      z = z - 1;
+      jj -= density;
+  }
 
+  var lon = [];
+  var d = -180;
+  for (var i = 0; i < ld; i++) {
+      lon.push(d);
+      d = d + density;
+  }
 
+  var lat = [];
+  d = 90;
+  for (var i = 0; i < bd; i++) {
+      lat.push(d);
+      d = d - density;
+  }
 
-
-
-  heatmap1.setOption(
-    (option = {
+  heatmap1.setOption({
       grid: {
-        top: "13%",
-        // left: "%",
-        right: "5.5%",
-        bottom: "3%",
-        show: true,
-        borderColor: "#012f4a",
-        containLabel: true,
-        width: '90%',
-        height: '80%'
+          top: "13%",
+          right: "5.5%",
+          bottom: "3%",
+          show: true,
+          borderColor: "#012f4a",
+          containLabel: true,
+          width: '90%',
+          height: '80%'
       },
       title: {
-        show: false,
-        top: 3,
-        left: 'center',
-
-        textStyle: {
-          //文字颜色
-          color: 'white',
-          //字体风格,'normal','italic','oblique'
-          fontStyle: 'normal',
-          //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
-          fontWeight: 'bold',
-          //字体系列
-          fontFamily: 'sans-serif',
-          //字体大小
-          fontSize: 5
-        },
-
-        text: textname,
-
+          show: false,
+          top: 3,
+          left: 'center',
+          textStyle: {
+              color: 'white',
+              fontStyle: 'normal',
+              fontWeight: 'bold',
+              fontFamily: 'sans-serif',
+              fontSize: 5
+          },
+          text: textname,
       },
       tooltip: {
-        position: 'top',
-        formatter: (value) => { //格式化数据的函数
-          var obj = value // 获取对应的数据
-          var name = obj.seriesName
-          var y = obj.value[1]
-          y = 90 - y * 5
-
-          if (y < 0) {
-            y = Math.abs(y) + '°N'
+          position: 'top',
+          formatter: (value) => {
+              var obj = value;
+              var y = obj.value[1];
+              y = 90 - y * density;
+              if (y < 0) {
+                  y = Math.abs(y) + '°N';
+              } else if (y == 0) {
+                  y = Math.abs(y) + '°';
+              } else if (y > 0) {
+                  y = Math.abs(y) + '°S';
+              }
+              var x = obj.value[0];
+              x = -180 + x * density;
+              if (x < 0) {
+                  x = Math.abs(x) + '°W';
+              } else if (x == 0) {
+                  x = Math.abs(x) + '°';
+              } else if (x > 0) {
+                  x = Math.abs(x) + '°E';
+              }
+              var p = '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + obj.color + '"></span>';
+              var content = textname + "</br>" + p + x + ',' + y + ': ' + obj.value[2];
+              return content;
           }
-          else if (y == 0) {
-            y = Math.abs(y) + '°'
-          }
-          else if (y > 0) {
-            y = Math.abs(y) + '°S'
-          }
-          var x = obj.value[0]
-          x = -180 + x * 5
-          if (x < 0) {
-            x = Math.abs(x) + '°W'
-          }
-          else if (x == 0) {
-            x = Math.abs(x) + '°'
-          }
-          else if (x > 0) {
-            x = Math.abs(x) + '°E'
-          }
-          var p = '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + obj.color + '"></span>'
-          content = name + "</br>" + p + x + ',' + y + ': ' + obj.value[2]
-          return content
-        }
       },
       series: [
-
-        {
-          name: textname,
-          type: 'heatmap',
-          data: data1,
-          emphasis: {
-            itemStyle: {
-              borderColor: '#333',
-              borderWidth: 1,
-            }
+          {
+              name: textname,
+              type: 'heatmap',
+              data: data1,
+              emphasis: {
+                  itemStyle: {
+                      borderColor: '#333',
+                      borderWidth: 1,
+                  }
+              },
+              itemStyle: {
+                  opacity: 0.8,
+              },
           },
-          itemStyle: {
-            opacity: 0.8,
-          },
-        },
-
       ],
-      // ['180°W','120°W','60°W','0','60°E','120°E','180°E']
       xAxis: {
-        name: 'Longitude',
-        nameTextStyle: {
-          color: 'white',
-          padding: [3, 0, 0, 0]
-        },
-        nameLocation: 'center',
-        data: lon,
-        axisTick: {
-          show: false  //坐标轴刻度线
-        },
-
-        axisLabel: {
-          color: "white",
-
-          interval: (Math.floor((lon.length - 1) / 2 - 2) / 2),
-          textStyle: {
-            fontSize: 9
+          name: 'Longitude',
+          nameTextStyle: {
+              color: 'white',
+              padding: [3, 0, 0, 0]
           },
-          formatter: (value) => { //格式化数据的函数
-            var listData = value // 获取对应的数据
-
-            if (value == -180) {
-              listData = '180°W'
-              // console.log(listData)
-            }
-            else if (value == -90) {
-
-              listData = '90°W'
-              // console.log(listData)
-            }
-            else if (value == 0) {
-              listData = '0°'
-            }
-            else if (value == 90) {
-              listData = '90°E'
-            }
-            else if (value == 180) {
-              listData = '180°E'
-            }
-            else {
-              listData = ''
-            }
-            // console.log(listData)
-            return listData
-          }
-        },
-        axisLine: {
-
-          lineStyle: {
-            color: 'white',  //坐标轴的颜色
+          nameLocation: 'center',
+          data: lon,
+          axisTick: {
+              show: false
           },
-        },
+          axisLabel: {
+              color: "white",
+              interval: (Math.floor((lon.length - 1) / 2 - 2) / 2),
+              textStyle: {
+                  fontSize: 9
+              },
+              formatter: (value) => {
+                  var listData = value;
+                  if (value == -180) {
+                      listData = '180°W';
+                  } else if (value == -90) {
+                      listData = '90°W';
+                  } else if (value == 0) {
+                      listData = '0°';
+                  } else if (value == 90) {
+                      listData = '90°E';
+                  } else if (value == 180) {
+                      listData = '180°E';
+                  } else {
+                      listData = '';
+                  }
+                  return listData;
+              }
+          },
+          axisLine: {
+              lineStyle: {
+                  color: 'white',
+              },
+          },
       },
-
       yAxis: {
-
-        name: 'Latitude',
-        nameTextStyle: {
-          color: 'white',
-          padding: [0, 0, 15, 0]
-        },
-        nameLocation: 'center',
-        left: 0,
-        data: lat,
-        axisTick: {
-          show: false  //坐标轴刻度线
-        },
-        axisLabel: {
-          color: "white",
-          interval: (Math.floor((lat.length - 1) / 2 - 2) / 2),
-          textStyle: {
-            fontSize: 9
+          name: 'Latitude',
+          nameTextStyle: {
+              color: 'white',
+              padding: [0, 0, 15, 0]
           },
-          formatter: (value) => { //格式化数据的函数
-
-            var listData = value // 获取对应的数据
-            if (listData < 0) {
-              listData = Math.abs(listData) + '°N'
-            }
-            else if (listData == 0) {
-              listData = Math.abs(listData) + '°'
-            }
-            else if (listData > 0) {
-              listData = Math.abs(listData) + '°S'
-            }
-
-            return listData
+          nameLocation: 'center',
+          data: lat,
+          axisTick: {
+              show: false
+          },
+          axisLabel: {
+              color: "white",
+              interval: (Math.floor((lat.length - 1) / 2 - 2) / 2),
+              textStyle: {
+                  fontSize: 9
+              },
+              formatter: (value) => {
+                  var listData = value;
+                  if (listData < 0) {
+                      listData = Math.abs(listData) + '°N';
+                  } else if (listData == 0) {
+                      listData = Math.abs(listData) + '°';
+                  } else if (listData > 0) {
+                      listData = Math.abs(listData) + '°S';
+                  }
+                  return listData;
+              }
+          },
+          axisLine: {
+              lineStyle: {
+                  color: 'white',
+              },
           }
-        },
-        axisLine: {
-
-          lineStyle: {
-            color: 'white',  //坐标轴的颜色
-          },
-        }
-
       },
       visualMap: {
-
-        itemWidth: 10,                           //图形的宽度，即长条的宽度。
-        itemHeight: 60,
-        min: 0,
-        max: vmax,
-        calculable: true,
-        textStyle: {
-          color: 'white'
-        },
-        orient: 'horizontal',
-        top: 0,
-        left: 'center',
-        realtime: false,
-        inRange: {
-          color: [
-            '#313695',
-            '#4575b4',
-            '#74add1',
-            '#abd9e9',
-            '#e0f3f8',
-            '#ffffbf',
-            '#fee090',
-            '#fdae61',
-            '#f46d43',
-            '#d73027',
-            '#a50026'
-          ]
-        }
+          itemWidth: 10,
+          itemHeight: 60,
+          min: 0,
+          max: vmax,
+          calculable: true,
+          textStyle: {
+              color: 'white'
+          },
+          orient: 'horizontal',
+          top: 0,
+          left: 'center',
+          realtime: false,
+          inRange: {
+              color: [
+                  '#313695',
+                  '#4575b4',
+                  '#74add1',
+                  '#abd9e9',
+                  '#e0f3f8',
+                  '#ffffbf',
+                  '#fee090',
+                  '#fdae61',
+                  '#f46d43',
+                  '#d73027',
+                  '#a50026'
+              ]
+          }
       }
-    })
-  );
+  });
 
   window.addEventListener('resize', function () {
-    heatmap1.resize()
-  })
+      heatmap1.resize();
+  });
 }
+
 var satSource = ''
 function choosepoint() {
   viewer.scene.mode = Cesium.SceneMode.SCENE2D
@@ -2656,19 +2645,14 @@ calcBtn.addEventListener('click', () => {
   var siteheight = $('#site_h').val();
   var date = $('#site_datepick').val();
   var pickp = $('#pickp').val();
-  // var url = $('#urlpick').val();
-  // alert(url)
-  // var url = '/paintchart'
   var satname = satpick()
-  // console.log(pickp)
   var name = document.getElementById("site_name").value
-
+  var ionModel = $('#ionModel_site').val();
   if (alt < 0 || alt > 90 || alt == '') {
-    // alert('Error ! Input range 0-90 °')
     isDone = true;
     modal.innerHTML = 'Error ! Input range 0-90 °';
     document.body.style.pointerEvents = 'auto';
-    // 动态创建确认按钮 
+    // 动态创建确认按钮
 
     confirmBtn.textContent = '确认';
 
@@ -2686,7 +2670,7 @@ calcBtn.addEventListener('click', () => {
         isDone = true;
         modal.innerHTML = date + '缺少星历文件';
         document.body.style.pointerEvents = 'auto';
-        // 动态创建确认按钮 
+        // 动态创建确认按钮
 
         confirmBtn.textContent = '确认';
 
@@ -2700,7 +2684,8 @@ calcBtn.addEventListener('click', () => {
         infochart.clear();
         paintmap2();
         var url2 = '/ion'
-        $.post(url2, { 'lon': lon, 'lat': lat, 'date': date }, function (res) {
+        var ionurl = ionModel === 'bdgim' ? '/siteion_bdgim' : '/siteion_igsgim';
+        $.post(ionurl, { 'lon': lon, 'lat': lat, 'date': date }, function (res) {
           // console.log(res)
           if (res == "false") {
             alert(date + '缺少电离层文件')
@@ -2730,7 +2715,7 @@ calcBtn.addEventListener('click', () => {
         isDone = true;
         modal.innerHTML = '计算完成';
         document.body.style.pointerEvents = 'auto';
-        // 动态创建确认按钮 
+        // 动态创建确认按钮
 
         confirmBtn.textContent = '确认';
 
@@ -4229,61 +4214,78 @@ function paindistribution_map() {
   infochart.setOption(option);
   delete sat
 }
-//计时器 
+//计时器
 var c2 = 0;
-var t2;
-var timer_is_on2 = 0;
+var timer2 = null;
+var timerIsOn2 = false;
+var isDragging2 = false;
+
 function timedCount2() {
-  document.getElementById("timerange2").value = c2;
-  paindistribution_map();
-  // console.log(station)
-  var j = 0
-  var snums = []
-  for (var i in station) {
-    snums[j] = station[i]['counts']
-    j += 1
-  }
-  document.getElementById("snums").value = snums[c2];
-  c2 = c2 + 1;
-  t2 = setTimeout(function () { timedCount2() }, 1000);
-  if (c2 > 96) { c2 = 0 }
+    if (!isDragging2) {
+        document.getElementById("timerange2").value = c2;
+    }
+    paindistribution_map();
+
+    var j = 0;
+    var snums = [];
+    for (var i in station) {
+        snums[j] = station[i]['counts'];
+        j += 1;
+    }
+    document.getElementById("snums").value = snums[c2];
+    c2 = (c2 + 1) % 97; // Wrap around 96 to 0
+
+    timer2 = setTimeout(timedCount2, 1000);
 }
+
 function startrun2() {
-  viewer.clock.shouldAnimate = true;
-  if (!timer_is_on2) {
-    timer_is_on2 = 1;
-    timedCount2();
-  }
+    viewer.clock.shouldAnimate = true;
+    if (!timerIsOn2) {
+        timerIsOn2 = true;
+        timedCount2();
+    }
 }
+
 function stoprun2() {
-  viewer.clock.shouldAnimate = false;
-  clearTimeout(t2);
-  timer_is_on2 = 0;
+    viewer.clock.shouldAnimate = false;
+    clearTimeout(timer2);
+    timerIsOn2 = false;
 }
 
+document.getElementById('timerange2').addEventListener('mousedown', function() {
+    isDragging2 = true;
+});
 
-var c = 0;
-var t;
-var timer_is_on = 0;
-function timedCount() {
-  document.getElementById("timerange").value = c;
-  paintmap();
-  c = c + 1;
-  t = setTimeout(function () { timedCount() }, 1000);
-  if (c > 23) { c = 0 }
-}
-function startrun() {
-  viewer.clock.shouldAnimate = true;
-  if (!timer_is_on) {
-    timer_is_on = 1;
-    timedCount();
-  }
-}
-function stoprun() {
-  viewer.clock.shouldAnimate = false;
-  clearTimeout(t);
-  timer_is_on = 0;
-}
+document.getElementById('timerange2').addEventListener('mouseup', function() {
+    isDragging2 = false;
+    c2 = parseInt(document.getElementById('timerange2').value);
+    paindistribution_map();
+    var j = 0;
+    var snums = [];
+    for (var i in station) {
+        snums[j] = station[i]['counts'];
+        j += 1;
+    }
+    document.getElementById("snums").value = snums[c2];
+});
+
+document.getElementById('timerange2').addEventListener('input', function() {
+    if (isDragging2) {
+        c2 = parseInt(this.value);
+        paindistribution_map();
+        var j = 0;
+        var snums = [];
+        for (var i in station) {
+            snums[j] = station[i]['counts'];
+            j += 1;
+        }
+        document.getElementById("snums").value = snums[c2];
+    }
+});
+
+
+
+
 
 
 
@@ -4942,7 +4944,7 @@ function downloadChartImage(chartSelector) {
     });
 
     // 恢复原始配置
-    chartInstance.setOption(originalOption);
+    // chartInstance.setOption(originalOption);
 
     var link = document.createElement('a');
     link.href = url;

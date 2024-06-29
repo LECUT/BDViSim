@@ -326,7 +326,7 @@ border-right: 2px solid #02a6b5;
       </a>
     <nav class="navbar" style="font-size: 15px;">
       <ul>
-        <li><a href="/mainviewcn">首页</a></li>
+        <li><a href="/">首页</a></li>
         <li><a href="/kepler">轨道认知</a></li>
         <li ><a href="/orbitcal">轨道计算</a>
             <!-- <ul class="hide">
@@ -622,59 +622,59 @@ border-right: 2px solid #02a6b5;
           </div>
           <!-- 区域 -->
           <div id="areabox"
-            style="display: block; width:100%;height: 19%;color: rgb(255, 255, 255);margin-top: 1%;min-height: 35px;font-size: 15px;">
-            <img class="item" src="../static/images/background/itembar3.png"
-              style="position: absolute;height: 19%;width: 100%;opacity: 0.5;z-index: -1;min-height: 35px;">
-            <div style="margin: 0 auto;width: 95%;height: 90%;font-size: 10px;margin-left: 10px;">
+          style="display: block; width:100%;height: 21%;color: rgb(255, 255, 255);margin-top: 1%;min-height: 35px;font-size: 15px;">
+         <img class="item" src="../static/images/background/itembar3.png"
+              style="position: absolute;height: 21%;width: 100%;opacity: 0.5;z-index: -1;min-height: 35px;">
+         <div style="margin: 0 auto;width: 95%;height: 90%;font-size: 10px;margin-left: 10px;">
 
-              <div style="padding-top: 15px;">
-                <label style="width: 45px;">
-                  日期: </label> <input type="date" id="datepick" name="trip-start" value="" min="2023-01-01"
-                  style=" font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
-              </div>
-              <div style="margin-top: 5px;">
-                <label style="width: 45px;">
-                  区域: </label>
-                <input id="leftp" type="text" value="-180°,90°"
-                  style="width: 80px;font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px" disabled = true>
+             <div style="padding-top: 15px;">
+                 <label style="width: 45px;">日期: </label>
+                 <input type="date" id="datepick" name="trip-start" value="" min="2023-01-01"
+                        style=" font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
+             </div>
+             <div style="margin-top: 5px;">
+                 <label style="width: 45px;">区域: </label>
+                 <input id="leftp" type="text" value="-180°,90°"
+                        style="width: 80px;font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px" disabled = true>
+                 <input id="rightp" type="text" value="180°,-90°"
+                        style="width: 80px;font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px" disabled = true>
+                 <a onclick="startSelection()" id="pickareabtn"
+                    style=" cursor: pointer;background-color: rgba(231, 221, 221, 0.1);display:none;">
+                     <svg t="1682676356534" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                          xmlns="http://www.w3.org/2000/svg" p-id="6435" width="20" height="20">
+                         <path
+                             d="M510.432 57.568c118.88 0 220.992 110.4 220.992 254.912 0 101.92-136.096 314.176-220.992 424.672-84.896-110.496-220.96-322.784-220.96-424.672-0.032-144.512 102.048-254.912 220.96-254.912z m0-42.432c-144.512 0-263.392 135.936-263.392 297.344 0 161.536 263.392 492.704 263.392 492.704s263.424-331.36 263.424-492.704c0-161.44-119.296-297.344-263.424-297.344m478.752 977.024H34.784c-17.184 0-34.016-17.184-34.016-34.016v-509.76c0-17.024 16.832-34.016 34.016-34.016H170.56c16.992 0 34.016 16.992 34.016 34.016s-17.024 34.016-34.016 34.016H60.064v450.112h895.296V482.432h-102.048c-17.024 0-33.856-17.024-33.856-34.016s16.8-34.016 33.856-34.016h135.904c17.024 0 34.016 16.992 34.016 34.016v509.728c0 16.832-17.216 34.016-34.048 34.016"
+                             fill="#1296db" p-id="6436"></path>
+                         <path
+                             d="M510.432 127.36a151.04 151.04 0 0 0-151.168 151.104 150.88 150.88 0 0 0 151.168 150.816 151.264 151.264 0 0 0 150.816-150.816c0-83.136-67.872-151.104-150.816-151.104z m0 261.248a110.752 110.752 0 0 1-111.2-111.008 110.72 110.72 0 0 1 111.2-111.008 110.656 110.656 0 0 1 110.848 111.008 111.136 111.136 0 0 1-110.848 111.008z"
+                             fill="#1296db" p-id="6437"></path>
+                     </svg>
+                 </a>
+             </div>
+             <div style="margin-top: 5px;">
+                 <label style="width: 45px;">截止高度角(°): </label>
+                 <input id="setalt" type="text" value="5" min="1" max="90"
+                        style="width: 40px; font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
+             </div>
+             <div style="margin-top: 5px;">
+                 <label style="width: 45px;">空间分辨率(°): </label>
+                 <input id="density" type="text" value="5" min="1" max="90"
+                        style="width: 40px;font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
+             </div>
+             <div style="margin-top: 5px;">
+                 <label style="width: 120px;">电离层模型: </label>
+                 <select id="ionModel_world" style="font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
+                     <option value="bdgim" style="background-color: rgba(11, 133, 240, 0.526);">BD GIM</option>
+                     <option value="igsgim" style="background-color: rgba(11, 133, 240, 0.526);">IGS GIM</option>
+                 </select>
+             </div>
 
-                <input id="rightp" type="text" value="180°,-90°"
-                  style="width: 80px;font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px" disabled = true>
-                <!-- <button  id="areaset" >选择</button>  -->
-                <a onclick="startSelection()" id="pickareabtn"
-                  style=" cursor: pointer;background-color: rgba(231, 221, 221, 0.1);display:none;">
-                  <svg t="1682676356534" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                    xmlns="http://www.w3.org/2000/svg" p-id="6435" width="20" height="20">
-                    <path
-                      d="M510.432 57.568c118.88 0 220.992 110.4 220.992 254.912 0 101.92-136.096 314.176-220.992 424.672-84.896-110.496-220.96-322.784-220.96-424.672-0.032-144.512 102.048-254.912 220.96-254.912z m0-42.432c-144.512 0-263.392 135.936-263.392 297.344 0 161.536 263.392 492.704 263.392 492.704s263.424-331.36 263.424-492.704c0-161.44-119.296-297.344-263.424-297.344m478.752 977.024H34.784c-17.184 0-34.016-17.184-34.016-34.016v-509.76c0-17.024 16.832-34.016 34.016-34.016H170.56c16.992 0 34.016 16.992 34.016 34.016s-17.024 34.016-34.016 34.016H60.064v450.112h895.296V482.432h-102.048c-17.024 0-33.856-17.024-33.856-34.016s16.8-34.016 33.856-34.016h135.904c17.024 0 34.016 16.992 34.016 34.016v509.728c0 16.832-17.216 34.016-34.048 34.016"
-                      fill="#1296db" p-id="6436"></path>
-                    <path
-                      d="M510.432 127.36a151.04 151.04 0 0 0-151.168 151.104 150.88 150.88 0 0 0 151.168 150.816 151.264 151.264 0 0 0 150.816-150.816c0-83.136-67.872-151.104-150.816-151.104z m0 261.248a110.752 110.752 0 0 1-111.2-111.008 110.72 110.72 0 0 1 111.2-111.008 110.656 110.656 0 0 1 110.848 111.008 111.136 111.136 0 0 1-110.848 111.008z"
-                      fill="#1296db" p-id="6437"></path>
-                  </svg>
-                </a>
-              </div>
-              <div style="margin-top: 5px;">
-                <label style="width: 45px;">截止高度角(°): </label>
-                <input id="setalt" type="text" value="5" min="1" max="90"
-                  style="width: 40px; font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
-              </div>
+         </div>
 
-              <div style="margin-top: 5px;">
-                <label style="width: 45px;">
-                  空间分辨率(°): </label>
-                <input id="density" type="text" value="5" min="1" max="90"
-                  style="width: 40px;font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
-              </div>
-
-
-
-            </div>
-
-          </div>
+     </div>
           <!-- 单站 -->
           <div id="sitebox"
-            style="display: none;width:100%;height: 26%;color: rgb(255, 255, 255);margin-top: 1%;min-height: 35px;">
+            style="display: none;width:100%;height: 26%;color: rgb(255, 255, 255);margin-top: 1%;min-height: 35px;overflow-y: auto;overflow-x:hidden">
             <img class="item" src="../static/images/background/itembar3.png"
               style="position: absolute;height: 26%;width: 100%;opacity: 0.5;z-index: -1;min-height: 35px;">
             <div style="margin: 0 auto;width: 95%;height: 90%;font-size: 10px;margin-left: 10px;">
@@ -732,6 +732,14 @@ border-right: 2px solid #02a6b5;
 
               </div>
 
+              <div style="margin-top: 5px;">
+                <label style="width: 120px;">电离层模型: </label>
+                <select id="ionModel_site" style="font-size: 15px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);top:2px">
+                    <option value="bdgim" style="background-color: rgba(11, 133, 240, 0.526);">BD GIM</option>
+                    <option value="igsgim" style="background-color: rgba(11, 133, 240, 0.526);">IGS GIM</option>
+                </select>
+            </div>
+
             </div>
 
           </div>
@@ -759,32 +767,23 @@ border-right: 2px solid #02a6b5;
       </div>
       <div id="world_set" style="display: block;height: 45px;z-index: 1000;font-size: 80%;">
 
-        <label
-          style="color: rgb(255, 255, 255);right: 2px;line-height: 10px;font-size: 15px;float: right;">
-          <label style="color: #ffeb7b;font-size: 15px;top:2px">时间:</label>
-          <input type="text" id="timenum"
-            style="width: 150px;font-size: 16px; color: #ffeb7b;font-family: electronicFont;background-color: rgba(0, 0, 0, 0);border: rgba(0, 0, 0, 0);top:2px"><br>
-          <a style="cursor:pointer;" onclick="startrun()"><svg t="1666073147750" class="icon" viewBox="0 0 1024 1024"
-              version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="18684" width="22" height="22">
-              <path
-                d="M512 96C282.624 96 96 282.624 96 512s186.624 416 416 416 416-186.624 416-416S741.376 96 512 96z m0 768C317.92 864 160 706.08 160 512S317.92 160 512 160s352 157.92 352 352-157.92 352-352 352z"
-                p-id="18685" fill="#1296db"></path>
-              <path
-                d="M466.816 324.96a32 32 0 0 0-50.816 25.888v339.776a32 32 0 0 0 50.816 25.856l233.6-169.888a32 32 0 0 0 0-51.776l-233.6-169.856z"
-                p-id="18686" fill="#1296db"></path>
+        <label class="timer-label">
+          <label class="timer-label-text">时间:</label>
+          <input type="text" id="timenum" class="timer-input" readonly><br>
+          <a class="timer-button" onclick="startrun()">
+            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <path d="M512 96C282.624 96 96 282.624 96 512s186.624 416 416 416 416-186.624 416-416S741.376 96 512 96z m0 768C317.92 864 160 706.08 160 512S317.92 160 512 160s352 157.92 352 352-157.92 352-352 352z" fill="#1296db"></path>
+              <path d="M466.816 324.96a32 32 0 0 0-50.816 25.888v339.776a32 32 0 0 0 50.816 25.856l233.6-169.888a32 32 0 0 0 0-51.776l-233.6-169.856z" fill="#1296db"></path>
             </svg>
           </a>
-          <a style="cursor:pointer;" onclick="stoprun()"><svg t="1666077840863" class="icon" viewBox="0 0 1024 1024"
-              version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3802" width="22" height="22">
-              <path
-                d="M512 960C264.576 960 64 759.424 64 512S264.576 64 512 64s448 200.576 448 448-200.576 448-448 448z m0-64c212.064 0 384-171.936 384-384S724.064 128 512 128 128 299.936 128 512s171.936 384 384 384z m-128-543.936a31.968 31.968 0 1 1 64 0v319.872a31.968 31.968 0 1 1-64 0v-319.872z m192 0a31.968 31.968 0 1 1 64 0v319.872a31.968 31.968 0 1 1-64 0v-319.872z"
-                fill="#5a9fcf" p-id="3803"></path>
+          <a class="timer-button" onclick="stoprun()">
+            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <path d="M512 960C264.576 960 64 759.424 64 512S264.576 64 512 64s448 200.576 448 448-200.576 448-448 448z m0-64c212.064 0 384-171.936 384-384S724.064 128 512 128 128 299.936 128 512s171.936 384 384 384z m-128-543.936a31.968 31.968 0 1 1 64 0v319.872a31.968 31.968 0 1 1-64 0v-319.872z m192 0a31.968 31.968 0 1 1 64 0v319.872a31.968 31.968 0 1 1-64 0v-319.872z" fill="#5a9fcf"></path>
             </svg>
           </a>
-          <input type="range" id="timerange" min="0" max="23" value="0" style="cursor:pointer;" onchange="paintmap()">
-    
-          </input>
+          <input type="range" id="timerange" min="0" max="23" value="0" class="timer-range" onchange="updateTime()">
         </label>
+
       </div>
     
       <div id="onesat_set" style="display: none;height: 45px;z-index: 1000;">

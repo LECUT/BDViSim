@@ -210,7 +210,10 @@ def IPPBLH1(sta, sat, Hion):
     R1 = math.sqrt(sta[0] ** 2 + sta[1] ** 2 + sta[2] ** 2)
     R2 = EARTH_RADIUS + Hion
     R3 = math.sqrt(sat[0] ** 2 + sat[1] ** 2 + sat[2] ** 2)
-    zenith = math.pi - math.acos((R1 * R1 + DS * DS - R3 * R3) / (2 * R1 * DS))
+    cos_value = (R1 * R1 + DS * DS - R3 * R3) / (2 * R1 * DS)
+    # 确保cos_value在-1到1之间
+    cos_value = max(-1, min(1, cos_value))
+    zenith = math.pi - math.acos(cos_value)
     sat_ele = math.pi / 2 - zenith
 
     zenith1 = math.asin(R1 / R2 * math.sin(zenith))

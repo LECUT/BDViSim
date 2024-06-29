@@ -4,19 +4,19 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 
 var viewer = new Cesium.Viewer('cesiumContainer', {
   selectionIndicator: false,
-  animation: false, 
-  homeButton: false, 
+  animation: false,
+  homeButton: false,
   fullscreenButton: false,
-  baseLayerPicker: false, 
-  geocoder: false, 
-  timeline: false, 
-  sceneModePicker: false, 
-  navigationHelpButton: false, 
-  infoBox: false, 
-  requestRenderMode: true, 
+  baseLayerPicker: false,
+  geocoder: false,
+  timeline: false,
+  sceneModePicker: false,
+  navigationHelpButton: false,
+  infoBox: false,
+  requestRenderMode: true,
   scene3DOnly: false,
-  sceneMode: 3, 
-  fullscreenElement: document.body, 
+  sceneMode: 3,
+  fullscreenElement: document.body,
   contextOptions: {
     webgl: {
       alpha: true,
@@ -202,7 +202,7 @@ $("#btnupload").on("click", function () {
 
   url = '/' + id
   alert('Loading...')
-  
+
   $.ajax({
     type: "post",
     url: url,//url地址
@@ -223,7 +223,7 @@ $("#btnupload").on("click", function () {
         alert("Success")
         newset();
         return result3
-        
+
       }
       if (url == '/SP3') {
         result4 = res
@@ -243,7 +243,7 @@ $("#btnupload").on("click", function () {
 
 
 
-      
+
       alert("Success")
       newset();
     }
@@ -549,7 +549,7 @@ var satid = "s";
 a = $.ajax({
   url: "../static/json/orbit_info.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
   }
@@ -557,7 +557,7 @@ a = $.ajax({
 b = $.ajax({
   url: "../static/json/satellite_info.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
   }
@@ -565,7 +565,7 @@ b = $.ajax({
 C = $.ajax({
   url: "../static/json/satellite_info2.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
   }
@@ -574,7 +574,7 @@ C = $.ajax({
 d = $.ajax({
   url: "../static/json/satellite_info3.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
   }
@@ -582,7 +582,7 @@ d = $.ajax({
 e = $.ajax({
   url: "../static/json/satellite_info4.json",
   type: "GET",
-  dataType: "json", 
+  dataType: "json",
   async: false,
   success: function (data) {
 
@@ -710,7 +710,7 @@ function newset() {
 
 
   }
-  
+
   else {
     for (var i = 0; i < result5['counts']['nums']; i++) {
       str = 'sat' + i
@@ -765,7 +765,7 @@ function newset() {
       td_y.textContent = ""
       td_z.textContent = ""
       td_g.textContent = ""
-  
+
     }
     else {
       td_t1.textContent = "Time"
@@ -875,6 +875,8 @@ function neworbitcal() {
   data_z2 = [];
   data_z3 = [];
   data_z4 = [];
+  timegap_rinex=[]
+  timegap_sp3=[]
 
   text1.value = "";
   ii = 26;
@@ -903,18 +905,21 @@ function neworbitcal() {
 
     if (i == 0) {
       text1.value = fix("Time", 12);
+      cb_textarea.value=fix("Time",12)+'\t\t'
       if (c1.checked == true) {
         text1.value = text1.value + fix("X(TLE)", 22)  + fix("Y(TLE)", 16)  + fix("Z(TLE)", 16) ;
         if (c4.checked == true) {
           text1.value = text1.value + fix("X(YUMA)", 17)  + fix("Y(YUMA)", 16)  + fix("Z(YUMA)", 16) ;
         }
         if (c2.checked == true) {
+          cb_textarea.value=cb_textarea.value+fix("Clock bias(Rinex)[us]",18)
           text1.value = text1.value + fix("X(Rinex)", 17)  + fix("Y(Rinex)", 16)  + fix("Z(Rinex)", 16) ;
         }
         if (c3.checked == true) {
+          cb_textarea.value=cb_textarea.value+fix("Clock bias(SP3)[us]",22)
           text1.value = text1.value + fix("X(SP3)", 15)  + fix("Y(SP3)", 16)  + fix("Z(SP3)", 16) ;
         }
-  
+
       }
       else{
         if (c4.checked == true) {
@@ -928,13 +933,16 @@ function neworbitcal() {
         }
         else{
           if (c2.checked == true) {
+            cb_textarea.value=cb_textarea.value+fix("Clock bias(Rinex)",18)
             text1.value = text1.value + fix("X(Rinex)", 22)  + fix("Y(Rinex)", 16)  + fix("Z(Rinex)", 16) ;
             if (c3.checked == true) {
+              cb_textarea.value=cb_textarea.value+fix("Clock bias(SP3)",22)
               text1.value = text1.value + fix("X(SP3)", 15)  + fix("Y(SP3)", 16)  + fix("Z(SP3)", 16) ;
             }
           }
           else{
             if (c3.checked == true) {
+              cb_textarea.value=cb_textarea.value+fix("Clock bias(SP3)",22)
               text1.value = text1.value + fix("X(SP3)", 22)  + fix("Y(SP3)", 16)  + fix("Z(SP3)", 16) ;
             }
           }
@@ -954,6 +962,7 @@ function neworbitcal() {
 
           timelist.push(result3[id][timeid]["epoch"].slice(11, 16));
           text1.value = text1.value + fix(result3[id][timeid]["epoch"].replace("T", " "), 20) + "\t";
+          cb_textarea.value=cb_textarea.value+fix(result3[id][timeid]["epoch"].replace("T", " "), 20) + "\t";
           if (c1.checked == true) {
             if (!window.result2[id][timeid]) {
 
@@ -984,10 +993,12 @@ function neworbitcal() {
               fix(parseFloat(result5[id][timeid].Y_k).toFixed(3), 12) + "\t" +
               fix(parseFloat(result5[id][timeid].Z_k).toFixed(3), 12)+ "\t";
           }
-          
+
           data_x2.push(result3[id][timeid]['X_k']);
           data_y2.push(result3[id][timeid]['Y_k']);
           data_z2.push(result3[id][timeid]['Z_k']);
+          timegap_rinex.push(result3[id][timeid]['ct'])
+          cb_textarea.value=cb_textarea.value+fix((parseFloat(result3[id][timeid]['ct'])*1000000).toFixed(3), 12) + '\t\t'
           text1.value = text1.value +
             fix(parseFloat(result3[id][timeid]['X_k']).toFixed(3), 12) + '\t' +
             fix(parseFloat(result3[id][timeid]['Y_k']).toFixed(3), 12) + '\t' +
@@ -995,7 +1006,7 @@ function neworbitcal() {
           if (c3.checked == true) {
             if (!window.result4[id]||!window.result4[id][timeid]) {
               modal.innerHTML = 'No match data in the SP3 file';
-              document.body.style.pointerEvents = 'auto';     
+              document.body.style.pointerEvents = 'auto';
               confirmBtn.textContent = 'Confirm';
               confirmBtn.addEventListener('click', onConfirm);
               modal.appendChild(confirmBtn);
@@ -1004,9 +1015,12 @@ function neworbitcal() {
             data_x3.push(result4[id][timeid][0]);
             data_y3.push(result4[id][timeid][1]);
             data_z3.push(result4[id][timeid][2]);
+            timegap_sp3.push(result4[id][timeid][3])
+            cb_textarea.value=cb_textarea.value+fix(parseFloat(result4[id][timeid][3]).toFixed(3), 12) + '\t'
+
             text1.value = text1.value + fix(parseFloat(result4[id][timeid][0]).toFixed(3), 12) + '\t' +
               fix(parseFloat(result4[id][timeid][1]).toFixed(3), 12) + '\t' +
-              fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12) 
+              fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12)
 
 
           }
@@ -1081,9 +1095,11 @@ function neworbitcal() {
           data_x3.push(result4[id][timeid][0]);
           data_y3.push(result4[id][timeid][1]);
           data_z3.push(result4[id][timeid][2]);
+          timegap_sp3.push(result4[id][timeid][3])
+          cb_textarea.value=cb_textarea.value+fix(parseFloat(result4[id][timeid][3]).toFixed(3), 12) + '\t'
           text1.value = text1.value + fix(parseFloat(result4[id][timeid][0]).toFixed(3), 12) + '\t' +
             fix(parseFloat(result4[id][timeid][1]).toFixed(3), 12) + '\t' +
-            fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12) 
+            fix(parseFloat(result4[id][timeid][2]).toFixed(3), 12)
 
         }
 
@@ -1092,6 +1108,7 @@ function neworbitcal() {
 
 
     text1.value = text1.value + '\n';
+    cb_textarea.value=cb_textarea.value+'\n'
   }
 
   gap_x1 = [];
@@ -1103,13 +1120,13 @@ function neworbitcal() {
   gap_z1 = [];
   gap_z2 = [];
   gap_z3 = [];
+  timegap_dif=[]
 
-  
   for (var z = 0; z < data_x1.length; z++) {
     gap_x1[z] = ((data_x1[z] - data_x3[z]) / 1000).toFixed(2);
     gap_y1[z] = ((data_y1[z] - data_y3[z]) / 1000).toFixed(2);
     gap_z1[z] =( (data_z1[z] - data_z3[z]) / 1000).toFixed(2);
-
+    timegap_dif[z]=timegap_sp3[z]*1000-timegap_rinex[z]*1000000000
   }
   for (var z = 0; z < data_x2.length; z++) {
     gap_x2[z] = (data_x2[z] - data_x3[z]).toFixed(2);
@@ -1131,7 +1148,14 @@ function neworbitcal() {
   y3_rms=calculateRMS(gap_y3).toFixed(2);
   z3_rms=calculateRMS(gap_z3).toFixed(2);
 
-  paintchart();
+
+let sum = timegap_dif.reduce((acc, num) => acc + num, 0);
+for(var z in timegap_dif){
+  timegap_dif[z]=timegap_dif[z]-sum/timegap_dif.length
+}
+console.log(timegap_dif,calculateRMS(timegap_dif))
+paintchart();
+paintClockBiasChart();
 }
 function fix(num, length) {
   return ('' + num).length < length ? ((new Array(length + 1)).join(' ') + num).slice(-length) : '' + num;
@@ -1199,17 +1223,17 @@ function paintchart() {
       trigger: 'axis'
     },
     legend: {
-      orient: 'vertical', 
+      orient: 'vertical',
       align: 'left',
       right:'70px',
       y: '10px',
       backgroundColor: 'rgba(0,0,0,0)',
       borderColor: '#ccc',
       borderWidth: 0,
-      padding: 0, 
+      padding: 0,
       itemGap: 2,
       itemWidth: 20,
-      itemHeight: 10, 
+      itemHeight: 10,
       textStyle: {
         color: 'black'
       },
@@ -1224,8 +1248,8 @@ function paintchart() {
           var objectname='RMS_Z='+z2_rms
         }
 
-        
-        return objectname 
+
+        return objectname
       },
     },
     xAxis: {
@@ -1244,7 +1268,7 @@ function paintchart() {
       axisLine: {
 
         lineStyle: {
-          color: 'black', 
+          color: 'black',
         },
       },
       data: timelist
@@ -1266,7 +1290,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black', 
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1340,8 +1364,8 @@ function paintchart() {
           var objectname='RMS_Z='+z3_rms
         }
 
-        
-        return objectname 
+
+        return objectname
       },
     },
     xAxis: {
@@ -1380,7 +1404,7 @@ function paintchart() {
       },
       axisLine: {
         lineStyle: {
-          color: 'black', 
+          color: 'black',
         },
       },
       axisLabel: {
@@ -1435,7 +1459,7 @@ function paintchart() {
       borderColor: '#ccc',
       borderWidth: 0,
       padding: 0,
-      itemGap: 2, 
+      itemGap: 2,
       itemWidth: 20,
       itemHeight: 10,
       textStyle: {
@@ -1451,8 +1475,8 @@ function paintchart() {
         if(legendName=='dz'){
           var objectname='RMS_Z='+z1_rms
         }
-        
-        return objectname 
+
+        return objectname
       },
     },
     xAxis: {
@@ -1528,6 +1552,199 @@ function paintchart() {
   myChart6.setOption(option6);
 
 }
+function paintClockBiasChart() {
+
+  var biasList = timegap_dif;  // Extract the bias values
+  var chart = echarts.init(document.getElementById('clock_bias_chart'));
+  objecttime = document.getElementById('objtime').value
+  year = objecttime.slice(0, 4)
+  month = objecttime.slice(5, 7)
+  day = objecttime.slice(8, 10)
+
+  paintime = year + "-" + month + "-" + day
+  var option = {
+    title: {
+      text: paintime,
+      x: 'center',
+      y: 'top',
+      top: 20,
+      textStyle: {
+        color: 'black',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 18,
+      },
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      orient: 'vertical',
+      align: 'left',
+      right:'70px',
+      y: '10px'      ,
+      backgroundColor: 'rgba(0,0,0,0)',
+      borderColor: '#ccc',
+      borderWidth: 0,
+      padding: 0,
+
+      itemGap: 2,
+
+      itemWidth: 20,
+      itemHeight: 10,
+      textStyle: {
+        color: 'black'
+      },
+      formatter: function (legendName) {
+
+          var objectname='RMS='+calculateRMS(timegap_dif).toFixed(2)
+
+
+        return objectname
+      },
+    },
+    xAxis: {
+      name: 'Time',
+      nameLocation: "center",
+      nameTextStyle: {
+        fontSize: 16,
+        padding: 10,
+        color: 'black'
+      },
+      axisLabel: {
+        color: 'black'
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'black'
+        }
+      },
+      data: timelist
+    },
+    yAxis: {
+      name: 'Clock Error[ns]',
+      nameLocation: "center",
+      nameTextStyle: {
+        fontSize: 16,
+        padding: 10,
+        color: 'black'
+      },
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: 'dashed'
+        }
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'black'
+        }
+      },
+      axisLabel: {
+        color: 'black'
+      }
+    },
+    series: [{
+      showSymbol: false,
+      name: 'Clock Error',
+      type: 'line',
+      color: "blue",
+      data: biasList
+    }]
+  };
+
+  chart.setOption(option);
+  }
+
+  function showPanel(panelId) {
+  document.getElementById('text1').style.display = 'none';
+  document.getElementById('chart2').style.display = 'none';
+  document.getElementById('clock_bias').style.display = 'none';
+  dt=document.getElementById('downtext')
+  dc=document.getElementById('btndownchart')
+  document.getElementById(panelId).style.display = 'block';
+  if (panelId == 'text1') {
+    dt.style.display = 'block';
+    dc.style.display = 'none';
+  }
+  if (panelId == 'chart2') {
+    dc.style.display = 'block';
+    dt.style.display = 'none';
+  }
+  }
+  function showPanel(panelId) {
+  document.getElementById('text1').style.display = 'none';
+  document.getElementById('chart2').style.display = 'none';
+  document.getElementById('clock_bias').style.display = 'none';
+  document.getElementById(panelId).style.display = 'block';
+  dt=document.getElementById('downtext')
+  if (panelId === 'chart2') {
+    document.getElementById('btndownchart').style.display = 'block';
+  } else {
+    document.getElementById('btndownchart').style.display = 'none';
+  }
+  if (panelId === 'text1') {
+    dt.style.display = 'block';
+  } else {
+    dt.style.display = 'none';
+  }
+  if (panelId === 'clock_bias') {
+    var cbTextAreaVisible = document.getElementById('cb_textarea').style.display !== 'none';
+    document.getElementById('downclocktext').style.display = cbTextAreaVisible ? 'block' : 'none';
+    document.getElementById('downclockchart').style.display = cbTextAreaVisible ? 'none' : 'block';
+
+  } else {
+    document.getElementById('downclocktext').style.display = 'none';
+    document.getElementById('downclockchart').style.display = 'none';
+  }
+  }
+  function showClockBiasPanel(panelId) {
+  document.getElementById('cb_textarea').style.display = 'none';
+  document.getElementById('clock_bias_chart').style.display = 'none';
+
+  document.getElementById(panelId).style.display = 'block';
+  if (panelId === 'cb_textarea') {
+    document.getElementById('downclocktext').style.display = 'block';
+    document.getElementById('downclockchart').style.display = 'none';
+  } else {
+    document.getElementById('downclocktext').style.display = 'none';
+    document.getElementById('downclockchart').style.display = 'block';
+  }
+  }
+  function downClockText() {
+  savecontent = [];
+  savecontent.push(cb_textarea.value)
+  alert(savecontent);
+  var file = new File(
+    savecontent,
+    "Clock_bias.txt",
+    { type: "text/plain;charset=utf-8" }
+  );
+  saveAs(file);
+  }
+  function downClockChart() {
+  if (document.getElementById('clock_bias_chart').style.display == 'block') {
+    var obj = '#clock_bias_chart'
+  }
+  else {
+    alert('no pictrue')
+  }
+
+  html2canvas($(obj), {
+    backgroundColor: '#ffffff',
+    height: ($("#contbox").outerHeight()) * 10,
+    width: ($("#contbox").outerWidth()) * 10,
+    scale: 10,
+    logging: true,
+    foreignObjectRendering: true,
+    useCORS: true,
+    onrendered: function (canvas) {
+      var img = convertCanvasToImage(canvas);
+      download(img.src)
+    }
+  });
+
+  }
 
 function show2() {
   id = $("input[name='b']:checked").val();
@@ -1625,7 +1842,7 @@ function jiequ() {
 function convertCanvasToImage(canvas) {
   var image = new Image();
 
-  image.src = canvas.toDataURL("image/png"); 
+  image.src = canvas.toDataURL("image/png");
   return image;
 }
 

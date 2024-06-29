@@ -7,9 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/x-icon" href="../static/images/icon/app.ico">
   <title>BDViSim</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-
+  <script src="../static/libs/Cesium/Cesium.js"></script>
+  <link href="../static/libs/Cesium/Widgets/widgets.css" rel="stylesheet"> <!-- 加样式条属性指定文档关系 -->
+  <script src="../static/libs/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script>
   <script type="text/javascript" src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -41,13 +41,14 @@
     }
 
     * {
-  
+
   box-sizing: border-box;
   text-decoration: none;
-  
+
 
 }
 .header {
+  /* position: fixed; */
   font-family: Arial, Helvetica, sans-serif;
   height: 6%;
   top: 0;
@@ -65,12 +66,12 @@
   color: white;
   padding: 0 1rem;
 }
-
+/* 导航样式 */
 .navbar ul{
   display: flex;
   margin: 0;
   padding: 0;
- 
+
   outline: none;
   border: none;
 }
@@ -91,7 +92,7 @@
 .navbar ul li a:hover{
   color: #41a4da;
 }
-
+/* 二级菜单样式 */
 .navbar ul li ul{
   position: absolute;
   display: none;
@@ -101,7 +102,7 @@
 .navbar ul li ul li{
   background-color: #3F3D56;
 }
-
+/* 悬浮展开二级菜单 */
 .navbar ul li ul li a:hover{
   color: white;
 }
@@ -181,7 +182,7 @@ font-size: 16px;
   border-right: 2px solid #02a6b5;
 }
 .element {
-  transform: translateZ(0); 
+  transform: translateZ(0);
   will-change: transform;
 }
   </style>
@@ -229,7 +230,7 @@ font-size: 16px;
   </a>
     <nav class="navbar">
       <ul >
-        <li><a href="/">Home</a></li>
+        <li><a href="/mainviewen">Home</a></li>
         <li><a href="/kepleren">Orbit Cognition</a></li>
         <li style="background-color: #3e5a6baf;"><a href="/orbitcalen">Orbit Calculation</a>
             <!-- <ul class="hide">
@@ -285,6 +286,7 @@ font-size: 16px;
       </form>
       <div style="position:absolute;left:85px;bottom:10px">
         <button style="margin-right:30px" id="btnupload">import</button>
+        <!-- <button style="margin-right:30px" id="btnupload2">导入2</button> -->
         <button onclick="switchorbits()">cancel</button>
       </div>
 
@@ -673,14 +675,14 @@ font-size: 16px;
           <div class="chart" style="height: 100%;">
             <div id="div5" style="padding:1px;margin-left: 10px; height:460px;">
               <span style="width:400px;margin:0px; ">
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r1" name="a" value="text1"
-                  type="radio" checked="true" onclick="show1()">
-                <label id="cl1" style="color:#ffffff;">Orbit coordinates</label></input>
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r1" name="a" value="text1" type="radio" checked="true" onclick="showPanel('text1')">
+                <label id="cl1" style="color:#ffffff;">Orbits coordinates</label></input>
 
-                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r3" name="a"
-                  value="chart2" type="radio" onclick="show1()">
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r3" name="a" value="chart2" type="radio" onclick="showPanel('chart2')">
                 <label id="cl3" style="color:#ffffff;">Error sequence</label></input>
 
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" id="r4" name="a" value="clock_bias" type="radio" onclick="showPanel('clock_bias')">
+                <label id="cl4" style="color:#ffffff;">Clock bias</label></input>
               </span>
 
               <textarea id="text1" class="stext"
@@ -689,20 +691,19 @@ font-size: 16px;
 
               <div id="chart2"
                 style="background-color: rgba(168, 166, 166, 0.5);border:1px solid #C0C0C0;display:none; width:650px; height: 400px;color: #ffffff;">
-                <div
-                  style="color: #020202;font-size: 13px;position: absolute;z-index: 999;width:650px;margin-bottom: 20px;">
+                <div style="color: #020202;font-size: 13px;position: absolute;z-index: 999;width:650px;margin-bottom: 10px;">
                   <input style=" border: none;width: auto;border-radius:5px;cursor:pointer;" name="c" value="gap_chart3"
-                    type="radio" checked="true" onclick="show3()">
+                  type="radio" checked="true" onclick="show3()">
                   TLE Almanac</input>
-                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" name="c" value="gap_chart2"
-                    type="radio" onclick="show3()">
+                <input style="border: none;width: auto;border-radius:5px;cursor:pointer;" name="c" value="gap_chart2"
+                  type="radio" onclick="show3()">
                   YUMA Almanac</input>
-                  <input style=" border: none;width: auto;border-radius:5px;cursor:pointer;" name="c" value="gap_chart1"
-                    type="radio" onclick="show3()">
-                  Broadcast Ephemeris</input>
-                  <input type="color" id="colorPicker" value="#ffffff" class="custom-color-picker">
+                <input style=" border: none;width: auto;border-radius:5px;cursor:pointer;" name="c" value="gap_chart1"
+                  type="radio" onclick="show3()">
+                Broadcast Ephemeris</input>
+                <input type="color" id="colorPicker" value="#ffffff" class="custom-color-picker">
                 </div>
-                <br />
+                <br/>
 
 
 
@@ -713,12 +714,26 @@ font-size: 16px;
                 <div id="gap_chart3" style="display:block; width:650px; height: 380px;">
                 </div>
               </div>
-              <button id="downtext"
-                style="cursor: pointer; color: #ffffff;float: right;align-items: center;margin-right: 25px;margin-top: 5px;background-color: #575f6460;"
-                onclick="downresult()">Export text</button>
-              <button id="btndownchart"
-                style="cursor: pointer;color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;"
-                onclick="jiequ()">Export diagram</button>
+              <div id="clock_bias" style="display:none;width:650px; height: 400px; background-color: rgba(168, 166, 166, 0.5); color: #ffffff;">
+                <div style="color: #020202;font-size: 13px;position: absolute;z-index: 999;width:650px;margin-bottom: 10px;">
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;"  name="cb" value="cb_textarea" type="radio" checked="true" onclick="showClockBiasPanel('cb_textarea')">
+                  <label for="cb_text" style="color:#ffffff;">Clock bias</label></input>
+
+                  <input style="border: none;width: auto;border-radius:5px;cursor:pointer;"  name="cb" value="clock_bias_chart" type="radio" onclick="showClockBiasPanel('clock_bias_chart')">
+                  <label for="clock_bias_chart" style="color:#ffffff;">Clock error</label></input>
+                </div>
+                <br/>
+
+                  <textarea id="cb_textarea" class="stext" style="border: none;width:650px; height: 380px; overflow:scroll; background-color: rgba(141, 151, 180, 0.21); color: #ffffff;" wrap="off"></textarea>
+
+                  <div id="clock_bias_chart" style="display:none; width:650px; height: 350px;">
+                    <!-- <div style="width: 100%; height: 100%;" id="clock_bias_chart"></div> -->
+                  </div>
+              </div>
+              <button id="downtext" style="cursor: pointer; color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;" onclick="downresult()">Import text</button>
+              <button id="btndownchart" style="cursor: pointer;color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;" onclick="jiequ()">Import diagram</button>
+              <button id="downclocktext" style="cursor: pointer; color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;" onclick="downClockText()">Import text</button>
+              <button id="downclockchart" style="cursor: pointer;color: #ffffff;float: right;align-items: center;margin-right: 20px;margin-top: 5px;background-color: #575f6460;display: none;" onclick="downClockChart()">Import diagram</button>
             </div>
           </div>
           <div class="panel-footer"></div>
